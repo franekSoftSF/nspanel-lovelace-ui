@@ -1,0 +1,55 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "NSPanel Lovelace UI",
+        "description": "Panels and cards are configured in a YAML file in the Home Assistant configuration folder (same format as the add-on's panels.yaml). To migrate, enter your AppDaemon apps.yaml (or an add-on panels.yaml) as the import file; it is converted into the configuration file, which must not exist yet.\n\n{error}",
+        "data": {
+          "config_file": "Configuration file",
+          "import_file": "Import from (optional)"
+        },
+        "data_description": {
+          "config_file": "Path relative to the configuration folder, e.g. nspanel_lovelace_ui/panels.yaml.",
+          "import_file": "Path relative to the configuration folder, e.g. appdaemon/apps/apps.yaml."
+        }
+      },
+      "reconfigure": {
+        "title": "NSPanel Lovelace UI",
+        "description": "Change the configuration file or import another one.\n\n{error}",
+        "data": {
+          "config_file": "Configuration file",
+          "import_file": "Import from (optional)"
+        },
+        "data_description": {
+          "config_file": "Path relative to the configuration folder, e.g. nspanel_lovelace_ui/panels.yaml.",
+          "import_file": "Path relative to the configuration folder, e.g. appdaemon/apps/apps.yaml."
+        }
+      }
+    },
+    "error": {
+      "config_exists": "The configuration file already exists. Choose another path or clear the import field.",
+      "invalid_config": "The configuration is invalid (see the message above).",
+      "mqtt_not_configured": "The MQTT integration is not set up. Add it first, or set use_ha_api: true for the ESPHome firmware.",
+      "path_outside_config": "Files must be inside the Home Assistant configuration folder."
+    },
+    "abort": {
+      "already_configured": "NSPanel Lovelace UI is already set up. Add panels to the configuration file.",
+      "single_instance_allowed": "NSPanel Lovelace UI is already set up. Add panels to the configuration file.",
+      "reconfigure_successful": "The configuration was updated."
+    }
+  },
+  "exceptions": {
+    "invalid_config": {
+      "message": "Invalid NSPanel configuration: {error}"
+    },
+    "mqtt_not_ready": {
+      "message": "MQTT is not connected yet."
+    }
+  },
+  "services": {
+    "reload": {
+      "name": "Reload",
+      "description": "Re-reads the panel configuration file and restarts all panels."
+    }
+  }
+}

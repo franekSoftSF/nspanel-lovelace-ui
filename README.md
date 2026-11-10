@@ -14,6 +14,7 @@ NsPanel Lovelace UI is a Firmware for the nextion screen inside of NSPanel in th
 Supported Home Automation Systems:
 
 - [Home Assistant](https://docs.nspanel.pky.eu/prepare_nspanel/) - Home Assistant add-on with web editor
+- Home Assistant (native integration, this fork) - `custom_components/nspanel_lovelace_ui`, no AppDaemon, no add-on, works on Home Assistant 2026.11+ (HACS was replaced by the Marketplace). See [INTEGRATION.md](INTEGRATION.md) / [INTEGRATION.pl.md](INTEGRATION.pl.md)
 - [ioBroker](https://docs.nspanel.pky.eu/prepare_nspanel_ioBroker/) - 3rd-party Typescript Backend maintained by @britzelpuf and @Armilar
 
 NsPanel needs to be flashed with Tasmota (or through a 3rd-party Component with ESPHome)
