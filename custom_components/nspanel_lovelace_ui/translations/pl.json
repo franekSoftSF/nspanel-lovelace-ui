@@ -1,0 +1,55 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "NSPanel Lovelace UI",
+        "description": "Panele i karty konfiguruje się w pliku YAML w folderze konfiguracji Home Assistant (ten sam format co panels.yaml z dodatku). Aby przenieść konfigurację, podaj apps.yaml z AppDaemon (albo panels.yaml z dodatku) jako plik do importu. Zostanie on przekonwertowany do pliku konfiguracji, który nie może jeszcze istnieć.\n\n{error}",
+        "data": {
+          "config_file": "Plik konfiguracji",
+          "import_file": "Importuj z (opcjonalnie)"
+        },
+        "data_description": {
+          "config_file": "Ścieżka względem folderu konfiguracji, np. nspanel_lovelace_ui/panels.yaml.",
+          "import_file": "Ścieżka względem folderu konfiguracji, np. appdaemon/apps/apps.yaml."
+        }
+      },
+      "reconfigure": {
+        "title": "NSPanel Lovelace UI",
+        "description": "Zmień plik konfiguracji albo zaimportuj inny.\n\n{error}",
+        "data": {
+          "config_file": "Plik konfiguracji",
+          "import_file": "Importuj z (opcjonalnie)"
+        },
+        "data_description": {
+          "config_file": "Ścieżka względem folderu konfiguracji, np. nspanel_lovelace_ui/panels.yaml.",
+          "import_file": "Ścieżka względem folderu konfiguracji, np. appdaemon/apps/apps.yaml."
+        }
+      }
+    },
+    "error": {
+      "config_exists": "Plik konfiguracji już istnieje. Wybierz inną ścieżkę albo wyczyść pole importu.",
+      "invalid_config": "Konfiguracja jest nieprawidłowa (szczegóły powyżej).",
+      "mqtt_not_configured": "Integracja MQTT nie jest skonfigurowana. Dodaj ją najpierw albo ustaw use_ha_api: true dla firmware ESPHome.",
+      "path_outside_config": "Pliki muszą leżeć w folderze konfiguracji Home Assistant."
+    },
+    "abort": {
+      "already_configured": "NSPanel Lovelace UI jest już skonfigurowany. Dodaj panele w pliku konfiguracji.",
+      "single_instance_allowed": "NSPanel Lovelace UI jest już skonfigurowany. Dodaj panele w pliku konfiguracji.",
+      "reconfigure_successful": "Konfiguracja została zaktualizowana."
+    }
+  },
+  "exceptions": {
+    "invalid_config": {
+      "message": "Nieprawidłowa konfiguracja NSPanel: {error}"
+    },
+    "mqtt_not_ready": {
+      "message": "MQTT nie jest jeszcze połączone."
+    }
+  },
+  "services": {
+    "reload": {
+      "name": "Przeładuj",
+      "description": "Ponownie wczytuje plik konfiguracji paneli i restartuje wszystkie panele."
+    }
+  }
+}

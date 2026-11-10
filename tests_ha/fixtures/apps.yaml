@@ -1,0 +1,19 @@
+nspanel-1:
+  module: nspanel-lovelace-ui
+  class: NsPanelLovelaceUIManager
+  config:
+    panelRecvTopic: "tele/tasmota_panel/RESULT"
+    panelSendTopic: "cmnd/tasmota_panel/CustomSend"
+    updateMode: "auto-notify"
+    timezone: "Europe/Warsaw"
+    locale: "pl_PL"
+    screensaver:
+      entity: weather.home
+    cards:
+      - type: cardEntities
+        title: Test
+        entities:
+          - entity: light.bed_light
+other_app:
+  module: hello
+  class: HelloWorld
