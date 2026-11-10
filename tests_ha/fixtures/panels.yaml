@@ -1,0 +1,21 @@
+nspanels:
+  living_room:
+    panelRecvTopic: "tele/nspanel_test/RESULT"
+    panelSendTopic: "cmnd/nspanel_test/CustomSend"
+    timeFormat: "%H:%M"
+    timeZone: "Europe/Warsaw"
+    dateFormat: "full"
+    locale: "pl_PL"
+    updateMode: "manual"
+    sleepTimeout: 20
+    sleepBrightness: 10
+    screenBrightness: 100
+    screensaver:
+      entities: []
+    cards:
+      - type: cardEntities
+        title: Salon
+        entities:
+          - entity: light.bed_light
+          - entity: switch.decorative_lights
+            name: "ha:{{ 'Dekor ' ~ states('switch.decorative_lights') }}"

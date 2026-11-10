@@ -5,6 +5,8 @@ HMI/Nextion2Text.py
 
 # dont add panels.yaml
 panels.yaml
+# ...except the integration test fixture
+!tests_ha/fixtures/panels.yaml
 
 # don't add Webstorm project stuff
 .idea
