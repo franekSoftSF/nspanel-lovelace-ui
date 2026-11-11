@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 import yaml
 
 from homeassistant.config_entries import ConfigEntryState
@@ -152,3 +153,18 @@ async def test_nav_item1_override_on_hidden_card(hass: HomeAssistant, mqtt_mock,
     await wait_for(hass, lambda: any(p.startswith("entityUpd~Salon") for p in published(mqtt_mock)[count:]))
     await hass.config_entries.async_unload(entry.entry_id)
     await hass.async_block_till_done()
+
+
+@pytest.mark.parametrize(("option", "value"), [
+    ("weatherIcons", "colour"), ("weatherPictureBase", "26"), ("weatherPictureBase", -1),
+    ("timeTemplate", ""), ("largeIconFontId", 10),
+])
+def test_invalid_firmware_55_options(tmp_path: Path, option, value) -> None:
+    from custom_components.nspanel_lovelace_ui.config import ConfigError
+
+    config = yaml.safe_load((Path(__file__).parent / "fixtures" / "panels.yaml").read_text(encoding="utf-8"))
+    config["nspanels"]["living_room"][option] = value
+    path = tmp_path / "panels.yaml"
+    path.write_text(yaml.safe_dump(config), encoding="utf-8")
+    with pytest.raises(ConfigError, match=option):
+        load_config(path)

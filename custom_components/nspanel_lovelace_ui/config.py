@@ -85,6 +85,13 @@ def load_config(path: Path) -> tuple[dict[str, Any], list[str]]:
         font_id = panel.get("largeIconFontId", 7 if panel.get("model", "eu") == "us-p" else 8)
         if type(font_id) is not int or not 0 <= font_id <= 9:
             raise ConfigError(f"{name}.largeIconFontId must be a font ID from 0 to 9 (the HMI reads one digit)")
+        if panel.get("weatherIcons", "color") not in ("color", "font"):
+            raise ConfigError(f"{name}.weatherIcons must be color or font")
+        base = panel.get("weatherPictureBase")
+        if base is not None and (type(base) is not int or not 0 <= base <= 1000):
+            raise ConfigError(f"{name}.weatherPictureBase must be the picture ID of 00-main-clear-day")
+        if "timeTemplate" in panel and not (isinstance(panel["timeTemplate"], str) and panel["timeTemplate"].strip()):
+            raise ConfigError(f"{name}.timeTemplate must be a template text")
         if config.get("use_ha_api"):
             continue
         for key in ("panelRecvTopic", "panelSendTopic"):
