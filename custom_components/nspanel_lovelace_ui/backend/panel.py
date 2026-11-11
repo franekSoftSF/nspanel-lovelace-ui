@@ -27,6 +27,10 @@ class LovelaceUIPanel:
     def __init__(self, name_panel, settings_panel, msg_out_queue, use_ha_api=False):
         self.updater = FirmwareUpdater(settings_panel, msg_out_queue, use_ha_api)
         self.display_version = None
+        # Page types that ask for their content (event,renderCurrentPage). Older HMI builds
+        # (e.g. 53 before November 2023) do not ask on the screensaver: those are rendered
+        # right after the page switch, like the AppDaemon backend did.
+        self._requesting_pages = set()
         self._last_dim_command = None
         self._active_detail = None
         self._last_detail_payload = None
@@ -216,6 +220,9 @@ class LovelaceUIPanel:
         if switchPages:
             libs.panel_cmd.page_type(self.msg_out_queue, self.sendTopic, self.current_card.type)
         if requested:
+            self._requesting_pages.add(self.current_card.type)
+            self.current_card.render()
+        elif switchPages and self.current_card.type not in self._requesting_pages:
             self.current_card.render()
 
     def dimmode(self, only_if_changed=False):

@@ -107,20 +107,32 @@ def load_config(path: Path) -> tuple[dict[str, Any], list[str]]:
     return config, warnings
 
 
-APPS_CANDIDATES = ("appdaemon/apps/apps.yaml", "appdaemon/apps/apps.yml", "apps/apps.yaml")
-_APP_MARKERS = ("NsPanelLovelaceUIManager", "nspanel-lovelace-ui")
+APPS_FOLDERS = ("appdaemon/apps", "apps")
+_APP_CLASS = re.compile(r"^[ \t]+(class:[ \t]*NsPanelLovelaceUIManager|module:[ \t]*nspanel-lovelace-ui)[ \t]*(#.*)?$",
+                        re.MULTILINE)
 _SECRET = re.compile(r"!secret[ \t]+([A-Za-z0-9_.-]+)")
 
 
 def find_appdaemon_apps(config_dir: str) -> str | None:
-    """Relative path of an AppDaemon apps.yaml with an NSPanel app (the import default)."""
-    for relative in APPS_CANDIDATES:
-        path = Path(config_dir) / relative
-        try:
-            if path.is_file() and any(marker in path.read_text(encoding="utf-8") for marker in _APP_MARKERS):
-                return relative
-        except (OSError, UnicodeDecodeError):
+    """Relative path of the AppDaemon apps file with an NSPanel app (the import default).
+
+    AppDaemon reads every .yaml below its apps folder: the top-level apps.yaml comes first, then
+    the other files (subfolders too). Only a file that defines the app (class/module line) counts.
+    """
+    base = Path(config_dir)
+    for folder in APPS_FOLDERS:
+        root = base / folder
+        if not root.is_dir():
             continue
+        files = sorted(root.rglob("*.y*ml"), key=lambda p: (p.name != "apps.yaml", len(p.parts), str(p)))
+        for path in files[:200]:
+            if path.suffix not in (".yaml", ".yml") or not path.is_file():
+                continue
+            try:
+                if _APP_CLASS.search(path.read_text(encoding="utf-8")):
+                    return path.relative_to(base).as_posix()
+            except (OSError, UnicodeDecodeError):
+                continue
     return None
 
 
@@ -184,7 +196,8 @@ def disable_appdaemon_apps(source: Path, names: list[str]) -> Path:
     return backup
 
 
-def import_config(source: Path, target: Path, config_dir: Path | None = None) -> ImportResult:
+def import_config(source: Path, target: Path, config_dir: Path | None = None,
+                  time_zone: str | None = None) -> ImportResult:
     """Convert an AppDaemon apps.yaml (or an add-on panels.yaml) into ``target``.
 
     Never overwrites: an existing target raises ConfigExistsError. ``!secret`` values are
@@ -196,7 +209,8 @@ def import_config(source: Path, target: Path, config_dir: Path | None = None) ->
         text = source.read_text(encoding="utf-8")
     except OSError as err:
         raise ConfigError(f"Cannot read {source}: {err}") from err
-    result = import_yaml(_resolve_secrets(text, source, config_dir))
+    result = import_yaml(_resolve_secrets(text, source, config_dir),
+                         time_zone=time_zone or "Europe/Berlin", integration=True)
     if result["errors"]:
         raise ConfigError("; ".join(result["errors"]))
     target.parent.mkdir(parents=True, exist_ok=True)

@@ -3,7 +3,7 @@
     python HMI/code_gen/icons/update_mdi.py
 
 Writes
-  - HMI/code_gen/icons/icons.json (input of icons.py for the other backends)
+  - HMI/code_gen/icons/icons.json (icon name -> code point table, reference)
   - custom_components/nspanel_lovelace_ui/backend/libs/icon_mapping.py (the integration)
 The mapping contains every MDI name and alias (aliases keep renamed icons working). Names MDI
 removed without an alias are dropped (they fall back to alert-circle-outline): MDI 7 reused some
@@ -47,7 +47,7 @@ def main() -> int:
     icons = mdi.load_meta()
     mapping = build_mapping(icons)
 
-    # Names only: icons.py (other backends) reads name -> hex.
+    # Names only: name -> hex table (reference).
     entries = {icon["name"]: icon["nextion"] for icon in icons}
     # Same layout as the original file (keeps the diff to the changed icons).
     ICONS_JSON.write_text(json.dumps(

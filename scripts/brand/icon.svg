@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!-- NSPanel: wall panel with the Lovelace UI screensaver (moon, cloud, forecast) and two buttons -->
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b3f45"/>
+      <stop offset="1" stop-color="#25282c"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0e2a4a"/>
+      <stop offset="1" stop-color="#081626"/>
+    </linearGradient>
+  </defs>
+  <rect x="12" y="12" width="232" height="232" rx="30" fill="url(#body)" stroke="#6b7178" stroke-width="4"/>
+  <rect x="32" y="32" width="192" height="128" rx="12" fill="url(#screen)"/>
+  <!-- clock bars -->
+  <rect x="62" y="48" width="132" height="22" rx="11" fill="#e8f1fb"/>
+  <rect x="78" y="80" width="100" height="6" rx="3" fill="#7fa6cc"/>
+  <!-- weather: moon behind a cloud -->
+  <circle cx="72" cy="116" r="17" fill="#ffc107"/>
+  <circle cx="80" cy="110" r="15" fill="#0e2a4a"/>
+  <path d="M60 146 h52 a14 14 0 0 0 0 -28 a20 20 0 0 0 -38 4 a12 12 0 0 0 -14 24 z" fill="#cfd8e3"/>
+  <!-- forecast: sun, cloud, drop -->
+  <circle cx="146" cy="124" r="9" fill="#ffc107"/>
+  <path d="M168 134 h20 a7 7 0 0 0 0 -14 a10 10 0 0 0 -19 2 a6 6 0 0 0 -1 12 z" fill="#cfd8e3"/>
+  <path d="M206 110 Q198 121 198 126 A8 8 0 0 0 214 126 Q214 121 206 110 Z" fill="#03a9f4"/>
+  <!-- buttons -->
+  <rect x="32" y="176" width="92" height="48" rx="10" fill="#1d2023" stroke="#4a4f55" stroke-width="2"/>
+  <rect x="132" y="176" width="92" height="48" rx="10" fill="#1d2023" stroke="#4a4f55" stroke-width="2"/>
+  <rect x="44" y="186" width="14" height="4" rx="2" fill="#03a9f4"/>
+  <rect x="144" y="186" width="14" height="4" rx="2" fill="#03a9f4"/>
+</svg>

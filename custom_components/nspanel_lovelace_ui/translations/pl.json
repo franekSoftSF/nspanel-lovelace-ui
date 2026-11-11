@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "NSPanel Lovelace UI",
+        "title": "NSPanel Lovelace UI (by Szymi)",
         "description": "Panele i karty konfiguruje się w pliku YAML w folderze konfiguracji Home Assistant (ten sam format co panels.yaml z dodatku). Aby przenieść konfigurację, podaj apps.yaml z AppDaemon (albo panels.yaml z dodatku) jako plik do importu. Zostanie on przekonwertowany do pliku konfiguracji, który nie może jeszcze istnieć.\n\n{error}",
         "data": {
           "config_file": "Plik konfiguracji",
@@ -16,7 +16,7 @@
         }
       },
       "reconfigure": {
-        "title": "NSPanel Lovelace UI",
+        "title": "NSPanel Lovelace UI (by Szymi)",
         "description": "Zmień plik konfiguracji albo zaimportuj inny.\n\n{error}",
         "data": {
           "config_file": "Plik konfiguracji",
@@ -87,7 +87,7 @@
     },
     "update_berry_driver": {
       "name": "Aktualizuj sterownik Berry",
-      "description": "Wysyła sterownik Berry (autoexec.be) z lokalnego pakietu firmware do paneli z Tasmotą. Panele potem się restartują.",
+      "description": "Wysyła sterownik Berry (nsp-lovelace-driver.tapp) z pakietu firmware do paneli z Tasmotą; instalacja autoexec.be jest przenoszona na .tapp. Panele potem się restartują.",
       "fields": {
         "panel": {
           "name": "Panel",

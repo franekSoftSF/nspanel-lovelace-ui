@@ -44,7 +44,7 @@ class NSPanelConfigFlow(ConfigFlow, domain=DOMAIN):
             if source_name := (user_input.get(CONF_IMPORT_FILE) or "").strip():
                 source = resolve_path(config_dir, source_name)
                 result = await self.hass.async_add_executor_job(
-                    import_config, source, target, Path(config_dir))
+                    import_config, source, target, Path(config_dir), self.hass.config.time_zone)
                 for warning in result.warnings:
                     _LOGGER.warning("Import: %s", warning)
                 self._import = (source, source_name, result)
@@ -114,7 +114,7 @@ class NSPanelConfigFlow(ConfigFlow, domain=DOMAIN):
             if not errors:
                 await self._async_finish_import(user_input)
                 return self.async_create_entry(
-                    title="NSPanel Lovelace UI",
+                    title="NSPanel Lovelace UI (by Szymi)",
                     data={CONF_CONFIG_FILE: user_input[CONF_CONFIG_FILE]},
                 )
         return self.async_show_form(

@@ -49,7 +49,7 @@ Updates: copy the folder again and restart.
 ## Configuration
 
 1. Create `<config>/nspanel_lovelace_ui/panels.yaml` – the same format as the add-on
-   ([example](nspanel-lovelace-ui/rootfs/usr/bin/mqtt-manager/panels.yaml.example)). MQTT server/credentials and
+   ([example](examples/panels.yaml)). MQTT server/credentials and
    `home_assistant_*` keys are ignored: the integration uses Home Assistant's own connections.
 2. Settings → Devices & services → Add integration → **NSPanel Lovelace UI**.
 3. *Configuration file*: `nspanel_lovelace_ui/panels.yaml` (relative to the config folder).
@@ -106,6 +106,20 @@ and flash it with the **Display firmware** update entity of each panel. Building
 MDI 7 icon fonts, publishing it and installing the package: [HMI/FIRMWARE.md](HMI/FIRMWARE.md).
 
 ## Changelog
+
+### 5.2.2
+Found while migrating a real panel (HMI 53 from 2023, AppDaemon from HACS) to firmware 55:
+- Displays that do not ask for the screensaver content (older HMI 53 builds) get it right after the page
+  switch, like AppDaemon did – the weather no longer stays empty before the firmware update.
+- A display update prompt that is not on the screen (covered by another backend) no longer blocks the
+  panel: the next touch dismisses it.
+- Import: a panel without cards gets a sample card instead of failing; a missing `timeZone` takes Home
+  Assistant's time zone; the setup dialog also finds the AppDaemon apps file in subfolders of
+  `appdaemon/apps`; the add-on-only connection hint is gone.
+- Integration icon (Home Assistant 2026.3+ reads it from `brand/`); README: remote updates.
+- The repository contains only the integration now: the AppDaemon app, the add-on, ioBroker, IP-Symcon,
+  Node-RED, the mkdocs documentation and their workflows were removed (the git history and the original
+  project keep them). Example configuration: [examples/panels.yaml](examples/panels.yaml).
 
 ### 5.2.1
 - The display firmware package is downloaded automatically from the GitHub release with the integration's

@@ -49,7 +49,7 @@ Aktualizacja: skopiuj folder ponownie i zrestartuj.
 ## Konfiguracja
 
 1. Utwórz `<config>/nspanel_lovelace_ui/panels.yaml` w tym samym formacie co dla dodatku
-   ([przykład](nspanel-lovelace-ui/rootfs/usr/bin/mqtt-manager/panels.yaml.example)). Klucze serwera i haseł MQTT oraz
+   ([przykład](examples/panels.yaml)). Klucze serwera i haseł MQTT oraz
    `home_assistant_*` są ignorowane, bo integracja używa połączeń samego Home Assistant.
 2. Ustawienia → Urządzenia i usługi → Dodaj integrację → **NSPanel Lovelace UI**.
 3. *Plik konfiguracji*: `nspanel_lovelace_ui/panels.yaml` (ścieżka względem folderu konfiguracji).
@@ -106,6 +106,20 @@ wgrywać go encją aktualizacji **Firmware ekranu** każdego panelu. Budowa firm
 wydanie i instalacja pakietu: [HMI/FIRMWARE.pl.md](HMI/FIRMWARE.pl.md).
 
 ## Historia zmian
+
+### 5.2.2
+Poprawki z migracji prawdziwego panelu (HMI 53 z 2023, AppDaemon z HACS) na firmware 55:
+- Ekrany, które nie proszą o zawartość wygaszacza (starsze wydania HMI 53), dostają ją zaraz po
+  zmianie strony, jak w AppDaemon – pogoda nie jest już pusta przed aktualizacją firmware.
+- Okienko aktualizacji ekranu, którego nie widać (przykrył je inny backend), nie blokuje już panelu:
+  następne dotknięcie je zamyka.
+- Import: panel bez kart dostaje przykładową kartę zamiast błędu; brakujący `timeZone` bierze strefę
+  czasową Home Assistant; kreator znajduje plik aplikacji AppDaemon także w podfolderach `appdaemon/apps`;
+  zniknęła podpowiedź dotycząca tylko dodatku.
+- Ikona integracji (Home Assistant 2026.3+ czyta ją z `brand/`); README: zdalna aktualizacja.
+- Repozytorium zawiera teraz tylko integrację: usunięto aplikację AppDaemon, dodatek, ioBroker, IP-Symcon,
+  Node-RED, dokumentację mkdocs i ich workflowy (zostają w historii git i w oryginalnym projekcie).
+  Przykładowa konfiguracja: [examples/panels.yaml](examples/panels.yaml).
 
 ### 5.2.1
 - Pakiet firmware ekranu jest pobierany automatycznie z wydania GitHub o numerze integracji, gdy go nie ma
