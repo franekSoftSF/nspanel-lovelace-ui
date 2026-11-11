@@ -71,6 +71,33 @@ powiadomienie – przejrzyj je.
 Edytuj `panels.yaml`, a potem wywołaj akcję `nspanel_lovelace_ui.reload` (albo przeładuj integrację).
 Inny plik: menu integracji → *Skonfiguruj ponownie*.
 
+## Encje i powiadomienia
+
+Każdy panel to urządzenie z encjami:
+
+| Encja | Co robi |
+|---|---|
+| **Powiadomienie** (`notify`) | `notify.send_message`: na wygaszaczu tekst zastępuje pogodę do dotknięcia; na karcie otwiera stronę powiadomienia |
+| **Obudź ekran** (`button`) | jak dotknięcie wygaszacza |
+| **Strona** (`sensor`) | `screensaver` albo tytuł karty na ekranie (atrybuty `card_type`, `card_key`) |
+| **Karta** (`select`) | pokazuje kartę, np. kamerę po dzwonku; przycisk wstecz wraca do poprzedniej karty |
+| **Firmware ekranu** (`update`) | aktualizacja firmware ekranu z postępem |
+
+Więcej opcji daje akcja `nspanel_lovelace_ui.notify`:
+
+```yaml
+action: nspanel_lovelace_ui.notify
+data:
+  panel: nspanel-1        # opcjonalnie, puste = wszystkie panele
+  title: Pranie
+  message: Pralka skończyła
+  mode: popup             # auto | screensaver | popup | clear (zamyka powiadomienie na wygaszaczu)
+  timeout: 60             # tylko strona powiadomienia, sekundy; 0 = do zamknięcia
+  buzzer: true            # Tasmota: Buzzer 2,2,2
+```
+
+Diagnostyka do zgłoszenia błędu: Ustawienia → Urządzenia i usługi → NSPanel Lovelace UI → ⋮ → *Pobierz diagnostykę*.
+
 ## Różnice względem dodatku
 
 - Brak edytora www: edytuj `panels.yaml` bezpośrednio (edytor dodatku nadal może przygotować plik).
@@ -106,6 +133,11 @@ wgrywać go encją aktualizacji **Firmware ekranu** każdego panelu. Budowa firm
 wydanie i instalacja pakietu: [HMI/FIRMWARE.pl.md](HMI/FIRMWARE.pl.md).
 
 ## Historia zmian
+
+### 5.2.3
+- Encje każdego panelu: **Powiadomienie** (`notify.send_message`), przycisk **Obudź ekran**, czujnik
+  **Strona**, wybór **Karta**; akcja `nspanel_lovelace_ui.notify` (tekst na wygaszaczu albo strona
+  powiadomienia, czas, buzzer, zamknięcie); pobieranie diagnostyki.
 
 ### 5.2.2
 Poprawki z migracji prawdziwego panelu (HMI 53 z 2023, AppDaemon z HACS) na firmware 55:

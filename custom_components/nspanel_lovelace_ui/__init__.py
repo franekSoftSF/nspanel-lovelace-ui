@@ -34,6 +34,7 @@ from .const import (
     DOMAIN,
     FIRMWARE_FOLDER,
     SERVICE_DOWNLOAD_FIRMWARE,
+    SERVICE_NOTIFY,
     SERVICE_RELOAD,
     SERVICE_UPDATE_BERRY_DRIVER,
 )
@@ -44,7 +45,16 @@ from .runtime import NSPanelRuntime
 _LOGGER = logging.getLogger(__name__)
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
-PLATFORMS = [Platform.UPDATE]
+PLATFORMS = [Platform.BUTTON, Platform.NOTIFY, Platform.SELECT, Platform.SENSOR, Platform.UPDATE]
+NOTIFY_MODES = ["auto", "screensaver", "popup", "clear"]
+NOTIFY_SCHEMA = vol.Schema({
+    vol.Optional(ATTR_PANEL): cv.string,
+    vol.Optional("message", default=""): cv.string,
+    vol.Optional("title", default=""): cv.string,
+    vol.Optional("mode", default="auto"): vol.In(NOTIFY_MODES),
+    vol.Optional("timeout", default=0): vol.All(vol.Coerce(int), vol.Range(min=0, max=3600)),
+    vol.Optional("buzzer", default=False): cv.boolean,
+})
 
 type NSPanelConfigEntry = ConfigEntry[NSPanelRuntime]
 
@@ -92,7 +102,33 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         ir.async_delete_issue(hass, DOMAIN, "firmware_download_failed")
         await hass.config_entries.async_reload(entries[0].entry_id)
 
+    async def _notify(call: ServiceCall) -> None:
+        entries = hass.config_entries.async_loaded_entries(DOMAIN)
+        if not entries:
+            raise ServiceValidationError(translation_domain=DOMAIN, translation_key="not_loaded")
+        runtime: NSPanelRuntime = entries[0].runtime_data
+        names = [worker.name for worker in runtime.workers.values()]
+        if panel := call.data.get(ATTR_PANEL):
+            if panel not in names:
+                raise ServiceValidationError(translation_domain=DOMAIN, translation_key="unknown_panel",
+                                             translation_placeholders={"panel": panel})
+            names = [panel]
+        mode = call.data["mode"]
+        if mode != "clear" and not (call.data["message"] or call.data["title"]):
+            raise ServiceValidationError(translation_domain=DOMAIN, translation_key="empty_notification")
+        try:
+            for name in names:
+                if mode == "clear":
+                    runtime.async_clear_notification(name)
+                    continue
+                runtime.async_notify(name, call.data["message"], call.data["title"], mode, call.data["timeout"])
+                if call.data["buzzer"]:
+                    runtime.async_buzzer(name)
+        except ValueError as err:
+            raise ServiceValidationError(str(err)) from err
+
     hass.services.async_register(DOMAIN, SERVICE_RELOAD, _reload)
+    hass.services.async_register(DOMAIN, SERVICE_NOTIFY, _notify, schema=NOTIFY_SCHEMA)
     hass.services.async_register(DOMAIN, SERVICE_DOWNLOAD_FIRMWARE, _download_firmware)
     hass.services.async_register(DOMAIN, SERVICE_UPDATE_BERRY_DRIVER, _update_berry,
                                  schema=vol.Schema({vol.Optional(ATTR_PANEL): cv.string}))

@@ -71,10 +71,22 @@ class OutQueue:
         self._hass.loop.call_soon_threadsafe(self._sink.put_nowait, msg)
 
 
+def card_info(card: Any) -> dict[str, Any]:
+    """What the entities show about a card (read in the worker thread, plain values only)."""
+    return {"type": card.type, "title": card.title or card.type, "iid": card.iid,
+            "key": card.navigate_key, "hidden": card.hidden}
+
+
+def panel_text(text: Any) -> str:
+    """Text for a CustomSend field: '~' separates fields, so it may not appear in it."""
+    return str(text).replace("~", "-").replace("\r\n", "\n").replace("\n", "\r\n")
+
+
 class PanelWorker:
     """One thread per panel, like the add-on: the panel code is synchronous."""
 
-    def __init__(self, name: str, settings: dict[str, Any], out: OutQueue, use_ha_api: bool) -> None:
+    def __init__(self, name: str, settings: dict[str, Any], out: OutQueue, use_ha_api: bool,
+                 on_page: Callable[[str, dict[str, Any]], None] | None = None) -> None:
         self.name = name
         self.settings = settings
         self.recv_topic = settings["panelRecvTopic"]
@@ -82,6 +94,7 @@ class PanelWorker:
         self.panel = None
         self._out = out
         self._use_ha_api = use_ha_api
+        self._on_page = on_page
         self._thread = threading.Thread(target=self._run, name=f"nspanel-{name}", daemon=True)
 
     def start(self) -> None:
@@ -101,6 +114,8 @@ class PanelWorker:
         except Exception:  # noqa: BLE001
             _LOGGER.exception("Failed to initialize panel '%s'", self.name)
             return
+        if self._on_page is not None:
+            self.panel.on_page_change = lambda card: self._on_page(self.name, card_info(card))
         while True:
             msg = self.inbox.get()
             if msg is _STOP:
@@ -113,6 +128,8 @@ class PanelWorker:
                     self.panel.ha_event_callback(value)
                 elif kind == "TIME:":
                     self.panel.on_time_tick(value)
+                elif kind == "NOTIFY:":
+                    self.panel.show_notification(*value)
             except Exception:  # noqa: BLE001
                 _LOGGER.exception("Panel '%s' failed while handling %s", self.name, msg)
 
@@ -132,6 +149,8 @@ class NSPanelRuntime:
         self.panel_state: dict[str, dict[str, Any]] = {}
         # Progress of a running display update (Berry driver): name -> {complete, error}.
         self.panel_flash: dict[str, dict[str, Any]] = {}
+        # Card the panel shows (card_info), set on every page switch: name -> info.
+        self.panel_page: dict[str, dict[str, Any]] = {}
         # Local firmware package and how panels reach it (set by __init__ before async_start).
         self.firmware: Any = None
         self.firmware_base_url: str | None = None
@@ -147,7 +166,8 @@ class NSPanelRuntime:
         bridge.async_init(hass, self._on_ha_update, referenced_entities(self.settings))
         out = OutQueue(hass, self._outbox)
         for name, panel in panel_settings(self.settings, hass.config.time_zone).items():
-            self.workers[panel["panelRecvTopic"]] = PanelWorker(name, panel, out, self.use_ha_api)
+            self.workers[panel["panelRecvTopic"]] = PanelWorker(name, panel, out, self.use_ha_api,
+                                                               on_page=self._on_page_threadsafe)
         self._sender = hass.async_create_background_task(self._async_send_loop(), "nspanel_lovelace_ui sender")
 
         if self.use_ha_api:
@@ -303,6 +323,61 @@ class NSPanelRuntime:
         worker = self.worker_by_name(name)
         self._outbox.put_nowait((self._command_topic(worker, "UpdateDriverVersion"), url))
         _LOGGER.info("Requested Berry driver update of %s from %s", name, url)
+
+    # --- page, navigation and notifications (entities and actions) ----------------------
+
+    def _on_page_threadsafe(self, name: str, info: dict[str, Any]) -> None:
+        """Called from a worker thread after a page switch."""
+        self.hass.loop.call_soon_threadsafe(self._async_on_page, name, info)
+
+    @callback
+    def _async_on_page(self, name: str, info: dict[str, Any]) -> None:
+        if self.panel_page.get(name) != info:
+            self.panel_page[name] = info
+            async_dispatcher_send(self.hass, SIGNAL_PANEL_STATE, name)
+
+    def cards(self, name: str) -> list[dict[str, Any]]:
+        """Cards of a panel (top level first, then hidden ones), empty until the worker is ready."""
+        panel = self.worker_by_name(name).panel
+        if panel is None:
+            return []
+        return [card_info(card) for card in [*panel.cards.values(), *panel.hidden_cards.values()]]
+
+    @callback
+    def async_navigate(self, name: str, iid: str) -> None:
+        """Show a card like a navigate.<iid> button would (the back button returns to the current one)."""
+        self.worker_by_name(name).inbox.put(("MQTT:", f"event,buttonPress2,navigate.{iid},button"))
+
+    def _on_screensaver(self, name: str) -> bool:
+        return self.panel_page.get(name, {}).get("type", "screensaver").startswith("screensaver")
+
+    @callback
+    def async_notify(self, name: str, message: str, title: str = "", mode: str = "auto",
+                     timeout: int = 0) -> None:
+        """mode: screensaver (text on the screensaver), popup (notification page) or auto."""
+        worker = self.worker_by_name(name)
+        title, message = panel_text(title), panel_text(message)
+        if mode == "screensaver" or (mode == "auto" and self._on_screensaver(name)):
+            self._outbox.put_nowait((worker.settings["panelSendTopic"], f"notify~{title}~{message}"))
+        else:
+            worker.inbox.put(("NOTIFY:", (title, message, timeout)))
+
+    @callback
+    def async_clear_notification(self, name: str) -> None:
+        """Close a screensaver notification (the display asks for the screensaver again)."""
+        self._outbox.put_nowait((self.worker_by_name(name).settings["panelSendTopic"], "notify~~"))
+
+    @callback
+    def async_wake(self, name: str) -> None:
+        """Like a touch on the screensaver (HMI command 'wake')."""
+        self._outbox.put_nowait((self.worker_by_name(name).settings["panelSendTopic"], "wake"))
+
+    @callback
+    def async_buzzer(self, name: str, pattern: str = "2,2,2") -> None:
+        """Tasmota: Buzzer <count>,<on>,<off> (tenths of a second)."""
+        if self.use_ha_api:
+            raise ValueError("the buzzer command exists only on Tasmota")
+        self._outbox.put_nowait((self._command_topic(self.worker_by_name(name), "Buzzer"), pattern))
 
     async def _async_send_loop(self) -> None:
         while True:

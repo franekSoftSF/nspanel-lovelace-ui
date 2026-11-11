@@ -74,7 +74,7 @@ def _startup(hass: HomeAssistant, version: int, model: str = "eu") -> None:
 
 def _entity_id(hass: HomeAssistant) -> str:
     entity_id = er.async_get(hass).async_get_entity_id("update", DOMAIN, next(
-        e.unique_id for e in er.async_get(hass).entities.values() if e.platform == DOMAIN))
+        e.unique_id for e in er.async_get(hass).entities.values() if e.platform == DOMAIN and e.domain == "update"))
     assert entity_id
     return entity_id
 
