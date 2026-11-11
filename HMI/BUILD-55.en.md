@@ -53,37 +53,27 @@ vis pF4,0
 ```
 
 Append the same code in the `notify` handler, in the branch that **shows** the notification (after
-`vis tNotifyText,1`). In the `else` branch (after `vis tNotifyText,0`) append the restore code:
+`vis tNotifyText,1`). In the `else` branch (after `vis tNotifyText,0`), and in component **`tc0`**
+(TouchCap), **Touch Press Event**, after `vis tNotifyText,0` (a touch also closes the
+notification), append a request to send the screensaver again:
 
 ```
-if(tMainIcon.txt=="")
-{
-    vis pMain,1
-}
-if(tF1Icon.txt=="")
-{
-    vis pF1,1
-}
-if(tF2Icon.txt=="")
-{
-    vis pF2,1
-}
-if(tF3Icon.txt=="")
-{
-    vis pF3,1
-}
-if(tF4Icon.txt=="")
-{
-    vis pF4,1
-}
+tSend.txt="event,renderCurrentPage"
+btlen tSend.txt,sys0
+crcrest 1,0xffff
+crcputh 55 bb
+crcputs sys0,2
+crcputs tSend.txt,0
+printh 55 bb
+prints sys0,2
+prints tSend.txt,0
+prints crcval,2
 ```
 
-(The backend leaves the font icon empty wherever it shows a picture, so an empty text means a picture.)
-
-Paste the same restore code in component **`tc0`** (TouchCap, component strip below the screen),
-**Touch Press Event**, after `vis tNotifyText,0` (inside `if(dim!=0)`): touching the screen also closes
-the notification. The command handlers (`notify`, `weatherUpdate`, `color`) are in component **`tmSerial`**
-(Timer), **Timer Event**.
+(Automations send notifications directly over MQTT, and the screen ignores
+`weatherUpdate`/`weatherPics` while one is shown. After it closes, the backend sends the whole
+screensaver again, pictures included. The command handlers are in component **`tmSerial`**
+(Timer), **Timer Event**. Complete ready-made events: `HMI/patches/55/<variant>/`.)
 
 **4. New command `weatherPics`.** Page `screensaver`, the timer component with the command handling
 (the code that contains `if(tInstruction.txt=="weatherUpdate"…)`). Paste this block right **before**
@@ -231,7 +221,14 @@ ref tIcon2
 ## Afterwards
 
 1. **Compile.** No errors; the size grows by about 0.2 MB (pictures) and stays below 16 MB.
-2. **Debug.** Icon test from BUILD.en.md (step 5) and the picture test from section A.
+   EU result (2026-11-11): 0 errors, 1 warning `Component overlap: screensaver:tMainIcon&pMain`
+   (intended: the picture sits on the font icon, they are never visible together), 11,442,596 bytes.
+   The pictures took only about 75 KB in the `.tft` because the editor compresses them.
+2. **Debug.** Icon test from BUILD.en.md (step 5) and the picture test from section A. Opening
+   `screensaver` switches on the frame mode, so test with real protocol frames (**Hex** mode in the
+   *Instruction Input Area*), e.g. `weatherPics~30~41~47~49~50`:
+   `55 BB 1A 00 77 65 61 74 68 65 72 50 69 63 73 7E 33 30 7E 34 31 7E 34 37 7E 34 39 7E 35 30 C5 C1`
+   (on US use IDs lower by 2 and compute the CRC with a script: CRC16 Modbus over `55 BB`, length and text).
 3. **Export** the `.tft` (BUILD.en.md step 6), then `hmi_info.py --check <variant>`.
 4. If the editor rejects an attribute assignment (e.g. `xcen` or `font` "cannot be changed at run
    time"), note the message and skip that one change. The other changes work independently.

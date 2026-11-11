@@ -14,7 +14,8 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from . import NSPanelConfigEntry
 from .const import DOMAIN, SIGNAL_PANEL_STATE
 
-# The Berry driver reports nothing while flashing; the panel restarts with the new version.
+# The Berry driver reports progress ({"Flashing": {"complete": N}}) and failures to open the
+# download; the install ends when the display restarts with the new version.
 FLASH_TIMEOUT = 15 * 60
 
 

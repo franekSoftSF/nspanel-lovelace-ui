@@ -53,37 +53,27 @@ vis pF4,0
 ```
 
 Ten sam kod dopisz w handlerze `notify`, w gałęzi, która **pokazuje** powiadomienie (po
-`vis tNotifyText,1`). W gałęzi `else` (po `vis tNotifyText,0`) dopisz przywracanie obrazków:
+`vis tNotifyText,1`). W gałęzi `else` (po `vis tNotifyText,0`), a także w komponencie **`tc0`**
+(TouchCap), zdarzenie **Touch Press Event**, po `vis tNotifyText,0` (dotknięcie też zamyka
+powiadomienie), dopisz prośbę o ponowne wysłanie wygaszacza:
 
 ```
-if(tMainIcon.txt=="")
-{
-    vis pMain,1
-}
-if(tF1Icon.txt=="")
-{
-    vis pF1,1
-}
-if(tF2Icon.txt=="")
-{
-    vis pF2,1
-}
-if(tF3Icon.txt=="")
-{
-    vis pF3,1
-}
-if(tF4Icon.txt=="")
-{
-    vis pF4,1
-}
+tSend.txt="event,renderCurrentPage"
+btlen tSend.txt,sys0
+crcrest 1,0xffff
+crcputh 55 bb
+crcputs sys0,2
+crcputs tSend.txt,0
+printh 55 bb
+prints sys0,2
+prints tSend.txt,0
+prints crcval,2
 ```
 
-(Backend zostawia pustą ikonę z fontu tam, gdzie pokazuje obrazek, więc pusty tekst oznacza obrazek.)
-
-Ten sam kod przywracania wklej też w komponencie **`tc0`** (TouchCap, pasek komponentów pod ekranem),
-zdarzenie **Touch Press Event**, po `vis tNotifyText,0` (wewnątrz `if(dim!=0)`): dotknięcie ekranu też
-zamyka powiadomienie. Handlery poleceń (`notify`, `weatherUpdate`, `color`) są w komponencie **`tmSerial`**
-(Timer), zdarzenie **Timer Event**.
+(Powiadomienia wysyłają automatyzacje bezpośrednio przez MQTT, a podczas powiadomienia ekran
+ignoruje `weatherUpdate`/`weatherPics`. Po zamknięciu backend wysyła cały wygaszacz od nowa,
+razem z obrazkami. Handlery poleceń są w komponencie **`tmSerial`** (Timer), zdarzenie
+**Timer Event**. Gotowe pełne wersje zdarzeń: `HMI/patches/55/<wariant>/`.)
 
 **4. Nowe polecenie `weatherPics`.** Strona `screensaver`, komponent timera z obsługą poleceń (to ten
 sam kod, w którym jest `if(tInstruction.txt=="weatherUpdate"…)`). Wklej ten blok tuż **przed**
@@ -231,7 +221,14 @@ ref tIcon2
 ## Po zmianach
 
 1. **Compile.** Bez błędów; rozmiar powinien urosnąć o ok. 0,2 MB (obrazki) i zmieścić się w 16 MB.
-2. **Debug.** Test ikon z BUILD.md (krok 5) i test obrazka z punktu A.
+   Wynik EU (11.11.2026): 0 błędów, 1 ostrzeżenie `Component overlap: screensaver:tMainIcon&pMain`
+   (zamierzone: obrazek leży na miejscu ikony z fontu i nigdy nie są widoczne razem), plik 11 442 596 B.
+   Obrazki zajęły w `.tft` tylko ok. 75 KB, bo edytor je kompresuje.
+2. **Debug.** Test ikon z BUILD.md (krok 5) i test obrazka z punktu A. Wejście na `screensaver`
+   włącza tryb ramek, więc najlepiej testować prawdziwymi ramkami protokołu (tryb **Hex** w
+   *Instruction Input Area*), np. `weatherPics~30~41~47~49~50`:
+   `55 BB 1A 00 77 65 61 74 68 65 72 50 69 63 73 7E 33 30 7E 34 31 7E 34 37 7E 34 39 7E 35 30 C5 C1`
+   (w US zamień ID na o 2 mniejsze i policz CRC skryptem: CRC16 Modbus z `55 BB`, długości i treści).
 3. **Eksport** `.tft` (BUILD.md krok 6), potem `hmi_info.py --check <wariant>`.
 4. Jeśli edytor odrzuci przypisanie atrybutu (np. `xcen` albo `font` „nie można zmienić w czasie
    działania”), zanotuj komunikat i pomiń tę jedną zmianę. Reszta działa niezależnie.

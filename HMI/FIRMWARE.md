@@ -59,7 +59,7 @@ fonts 1, 3, 4 with the generated ones, append `icons-64.zi` (index 8; US portrai
 ```bash
 python scripts/make_firmware_package.py --version 55 --release v5.2.0 \
   --eu HMI/nspanel.tft --us-p HMI/US/portrait/nspanel_US_P.tft \
-  --us-l HMI/US/landscape/nspanel_US_L.tft --berry tasmota/autoexec.be \
+  --us-l HMI/US/landscape/nspanel_US_L.tft --berry tasmota/nsp-lovelace-driver.tapp \
   --out dist/nspanel-firmware --zip
 gh release upload v5.2.0 dist/nspanel-firmware.zip --repo franekSoftSF/nspanel-lovelace-ui
 ```
@@ -77,7 +77,9 @@ The package is `firmware.json` (version, SHA-256 and size of every file) plus th
    the .tft from Home Assistant, flashes it (several minutes) and restarts; the entity finishes when the
    display reports the new version.
 4. Berry driver: action `nspanel_lovelace_ui.update_berry_driver` (optional `panel`) sends
-   `UpdateDriverVersion <url>/autoexec.be`; Tasmota restarts afterwards.
+   `UpdateDriverVersion <url>/nsp-lovelace-driver.tapp`; Tasmota restarts afterwards. Package the
+   `.tapp`: the driver refuses a `.be` update when the `.tapp` is installed, but moves an
+   `autoexec.be` install to the `.tapp`.
 5. With `updateMode: auto-notify` (default) the panel itself asks to update; with the package
    installed this also uses the local file.
 

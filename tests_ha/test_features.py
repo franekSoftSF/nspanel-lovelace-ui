@@ -250,6 +250,44 @@ def test_hmi_patches_apply_to_the_current_code(variant) -> None:
     serial = "\n".join(files["02-screensaver-tmSerial-TimerEvent.txt"])
     assert 'tInstruction.txt=="weatherPics"' in serial
     assert serial.index('"weatherPics"') < serial.index('tInstruction.txt=="color"')
-    assert "vis pMain,1" in "\n".join(files["03-screensaver-tc0-TouchPressEvent.txt"])
+    touch = "\n".join(files["03-screensaver-tc0-TouchPressEvent.txt"])
+    # closing a notification asks the backend to send the screensaver (and its pictures) again
+    assert touch.index('tSend.txt="event,renderCurrentPage"') > touch.index("vis tNotifyText,0")
     saved = (root / "HMI/patches/55" / variant / "02-screensaver-tmSerial-TimerEvent.txt").read_text(encoding="utf-8")
     assert saved.replace("\r\n", "\n").rstrip("\n") == serial
+
+
+async def test_pictures_resent_after_a_repaint(hass: HomeAssistant, weather_panel: Path) -> None:
+    """weatherUpdate repaints the icon boxes under the pictures: weatherPics must follow it."""
+    entry = await _setup(hass)
+    _recv(hass, "event,startup,55,eu")
+    _recv(hass, "event,renderCurrentPage")
+    base = weather.PICTURE_BASE["eu"]
+    main = str(base + weather.picture_index("partlycloudy", night=True))
+    await wait_for(hass, lambda: any(p.startswith(f"weatherPics~{main}~{base + 15}") for p in published_all(hass)))
+    count = sum(p.startswith("weatherPics~") for p in published_all(hass))
+    hass.states.async_set("weather.home", "partlycloudy", {"temperature": 18.4})  # same condition
+    await wait_for(hass, lambda: any("18.4" in p for p in published_all(hass) if p.startswith("weatherUpdate~")))
+    await wait_for(hass, lambda: sum(p.startswith("weatherPics~") for p in published_all(hass)) > count)
+    sent = published_all(hass)
+    last_pics = max(i for i, p in enumerate(sent) if p.startswith("weatherPics~"))
+    last_update = max(i for i, p in enumerate(sent) if p.startswith("weatherUpdate~") and "18.4" in p)
+    assert last_pics > last_update  # same picture IDs, sent again after the repaint
+    await hass.config_entries.async_unload(entry.entry_id)
+
+
+async def test_pictures_follow_visible_slots_and_icons(hass: HomeAssistant, weather_panel: Path) -> None:
+    def change(config, panel):
+        entities = panel["screensaver"]["entities"]
+        entities[1]["state"] = "never"  # forecast day 0 hidden: day 1 moves into slot 1
+        entities[3]["icon"] = "mdi:home"  # configured icon: keep the font icon
+    _edit(weather_panel, change)
+    entry = await _setup(hass)
+    _recv(hass, "event,startup,55,eu")
+    _recv(hass, "event,renderCurrentPage")
+    base = weather.PICTURE_BASE["eu"]
+    expected = "~".join(["weatherPics", str(base + weather.picture_index("partlycloudy", night=True)),
+                         str(base + weather.picture_index("rainy", forecast=True)), "",
+                         str(base + weather.picture_index("snowy", forecast=True)), ""])
+    await wait_for(hass, lambda: expected in published_all(hass))
+    await hass.config_entries.async_unload(entry.entry_id)

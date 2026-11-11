@@ -11,6 +11,7 @@ Pliki generuje `python HMI/code_gen/patches_55.py` z obecnego kodu (`n2t-out`), 
 | `02-screensaver-tmSerial-TimerEvent.txt` | strona `screensaver`, komponent `tmSerial` (pasek pod ekranem) → Timer Event |
 | `03-screensaver-tc0-TouchPressEvent.txt` | strona `screensaver`, komponent `tc0` → Touch Press Event |
 | `10`…`22-<strona>-strona-Preinitialize.txt` (tylko `us-p`) | dana strona → Preinitialize Event (#1475) |
+| `99-ramki-testowe-symulator.txt` | nie wklejać do kodu: ramki protokołu do testu w Debug (tryb Hex), z ID obrazków tego wariantu |
 
 Folder: `eu` = `HMI/nspanel.HMI`, `us-p` = `HMI/US/portrait/nspanel_US_P.HMI`,
 `us-l` = `HMI/US/landscape/nspanel_US_L.HMI`.

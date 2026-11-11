@@ -184,7 +184,6 @@ class Nextion : Driver
                         self.write_block()
                     else
                         log("FLH: Something has gone wrong flashing display firmware ["+str(msg)+"]",2)
-                        self.flash_error("display rejected the data")
                     end
                 else
                     var msg_list = self.split_55(msg)
@@ -261,7 +260,9 @@ class Nextion : Driver
         end
         if a==0
             log("FLH: Nothing available to read!",3)
-            self.flash_error("no response from the download server")
+            if pos == 0
+                self.flash_error("no response from the download server")
+            end
             return -1
         end
         var b = self.tcp.readbytes()
@@ -283,7 +284,9 @@ class Nextion : Driver
         else
             log("FLH: HTTP Respose is not 200 OK or 206 Partial Content",3)
             print(headers)
-            self.flash_error("download failed (HTTP status)")
+            if pos == 0
+                self.flash_error("download failed (HTTP status)")
+            end
             return -1
         end
         # only set flash size if pos is zero
@@ -301,7 +304,9 @@ class Nextion : Driver
 
     end
 
-    # Reported to Home Assistant (integration: update entity "Display firmware").
+    # Reported to Home Assistant (integration: update entity "Display firmware"). Only for
+    # failures before flashing starts (the download cannot be opened); unexpected serial replies
+    # during a flash are often harmless and stay a log message as before.
     def flash_error(reason)
         import string
         tasmota.publish_result(string.format("{\"Flashing\":{\"error\":\"%s\"}}", reason), "RESULT")

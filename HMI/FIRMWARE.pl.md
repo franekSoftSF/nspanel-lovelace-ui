@@ -60,7 +60,7 @@ symulatorze, eksportem, kontrolą przed flashowaniem, checklistą i typowymi bł
 ```bash
 python scripts/make_firmware_package.py --version 55 --release v5.2.0 \
   --eu HMI/nspanel.tft --us-p HMI/US/portrait/nspanel_US_P.tft \
-  --us-l HMI/US/landscape/nspanel_US_L.tft --berry tasmota/autoexec.be \
+  --us-l HMI/US/landscape/nspanel_US_L.tft --berry tasmota/nsp-lovelace-driver.tapp \
   --out dist/nspanel-firmware --zip
 gh release upload v5.2.0 dist/nspanel-firmware.zip --repo franekSoftSF/nspanel-lovelace-ui
 ```
@@ -77,7 +77,9 @@ Pakiet to `firmware.json` (wersja, SHA-256 i rozmiar każdego pliku) plus same p
    (`cmnd/<temat>/FlashNextion`; ESPHome: wywołanie API z komendą 255). Panel pobiera .tft z Home Assistant,
    wgrywa go (kilka minut) i się restartuje. Encja kończy instalację, gdy ekran zgłosi nową wersję.
 4. Sterownik Berry: akcja `nspanel_lovelace_ui.update_berry_driver` (opcjonalnie `panel`) wysyła
-   `UpdateDriverVersion <url>/autoexec.be`. Tasmota potem się restartuje.
+   `UpdateDriverVersion <url>/nsp-lovelace-driver.tapp`. Tasmota potem się restartuje. Do pakietu
+   dawaj plik `.tapp`: sterownik odmawia aktualizacji z `.be`, gdy zainstalowany jest `.tapp`, a
+   instalację `autoexec.be` sam przenosi na `.tapp`.
 5. Przy `updateMode: auto-notify` (domyślnie) panel sam pyta o aktualizację. Gdy pakiet jest
    zainstalowany, również wtedy używany jest lokalny plik.
 

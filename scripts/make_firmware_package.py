@@ -2,7 +2,7 @@
 
     python scripts/make_firmware_package.py --version 55 --release v5.2.0 \
         --eu HMI/nspanel.tft --us-p HMI/US/portrait/nspanel_US_P.tft \
-        --us-l HMI/US/landscape/nspanel_US_L.tft --berry tasmota/autoexec.be \
+        --us-l HMI/US/landscape/nspanel_US_L.tft --berry tasmota/nsp-lovelace-driver.tapp \
         --out dist/nspanel-firmware
 
 The output folder (firmware.json + files) is attached to a GitHub release as a zip and copied
@@ -36,7 +36,8 @@ def main() -> int:
     parser.add_argument("--eu", type=Path)
     parser.add_argument("--us-p", dest="us_p", type=Path)
     parser.add_argument("--us-l", dest="us_l", type=Path)
-    parser.add_argument("--berry", type=Path, help="tasmota/autoexec.be")
+    parser.add_argument("--berry", type=Path, help="tasmota/nsp-lovelace-driver.tapp (recommended: Tasmota "
+                        "updates .tapp and autoexec.be installs from it) or tasmota/autoexec.be")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--zip", action="store_true", help="also write <out>.zip for the release")
     args = parser.parse_args()
@@ -66,7 +67,9 @@ def main() -> int:
         "files": files,
     }
     if args.berry:
-        manifest["berry"] = describe(args.berry, args.out, "autoexec.be")
+        if args.berry.suffix not in (".tapp", ".be"):
+            parser.error("--berry must be a .tapp or .be file (the driver picks the update type from the URL)")
+        manifest["berry"] = describe(args.berry, args.out, args.berry.name)
     (args.out / "firmware.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8",
                                             newline="\n")
     if args.zip:

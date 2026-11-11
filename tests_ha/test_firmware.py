@@ -225,3 +225,19 @@ async def test_broken_package_creates_repair(hass: HomeAssistant, mqtt_mock, pan
     assert entry.runtime_data.firmware is None
     assert ir.async_get(hass).async_get_issue(DOMAIN, "firmware_invalid") is not None
     await hass.config_entries.async_unload(entry.entry_id)
+
+
+async def test_update_berry_driver_with_tapp(hass: HomeAssistant, mqtt_mock, panels_with_base_url: Path,
+                                             firmware_dir: Path) -> None:
+    """The recommended package carries nsp-lovelace-driver.tapp; the URL must end with .tapp."""
+    manifest = make_package(firmware_dir, berry=False)
+    tapp = firmware_dir / "nsp-lovelace-driver.tapp"
+    tapp.write_bytes(b"PK\x03\x04 tapp")
+    manifest["berry"] = {"file": tapp.name, "sha256": hashlib.sha256(tapp.read_bytes()).hexdigest(),
+                         "size": tapp.stat().st_size}
+    (firmware_dir / "firmware.json").write_text(json.dumps(manifest), encoding="utf-8")
+    entry = await _setup(hass)
+    await hass.services.async_call(DOMAIN, "update_berry_driver", {}, blocking=True)
+    url = BASE + entry.runtime_data.http_state.path("nsp-lovelace-driver.tapp")
+    await wait_for(hass, lambda: published(mqtt_mock, "cmnd/nspanel_test/UpdateDriverVersion") == [url])
+    await hass.config_entries.async_unload(entry.entry_id)

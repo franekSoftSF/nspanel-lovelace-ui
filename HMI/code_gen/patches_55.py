@@ -68,8 +68,6 @@ def block_end(code: list[str], header: str) -> int:
 
 
 HIDE = [f"vis {p},0" for p in PICTURES]
-RESTORE = [line for icon, pic in zip(ICONS, PICTURES)
-           for line in (f'if({icon}.txt=="")', "{", f"  vis {pic},1", "}")]
 WEATHER_PICS = ['// firmware 55: colour weather pictures (weatherPics~main~f1~f2~f3~f4, empty = font icon)',
                 'if(tInstruction.txt=="weatherPics"&&tNotifyHead.txt==""&&tNotifyText.txt=="")', "{"]
 for field, pic in enumerate(PICTURES, 1):
@@ -86,6 +84,12 @@ DATE_FONT = ["// firmware 55 (#1485): long dates get the 24 px font on the narro
 RENDER_REQUEST = ['tSend.txt="event,renderCurrentPage"', "//send calc crc", "btlen tSend.txt,sys0",
                   "crcrest 1,0xffff // reset CRC", "crcputh 55 bb", "crcputs sys0,2", "crcputs tSend.txt,0",
                   "//send cmd", "printh 55 bb", "prints sys0,2", "prints tSend.txt,0", "prints crcval,2"]
+
+
+# Notifications come from automations (CustomSend), not from the backend, and weatherUpdate /
+# weatherPics are ignored while one is shown. When it closes, ask the backend for the whole
+# screensaver again (it then resends weather, pictures and colours from scratch).
+RESTORE = ["// firmware 55: notification closed - ask the backend to send the screensaver again"] + RENDER_REQUEST
 
 
 def screensaver_files(folder: Path, variant: str) -> dict[str, list[str]]:
@@ -109,14 +113,48 @@ def screensaver_files(folder: Path, variant: str) -> dict[str, list[str]]:
     serial[show + 1:show + 1] = [indent_of(serial[show]) + line for line in
                                  ["// firmware 55: the weather pictures would cover the notification"] + HIDE]
     hide = next(i for i in range(notify, len(serial)) if serial[i].strip() == "vis tNotifyText,0")
-    serial[hide + 1:hide + 1] = [indent_of(serial[hide]) + line for line in
-                                 ["// firmware 55: an empty font icon means the backend shows a picture there"] + RESTORE]
+    serial[hide + 1:hide + 1] = [indent_of(serial[hide]) + line for line in RESTORE]
     files["02-screensaver-tmSerial-TimerEvent.txt"] = serial
 
     touch = event_code("screensaver", folder, "tc0", "Touch Press Event")
     insert_after(touch, "vis tNotifyText,0", RESTORE)
     files["03-screensaver-tc0-TouchPressEvent.txt"] = touch
     return files
+
+
+PICTURE_BASE = {"eu": 26, "us-p": 24, "us-l": 24}  # = backend/weather.py PICTURE_BASE
+
+
+def crc16_modbus(data: bytes) -> int:
+    crc = 0xFFFF
+    for byte in data:
+        crc ^= byte
+        for _ in range(8):
+            crc = (crc >> 1) ^ 0xA001 if crc & 1 else crc >> 1
+    return crc
+
+
+def frame(text: str) -> str:
+    """The 55 BB frame the Berry driver sends for a CustomSend payload (hex, for the simulator)."""
+    payload = text.encode("utf-8")
+    body = bytes([0x55, 0xBB]) + len(payload).to_bytes(2, "little") + payload
+    return (body + crc16_modbus(body).to_bytes(2, "little")).hex(" ").upper()
+
+
+def test_frames(variant: str) -> list[str]:
+    base = PICTURE_BASE[variant]
+    # main: partly-cloudy-night (4); forecast: clear-day, rain, thunderstorms-rain, snow (15 + 0/6/8/9)
+    pics = [base + 4] + [base + 15 + index for index in (0, 6, 8, 9)]
+    lines = ["Debug > Instruction Input Area > Hex; on the screensaver page send one line at a time:", ""]
+    for text, what in [
+        ("weatherPics~" + "~".join(map(str, pics)), "colour pictures: moon+cloud, sun, rain, storm, snow"),
+        ("time~21:47~", "time"),
+        ("date~Środa, 11 listopada 2026", "date (UTF-8)"),
+        ("notify~Test~Hello NSPanel", "notification: hides the pictures (touch the screen to close it)"),
+        ("weatherPics~~~~~", "hide the pictures (font icons)"),
+    ]:
+        lines += [f"# {text}  ({what})", frame(text), ""]
+    return lines
 
 
 def main() -> int:
@@ -129,6 +167,7 @@ def main() -> int:
             for page in ("screensaver2", "screensaver3"):
                 code = event_code(page, folder, page, "Preinitialize Event")
                 files[f"{len(files) + 10:02d}-{page}-strona-Preinitialize.txt"] = RENDER_REQUEST + code
+        files["99-ramki-testowe-symulator.txt"] = test_frames(variant)
         target = OUT / variant
         target.mkdir(parents=True, exist_ok=True)
         for old in target.glob("*.txt"):

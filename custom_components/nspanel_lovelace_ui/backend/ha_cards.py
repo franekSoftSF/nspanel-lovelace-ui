@@ -748,10 +748,13 @@ class Screensaver(HACard):
     def invalidate(self):
         self._last_payloads = {}
 
-    def _send_changed(self, command, payload):
-        if self._last_payloads.get(command) != payload:
+    def _send_changed(self, command, payload, force=False):
+        """Send unless the panel already shows this payload; returns whether it was sent."""
+        if force or self._last_payloads.get(command) != payload:
             command(self.panel.msg_out_queue, self.panel.sendTopic, payload)
             self._last_payloads[command] = payload
+            return True
+        return False
 
     def get_entities(self):
         ent = [e.entity_id for e in self.entities]
@@ -780,27 +783,36 @@ class Screensaver(HACard):
         pictures = []
         base = self._weather_picture_base()
         if base is not None:
-            for index, entity in enumerate(self.entities[:5]):
-                condition = getattr(entity, "weather_condition", None)
-                if condition is None or not rendered[index]:
-                    pictures.append("")
+            # The HMI slots are positional: hidden entities (empty renders) take no slot.
+            for index, item in enumerate(rendered):
+                if not item:
                     continue
-                pictures.append(str(base + weather.picture_index(condition[0], condition[1], forecast=index > 0)))
-                fields = rendered[index].split("~")
+                if len(pictures) == 5:
+                    break
+                entity = self.entities[index]
+                condition = getattr(entity, "weather_condition", None)
+                if condition is None or entity.config.get("icon") is not None:
+                    pictures.append("")  # not weather, or a configured icon: keep the font icon
+                    continue
+                pictures.append(str(base + weather.picture_index(condition[0], condition[1],
+                                                                 forecast=len(pictures) > 0)))
+                fields = item.split("~")
                 fields[3] = ""  # no font icon under the picture
                 rendered[index] = "~".join(fields)
         result = "".join(rendered)
-        self._send_changed(libs.panel_cmd.weatherUpdate, result[1:])
-        if self.type == "screensaver" and                 (getattr(self.panel, "display_version", None) or 0) >= weather.DISPLAY_VERSION_PICTURES:
-            # Always on firmware 55+: empty fields hide pictures left from an earlier state
-            # (e.g. after switching to another background colour or to font icons).
-            pictures += [""] * (5 - len(pictures))
-            self._send_changed(libs.panel_cmd.weatherPictures, "~".join(pictures))
+        repainted = self._send_changed(libs.panel_cmd.weatherUpdate, result[1:])
         if self.type == "screensaver" and self.theme:
-            self._send_changed(
+            repainted |= self._send_changed(
                 libs.panel_cmd.screensaverColor,
                 get_screensaver_color_output(self.theme),
             )
+        if self.type == "screensaver" and \
+                (getattr(self.panel, "display_version", None) or 0) >= weather.DISPLAY_VERSION_PICTURES:
+            # Firmware 55+, always (empty fields hide pictures left from an earlier state) and
+            # last: weatherUpdate and color repaint the font icon boxes under the pictures, so
+            # the pictures are sent again whenever one of them was sent.
+            pictures += [""] * (5 - len(pictures))
+            self._send_changed(libs.panel_cmd.weatherPictures, "~".join(pictures), force=repainted)
 
         statusUpdateResult = ""
         icon1font = ""
