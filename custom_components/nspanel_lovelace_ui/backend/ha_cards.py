@@ -7,6 +7,7 @@ from . import ha_icons
 from . import ha_colors
 from .libs.localization import get_translation
 from . import panel_cards
+from . import weather
 import logging
 import babel.dates
 from .libs.icon_mapping import get_icon_char
@@ -79,6 +80,7 @@ class HAEntity(panel_cards.Entity):
                 libs.home_assistant.cache_template(template, self.entity_id)
 
     def render(self, cardType=""):
+        self.weather_condition = None
         # AppDaemon compatibility: a true condition hides the item entirely.
         condition = self.config.get("state_template")
         if isinstance(condition, str) and condition:
@@ -287,6 +289,10 @@ class HAEntity(panel_cards.Entity):
             case 'weather':
                 attr = self.config.get("attribute", "temperature")
                 value = str(self.attributes.get(attr, self.state))
+                # Condition shown by this item (today or a forecast entry) and whether it is night:
+                # drives the icon, its colour and the colour picture of firmware 55+.
+                condition = self.state
+                night = weather.sun_is_down(libs.home_assistant.get_entity_data("sun.sun"))
 
                 # settings for forecast
                 forecast_type = None
@@ -305,13 +311,19 @@ class HAEntity(panel_cards.Entity):
                         forcast_condition = forcast_pos.get("condition", "")
                         forcast_date = datetime.datetime.fromisoformat(forcast_pos.get("datetime")).astimezone()
 
-                        icon_char = ha_icons.get_icon_ha(self.etype, forcast_condition)
+                        condition = forcast_condition
+                        night = weather.forecast_is_night(forcast_pos, forecast_type == "hourly")
                         name = babel.dates.format_datetime(forcast_date, datetime_format, locale=self.locale)
 
                         attr = self.config.get("attribute", "temperature")
                         value = str(forcast_pos.get(attr, "not found"))
                     else:
                         name = "unknown"
+                if self.icon_overwrite is None:
+                    icon_char = get_icon_char(weather.mdi_icon(condition, night))
+                if self.color_overwrite is None:
+                    color = weather.color(condition, night)
+                self.weather_condition = (condition, night, forecast_type is not None)
                 # add units
                 if attr in ["temperature", "apparent_temperature", "templow"]:
                     value += self.config.get("unit", "°C")
@@ -432,13 +444,23 @@ class HACard(panel_cards.Card):
 class EntitiesCard(HACard):
     def __init__(self, locale, config, panel):
         super().__init__(locale, config, panel)
-        if len(self.entities) > 6 and self.type == "cardGrid":
+        self.grid = self.type == "cardGrid"
+        if len(self.entities) > 6 and self.grid:
             self.type = "cardGrid2"
 
     def render(self):
-        result = f"{self.title}~{self.gen_nav()}"
-        for e in self.entities:
-            result += e.render(cardType=self.type)
+        rendered = [e.render(cardType=self.type) for e in self.entities]
+        if self.grid:
+            # Issue #1190: the layout follows the *visible* items (state / state_template can
+            # hide some). On a change, switch the page first; the panel then asks for the content.
+            layout = "cardGrid2" if sum(1 for item in rendered if item) > 6 else "cardGrid"
+            if layout != self.type:
+                self.type = layout
+                if self.panel.current_card is self:
+                    libs.panel_cmd.page_type(self.panel.msg_out_queue, self.panel.sendTopic, layout)
+                    return
+                rendered = [e.render(cardType=self.type) for e in self.entities]
+        result = f"{self.title}~{self.gen_nav()}" + "".join(rendered)
         libs.panel_cmd.entityUpd(self.panel.msg_out_queue, self.panel.sendTopic, result)
 
 class QRCard(HACard):
@@ -739,11 +761,41 @@ class Screensaver(HACard):
             ent.append(self.statusIcon2.entity_id)
         return ent
 
+    def _weather_picture_base(self):
+        """Picture ID of the first colour weather picture, or None to keep the font icons."""
+        settings = self.panel.settings
+        if self.type != "screensaver" or len(self.entities) > 5 or settings.get("weatherIcons", "color") != "color":
+            return None  # alternative layouts move the icons around; they keep the font icons
+        if (getattr(self.panel, "display_version", None) or 0) < weather.DISPLAY_VERSION_PICTURES:
+            return None  # the pictures exist from firmware 55
+        background = (self.theme or {}).get("background", 0)
+        if isinstance(background, list):
+            background = rgb_dec565(background)
+        if background != 0:
+            return None  # the pictures are drawn on black
+        return settings.get("weatherPictureBase", weather.PICTURE_BASE.get(settings.get("model", "eu"), 26))
+
     def render(self):
-        result = ""
-        for e in self.entities:
-            result += e.render(cardType=self.type)
+        rendered = [e.render(cardType=self.type) for e in self.entities]
+        pictures = []
+        base = self._weather_picture_base()
+        if base is not None:
+            for index, entity in enumerate(self.entities[:5]):
+                condition = getattr(entity, "weather_condition", None)
+                if condition is None or not rendered[index]:
+                    pictures.append("")
+                    continue
+                pictures.append(str(base + weather.picture_index(condition[0], condition[1], forecast=index > 0)))
+                fields = rendered[index].split("~")
+                fields[3] = ""  # no font icon under the picture
+                rendered[index] = "~".join(fields)
+        result = "".join(rendered)
         self._send_changed(libs.panel_cmd.weatherUpdate, result[1:])
+        if self.type == "screensaver" and                 (getattr(self.panel, "display_version", None) or 0) >= weather.DISPLAY_VERSION_PICTURES:
+            # Always on firmware 55+: empty fields hide pictures left from an earlier state
+            # (e.g. after switching to another background colour or to font icons).
+            pictures += [""] * (5 - len(pictures))
+            self._send_changed(libs.panel_cmd.weatherPictures, "~".join(pictures))
         if self.type == "screensaver" and self.theme:
             self._send_changed(
                 libs.panel_cmd.screensaverColor,

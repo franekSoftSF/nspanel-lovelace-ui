@@ -68,6 +68,9 @@
     },
     "flash_timeout": {
       "message": "The display did not restart with the new firmware within {minutes} minutes. Check the Tasmota console (FlashNextion)."
+    },
+    "flash_failed": {
+      "message": "The display update failed: {error}. Check the Tasmota console; the display keeps its old firmware or waits for a new FlashNextion."
     }
   },
   "services": {

@@ -97,9 +97,16 @@ def test_hmi_font_indexes_match_build_guide(variant, orientation, icon_fonts, ne
     assert info["orientation"] == orientation
     assert info["encoding"] == 0x18  # utf-8
     fonts = {font["index"]: font for font in info["fonts"]}
+    # Before the rebuild: Nextion Editor's fonts (7120 glyphs). After it (firmware 55): the
+    # generated ones (7671) plus the 64 px icon font appended at next_index.
+    rebuilt = fonts[1]["glyphs"] == 7671
     for index, height in icon_fonts.items():  # the fonts BUILD.md says to replace
-        assert fonts[index]["height"] == height and fonts[index]["glyphs"] == 7120
-    assert len(fonts) == next_index  # the new 64 px font is appended at this index
+        assert fonts[index]["height"] == height and fonts[index]["glyphs"] == (7671 if rebuilt else 7120)
+    if rebuilt:
+        assert len(fonts) == next_index + 1
+        assert fonts[next_index]["height"] == 64 and fonts[next_index]["glyphs"] == 7447
+    else:
+        assert len(fonts) == next_index
 
 
 def test_large_icon_font_default_follows_the_variant() -> None:

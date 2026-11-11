@@ -130,6 +130,8 @@ class NSPanelRuntime:
         self._sender: asyncio.Task | None = None
         # Reported by the display in "event,startup,<version>,<model>": name -> {version, model}.
         self.panel_state: dict[str, dict[str, Any]] = {}
+        # Progress of a running display update (Berry driver): name -> {complete, error}.
+        self.panel_flash: dict[str, dict[str, Any]] = {}
         # Local firmware package and how panels reach it (set by __init__ before async_start).
         self.firmware: Any = None
         self.firmware_base_url: str | None = None
@@ -214,6 +216,8 @@ class NSPanelRuntime:
         if isinstance(data, dict) and isinstance(data.get("CustomRecv"), str):
             self._observe(worker, data["CustomRecv"])
             worker.inbox.put(("MQTT:", data["CustomRecv"]))
+        elif isinstance(data, dict) and isinstance(data.get("Flashing"), dict):
+            self._observe_flashing(worker, data["Flashing"])
 
     @callback
     def _on_esphome_event(self, event: Event) -> None:
@@ -221,6 +225,19 @@ class NSPanelRuntime:
         if worker is not None and isinstance(event.data.get("CustomRecv"), str):
             self._observe(worker, event.data["CustomRecv"])
             worker.inbox.put(("MQTT:", event.data["CustomRecv"]))
+
+    @callback
+    def _observe_flashing(self, worker: PanelWorker, flashing: dict[str, Any]) -> None:
+        """Berry driver: {"Flashing": {"complete": <percent>}} or {"Flashing": {"error": "..."}}."""
+        state = dict(self.panel_flash.get(worker.name, {}))
+        if isinstance(flashing.get("error"), str):
+            state["error"] = flashing["error"][:200]
+        complete = flashing.get("complete")
+        if type(complete) is int and 0 <= complete <= 100:
+            state["complete"] = complete
+        if state != self.panel_flash.get(worker.name):
+            self.panel_flash[worker.name] = state
+            async_dispatcher_send(self.hass, SIGNAL_PANEL_STATE, worker.name)
 
     @callback
     def _observe(self, worker: PanelWorker, message: str) -> None:
@@ -271,6 +288,7 @@ class NSPanelRuntime:
     def async_flash_display(self, name: str, url: str) -> None:
         """Tasmota: FlashNextion <url>; ESPHome: the api call with command 255 (as the add-on)."""
         worker = self.worker_by_name(name)
+        self.panel_flash[name] = {}
         if self.use_ha_api:
             self._outbox.put_nowait((worker.settings["panelSendTopic"], url, 255))
         else:

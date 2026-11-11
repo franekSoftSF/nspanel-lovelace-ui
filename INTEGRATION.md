@@ -87,6 +87,18 @@ docker run --rm -v "$PWD:/work" nspanel-ha-tests
 Tests use `pytest-homeassistant-custom-component` (Python 3.14). Home Assistant does not run on Windows, so use
 Docker (or WSL / Linux / macOS with a Python 3.14 venv: `pip install -r requirements_test.txt && pytest`).
 
+### Screensaver options (firmware 55)
+
+| Option (panel level) | Default | Meaning |
+|---|---|---|
+| `weatherIcons` | `color` | `color`: colour weather pictures (Meteocons) on firmware 55+ with the default black screensaver background; `font`: always the single-colour MDI icons |
+| `weatherPictureBase` | 26 (EU), 24 (US) | ID of the first weather picture, if you imported them at another position (HMI/BUILD-55.md) |
+| `timeTemplate` | – | template shown instead of the clock, e.g. `"{{ states('sensor.nspanel_temp') }}°"` (`°` needs firmware 55) |
+| `largeIconFontId` | 8 (US portrait: 7) | font index of the 64 px icons for `font: large-icon` |
+
+Forecast icons now use the condition and colour of their own day, partly cloudy nights show the moon,
+and grids switch between 3×2 and 4×2 by the number of *visible* items.
+
 ## Display firmware
 
 The integration can serve the display firmware (.tft) and the Tasmota Berry driver from Home Assistant
@@ -96,6 +108,11 @@ MDI 7 icon fonts, publishing it and installing the package: [HMI/FIRMWARE.md](HM
 ## Changelog
 
 ### 5.2.0
+- Weather: each forecast day has its own icon and colour (it used the current weather's colour),
+  night variants, Home Assistant colours, `windy-variant` colour fixed, `exceptional` icon.
+- Colour weather pictures (Meteocons) with firmware 55 (`weatherIcons`), `timeTemplate` instead of the
+  clock (upstream #1405), grid layout by visible items (upstream #1190).
+- Display update progress and errors in the update entity (Berry driver 10 reports them, upstream #995).
 - Icons: Material Design Icons 7.4.47 (7447 icons, aliases of renamed icons work). New icons need display
   firmware 55; see HMI/FIRMWARE.md.
 - Update entity "Display firmware" per panel and action `nspanel_lovelace_ui.update_berry_driver`: the .tft

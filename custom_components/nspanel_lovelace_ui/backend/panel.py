@@ -26,6 +26,7 @@ class LovelaceUIPanel:
 
     def __init__(self, name_panel, settings_panel, msg_out_queue, use_ha_api=False):
         self.updater = FirmwareUpdater(settings_panel, msg_out_queue, use_ha_api)
+        self.display_version = None
         self._last_dim_command = None
         self._active_detail = None
         self._last_detail_payload = None
@@ -89,7 +90,7 @@ class LovelaceUIPanel:
         if isinstance(self.settings.get("screenBrightness",""), str) and self.settings.get("screenBrightness", "").startswith("ha:"):
             libs.home_assistant.cache_template(self.settings.get("screenBrightness"))
         # Subscribe now so the first time/date message already carries the text.
-        for key in ("timeAdditionalTemplate", "dateAdditionalTemplate"):
+        for key in ("timeAdditionalTemplate", "dateAdditionalTemplate", "timeTemplate"):
             self.additional_text(key)
         for c in self.cards.values():
             if hasattr(c, "qrcode"):
@@ -140,6 +141,11 @@ class LovelaceUIPanel:
         use_timezone = _tz(self.settings["timeZone"])
         time_string = datetime.datetime.now(
             use_timezone).strftime(self.settings["timeFormat"])
+        # Issue #1405: a template (e.g. the panel's own temperature) instead of the clock.
+        # Firmware 55 adds the degree sign to the 128 px clock font; older fonts show only ASCII.
+        replacement = self.additional_text("timeTemplate")
+        if replacement:
+            time_string = replacement
         libs.panel_cmd.send_time(self.msg_out_queue, self.sendTopic, time_string,
                                  self.additional_text("timeAdditionalTemplate"))
 
@@ -162,7 +168,7 @@ class LovelaceUIPanel:
     def ha_event_callback(self, entity_id):
         if self.updater.active:
             return
-        if entity_id == "timeAdditionalTemplate":
+        if entity_id in ("timeAdditionalTemplate", "timeTemplate"):
             return self.update_time()
         if entity_id == "dateAdditionalTemplate":
             return self.update_date()
@@ -258,6 +264,10 @@ class LovelaceUIPanel:
             logging.error("Malformed panel message on '%s': %s", self.name, msg)
             return
         if msg[0] == "event" and msg[1] == "startup" and len(msg) >= 4:
+            try:
+                self.display_version = int(msg[2])  # firmware features (weather pictures: 55+)
+            except ValueError:
+                self.display_version = None
             self.current_card = (self.get_default_card() if self.settings.get("screensaver", {}).get("disable", False) else self.screensaver)
             if self.updater.startup(msg):
                 return

@@ -89,8 +89,16 @@ class DisplayFirmwareUpdate(UpdateEntity):
         if panel != self._panel:
             return
         version = self._state.get("version")
-        if self._flashed is not None and not self._flashed.done() and version is not None                 and version >= self._flash_target:
-            self._flashed.set_result(version)
+        flash = self._entry.runtime_data.panel_flash.get(self._panel, {})
+        if self._flashed is not None and not self._flashed.done():
+            if version is not None and version >= self._flash_target:
+                self._flashed.set_result(version)
+            elif flash.get("error"):
+                self._flashed.set_exception(HomeAssistantError(
+                    translation_domain=DOMAIN, translation_key="flash_failed",
+                    translation_placeholders={"error": flash["error"]}))
+            elif "complete" in flash:
+                self._attr_update_percentage = flash["complete"]
         self.async_write_ha_state()
 
     async def async_install(self, version: str | None, backup: bool, **kwargs: Any) -> None:
@@ -128,3 +136,4 @@ class DisplayFirmwareUpdate(UpdateEntity):
         finally:
             self._flashed = None
             self._flash_target = None
+            self._attr_update_percentage = None

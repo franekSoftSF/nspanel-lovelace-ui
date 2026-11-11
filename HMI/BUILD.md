@@ -67,7 +67,7 @@ EU (`nspanel.HMI`) i US poziomy (`nspanel_US_L.HMI`) – po 8 fontów:
 | 2 | tekst 32 px (`noto-sans-32-sp5` / `-sp6`) | bez zmian |
 | 3 | NotoSans-Regular 48 px z ikonami | **podmień** na `icons-regular-48.zi` |
 | 4 | NotoSans-Bold 80 px z ikonami | **podmień** na `icons-bold-80.zi` |
-| 5 | cyfry zegara 128 px | bez zmian |
+| 5 | cyfry zegara 128 px | **podmień** na `clock-bold-128.zi` (dochodzi `°`, BUILD-55.md B) |
 | 6 | tekst pionowy 16 px | bez zmian |
 | 7 | `corners1` 15 px | bez zmian |
 | **8** | – | **dodaj** `icons-64.zi` |
@@ -88,7 +88,8 @@ Gdyby indeks nowego fontu wyszedł inny (0–9 dozwolone), ustaw w `panels.yaml`
 ## 5. Kroki dla każdego wariantu
 
 1. **Otwórz** projekt z tabeli w kroku 2 (*File → Open*).
-2. **Fonty**: podmień indeksy 1, 3, 4 i dodaj font 64 px (krok 4).
+2. **Fonty**: podmień indeksy 1, 3, 4 i 5 i dodaj font 64 px (krok 4).
+   **Zmiany firmware 55** (kolorowe ikony pogody, poprawki zgłoszeń): [BUILD-55.md](BUILD-55.md), punkty A–F.
 3. **Wersja**: strona `pageStartup` (lista *Page* po prawej), komponent tekstowy `tVersion`,
    atrybut `txt`: zmień `54` na **`55`**. To ten numer ekran wysyła przy starcie
    (`event,startup,55,eu`), a integracja porównuje go z pakietem.
@@ -96,18 +97,19 @@ Gdyby indeks nowego fontu wyszedł inny (0–9 dozwolone), ustaw w `panels.yaml`
    pamięci i rozmiar. Szacunek: EU ok. 10,9 MiB, US pionowy ok. 11,0 MiB, US poziomy ok. 12,5 MiB,
    limit to 16 MB.
 5. **Symulator (Debug)**, zanim cokolwiek wgrasz:
-   1. Kliknij **Debug**. Otworzy się okno symulatora z ekranem startowym.
-   2. W polu *Instruction Input Area* (na dole; ustaw *Send command to: Simulator*) wklejaj kolejno
-      linie z `HMI/fonts/generated/simulator-test-<wariant>.txt` i zatwierdzaj Enterem:
-      `page pageIcons`, potem 3 linie z ikonami.
-   3. Oczekiwany wynik:
-      - lewa ikona: domek (`home`), wygląda jak wcześniej;
-      - środkowa: termometr z sondą (`thermometer-probe`). Jest nowa w MDI 7, więc na starym
+   1. Kliknij **Debug**. Symulator pokaże ekran startowy „Waiting for content…”. Ten ekran co kilka
+      sekund włącza tryb ramek `recmod=1`, w którym ignoruje zwykłe komendy, więc trzeba z niego wyjść.
+   2. **Kliknij 9 razy w kręcący się spinner.** To ukryte wejście otwiera stronę `pageTest`.
+   3. Na `pageTest` kliknij **„disable recmod”** (szary przycisk po prawej, nad „bauds=115200”).
+   4. W *Instruction Input Area* zaznacz **String** i *Keyboard Input*, wklej wszystkie linie z
+      `HMI/fonts/generated/simulator-test-<wariant>.txt` (otwórz go w Notatniku; ikony wyglądają tam
+      jak puste kwadraty albo litery hebrajskie i ormiańskie, i tak ma być), kliknij **Run all commands**.
+   5. Oczekiwany wynik na stronie `pageIcons` (3 białe pola po prawej):
+      - górne: domek (`home`), wygląda jak wcześniej;
+      - środkowe: termometr z sondą (`thermometer-probe`). Jest nowy w MDI 7, więc na starym
         firmware byłoby tu puste pole;
-      - prawa: duży, ostry termostat (`thermostat-auto`) z nowego fontu 64 px. Jeśli jest pusta albo
-        mała, to font ma inny indeks niż w komendzie `tTmp3.font=`.
-   4. Opcjonalnie sprawdź, czy układ się nie przesunął: `page screensaver`, `tTime.txt="12:34"`,
-      `tMainIcon.txt="..."` (wklej znak z linii `tTmp1` pliku testowego).
+      - dolne: duży, ostry termostat (`thermostat-auto`) z fontu 64 px. Jeśli jest pusty albo mały,
+        to font ma inny indeks niż w komendzie `tTmp3.font=`.
 6. **Eksport**: *File → TFT file output*, wybierz katalog i nazwę z tabeli w kroku 2 (nadpisz stary
    plik). Potem sprawdź wynik:
    ```bash
@@ -132,6 +134,8 @@ instrukcji, więc nie nadpisuj go plikiem z `nspanel_US_L.HMI`.
 - [ ] Device bez zmian: NX4832F035_011, kierunek jak w tabeli, utf-8
 - [ ] Indeks 1 → `icons-regular-32.zi`, 3 → `icons-regular-48.zi`, 4 → `icons-bold-80.zi`
 - [ ] `icons-64.zi` na końcu: indeks 8 (EU, US poziomy) / 7 (US pionowy)
+- [ ] Indeks 5 → `clock-bold-128.zi`
+- [ ] BUILD-55.md: A (obrazki pogody), C, D (tylko US pionowy), E, F
 - [ ] `pageStartup.tVersion` = 55
 - [ ] Compile bez błędów, rozmiar < 16 MB
 - [ ] Debug: 3 ikony z pliku testowego widoczne

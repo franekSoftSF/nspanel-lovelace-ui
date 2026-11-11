@@ -87,6 +87,18 @@ docker run --rm -v "$PWD:/work" nspanel-ha-tests
 Testy korzystają z `pytest-homeassistant-custom-component` (Python 3.14). Home Assistant nie działa na Windows, więc
 uruchamiaj je w Dockerze (albo w WSL / Linux / macOS z venv Pythona 3.14: `pip install -r requirements_test.txt && pytest`).
 
+### Opcje wygaszacza (firmware 55)
+
+| Opcja (poziom panelu) | Domyślnie | Znaczenie |
+|---|---|---|
+| `weatherIcons` | `color` | `color`: kolorowe obrazki pogody (Meteocons) przy firmware 55+ i domyślnym czarnym tle wygaszacza; `font`: zawsze jednokolorowe ikony MDI |
+| `weatherPictureBase` | 26 (EU), 24 (US) | ID pierwszego obrazka pogody, jeśli zaimportowano je w innym miejscu (HMI/BUILD-55.md) |
+| `timeTemplate` | – | szablon wyświetlany zamiast godziny, np. `"{{ states('sensor.nspanel_temp') }}°"` (`°` wymaga firmware 55) |
+| `largeIconFontId` | 8 (US pionowy: 7) | indeks fontu ikon 64 px dla `font: large-icon` |
+
+Ikony prognozy mają teraz warunki i kolor swojego dnia, częściowe zachmurzenie w nocy pokazuje
+księżyc, a siatka przełącza się między 3×2 i 4×2 według liczby *widocznych* elementów.
+
 ## Firmware ekranu
 
 Integracja może serwować z Home Assistant firmware ekranu (.tft) i sterownik Berry dla Tasmoty oraz
@@ -96,6 +108,11 @@ wydanie i instalacja pakietu: [HMI/FIRMWARE.pl.md](HMI/FIRMWARE.pl.md).
 ## Historia zmian
 
 ### 5.2.0
+- Pogoda: każdy dzień prognozy ma własną ikonę i kolor (wcześniej kolor bieżącej pogody), warianty
+  nocne, kolory jak w Home Assistant, poprawiony kolor `windy-variant`, ikona dla `exceptional`.
+- Kolorowe obrazki pogody (Meteocons) z firmware 55 (`weatherIcons`), `timeTemplate` zamiast zegara
+  (upstream #1405), układ siatki według widocznych elementów (upstream #1190).
+- Postęp i błędy aktualizacji ekranu w encji aktualizacji (raportuje je sterownik Berry 10, upstream #995).
 - Ikony: Material Design Icons 7.4.47 (7447 ikon, działają aliasy przemianowanych ikon). Nowe ikony
   wymagają firmware ekranu 55, zobacz HMI/FIRMWARE.pl.md.
 - Encja aktualizacji „Firmware ekranu” dla każdego panelu i akcja `nspanel_lovelace_ui.update_berry_driver`:

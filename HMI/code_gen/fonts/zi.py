@@ -45,6 +45,7 @@ class ZiFont:
     name: str
     height: int
     glyphs: dict[int, Glyph] = field(default_factory=dict)
+    variant: int = 0x02  # header byte 5: 0x02 for the icon fonts, 0x00 for the 128 px clock font
 
     @property
     def codepoints(self) -> set[int]:
@@ -74,7 +75,7 @@ class ZiFont:
         header = bytearray(HEADER_SIZE)
         header[0:4] = MAGIC
         header[4] = ENCODING_UTF8
-        header[5] = 0x02  # same as Nextion Editor's UTF-8 fonts
+        header[5] = self.variant
         header[6] = 0  # variable width
         header[7] = self.height
         header[8:12] = b"\xff\xff\x00\xff"
@@ -102,7 +103,7 @@ class ZiFont:
         full = raw[HEADER_SIZE:base]
         if not full.endswith(ENCODING_SUFFIX) or raw[0x20] != name_len - len(ENCODING_SUFFIX):
             raise ValueError("only UTF-8 fonts are supported")
-        font = cls(full[:raw[0x20]].decode("ascii", "replace"), height)
+        font = cls(full[:raw[0x20]].decode("ascii", "replace"), height, variant=raw[5])
         for i in range(count):
             pos = base + 10 * i
             cp, width, x_offset, unknown = struct.unpack_from("<HBBB", raw, pos)

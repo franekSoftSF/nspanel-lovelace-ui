@@ -1,4 +1,5 @@
 from .libs.helper import rgb_dec565, rgb_brightness
+from . import weather
 import ast
 import re
 
@@ -58,32 +59,8 @@ def get_entity_color(etype, state, attr, overwrite=None):
         if state == "fan_only":
             icon_color = 35921
     if etype == "weather":
-        if state in ["partlycloudy", "windy"]:
-            icon_color = 38066  # 50% grey
-        if state == "clear-night":
-            icon_color = 38060  # yellow grey
-        if state == "windy-variant":
-            icon_color: 64495  # red grey
-        if state == "cloudy":
-            icon_color = 31728  # grey-blue
-        if state == "exceptional":
-            icon_color = 63878  # red
-        if state == "fog":
-            icon_color = 38066  # 75% grey
-        if state in ["hail", "snowy"]:
-            icon_color = 65535  # white
-        if state == "lightning":
-            icon_color = 65120  # golden-yellow
-        if state == "lightning-rainy":
-            icon_color = 50400  # dark-golden-yellow
-        if state == "pouring":
-            icon_color = 12703  # blue
-        if state == "rainy":
-            icon_color = 25375  # light-blue
-        if state == "snowy-rainy":
-            icon_color = 38079  # light-blue-grey
-        if state == "sunny":
-            icon_color = 65504  # bright-yellow
+        # Home Assistant palette (backend/weather.py); fixes windy-variant, which had no colour.
+        icon_color = weather.color(state)
     if "rgb_color" in attr and attr.get("rgb_color"):
         color = attr.get("rgb_color")
         if "brightness" in attr and attr.get("brightness"):

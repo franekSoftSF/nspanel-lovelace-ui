@@ -19,6 +19,10 @@ FILES = {
     "materialdesignicons-webfont.ttf": (
         f"https://cdn.jsdelivr.net/npm/@mdi/font@{MDI_VERSION}/fonts/materialdesignicons-webfont.ttf",
         "61e8aba5a4e981fe22cf7c8e8bcdbea00476e75c62c37f01bf7ee33361d68428"),
+    # Noto Sans Bold (OFL): degree sign for the 128 px clock font (timeTemplate, issue #1405).
+    "NotoSans-Bold.ttf": (
+        "https://cdn.jsdelivr.net/gh/notofonts/notofonts.github.io@main/fonts/NotoSans/hinted/ttf/NotoSans-Bold.ttf",
+        "1df075a380fc7cb898acf64c1f7b3b4dd780de3caa860178bf929de35817a913"),
 }
 CACHE = Path(__file__).resolve().parents[2] / "fonts" / ".mdi-cache" / MDI_VERSION
 MDI_FIRST = 0xF0001

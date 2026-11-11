@@ -68,6 +68,9 @@
     },
     "flash_timeout": {
       "message": "Ekran nie uruchomił się z nowym firmware w ciągu {minutes} minut. Sprawdź konsolę Tasmoty (FlashNextion)."
+    },
+    "flash_failed": {
+      "message": "Aktualizacja ekranu nie powiodła się: {error}. Sprawdź konsolę Tasmoty; ekran ma stary firmware albo czeka na ponowne FlashNextion."
     }
   },
   "services": {

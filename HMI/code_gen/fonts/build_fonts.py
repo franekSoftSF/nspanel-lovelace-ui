@@ -91,6 +91,30 @@ def build(out: Path = OUT, only: set[str] | None = None) -> dict:
     return report
 
 
+# Clock font (index 5): Nextion's 128 px Noto Sans Bold has ASCII only. The degree sign lets
+# timeTemplate show temperatures (issue #1405). Size/baseline fitted to its digits '0', '8', 'C'.
+CLOCK_FONT = ("clock-bold-128.zi", "clock-bold-128.zi")
+CLOCK_SIZE, CLOCK_BASELINE = 115, 104
+CLOCK_EXTRA = "°"
+
+
+def build_clock_font(out: Path = OUT) -> dict:
+    from PIL import Image, ImageDraw, ImageFont
+
+    base_file, out_file = CLOCK_FONT
+    font = ZiFont.load(BASE / base_file)
+    ttf = ImageFont.truetype(str(mdi.fetch("NotoSans-Bold.ttf")), CLOCK_SIZE * SUPERSAMPLE)
+    for char in CLOCK_EXTRA:
+        width = round(ttf.getlength(char) / SUPERSAMPLE)
+        canvas = Image.new("L", (width * SUPERSAMPLE, font.height * SUPERSAMPLE), 0)
+        ImageDraw.Draw(canvas).text((0, CLOCK_BASELINE * SUPERSAMPLE), char, font=ttf, fill=255, anchor="ls")
+        px = [min(7, (value * 7 + 127) // 255) for value in canvas.reduce(SUPERSAMPLE).tobytes()]
+        font.glyphs[ord(char)] = Glyph(ord(char), width, encode(px))
+    size = font.save(out / out_file)
+    print(f"{out_file}: {len(font.glyphs)} glyphs, {size / 1048576:.2f} MiB")
+    return {"height": font.height, "glyphs": len(font.glyphs), "bytes": size}
+
+
 # Index the new 64 px font gets when it is appended as the last font (HMI/BUILD.md).
 LARGE_ICON_FONT_ID = {"eu": 8, "us-p": 7, "us-l": 8}
 SIMULATOR_ICONS = ("home", "thermometer-probe", "thermostat-auto")  # old icon, two new in MDI 7
@@ -102,6 +126,8 @@ def simulator_commands(out: Path = OUT) -> None:
     old, new_a, new_b = (chr(icons[name]["nextion"]) for name in SIMULATOR_ICONS)
     for variant, font_id in LARGE_ICON_FONT_ID.items():
         lines = [
+            # Run after pageTest > "disable recmod" (HMI/BUILD.md): pageStartup keeps setting
+            # recmod=1, in which the HMI ignores plain Nextion instructions.
             "page pageIcons",
             f'tTmp1.txt="{old}"',
             f'tTmp2.txt="{new_a}"',
@@ -149,6 +175,8 @@ def main() -> int:
     parser.add_argument("--preview", type=Path, help="old 32 px .zi to compare against")
     args = parser.parse_args()
     report = build(args.out, set(args.only) if args.only else None)
+    report["clock_font"] = build_clock_font(args.out)
+    (args.out / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8", newline="\n")
     simulator_commands(args.out)
     if args.preview:
         preview(args.preview, args.out / "icons-regular-32.zi",

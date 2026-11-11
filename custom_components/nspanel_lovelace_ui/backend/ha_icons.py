@@ -1,4 +1,5 @@
 from .libs.icon_mapping import get_icon_char
+from . import weather
 
 weather_mapping = {
     'clear-night': 'weather-night',
@@ -222,7 +223,7 @@ def get_icon_ha(etype, state, device_class=None, media_content_type=None, overwr
     if etype in simple_type_mapping:
         result_icon = simple_type_mapping[etype]
     elif etype == "weather":
-        result_icon = weather_mapping[state] if state in weather_mapping else "alert-circle-outline"
+        result_icon = weather.mdi_icon(state)
     elif etype == "input_boolean":
         result_icon = "check-circle-outline" if state == "on" else "close-circle-outline"
     elif etype == "lock":

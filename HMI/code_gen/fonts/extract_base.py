@@ -24,6 +24,7 @@ WANTED = {
     ("NotoSans-Regular", 32): "text-regular-32.zi",
     ("NotoSans-Regular", 48): "text-regular-48.zi",
     ("NotoSans-Bold", 80): "text-bold-80.zi",
+    ("NotoSand-Bold-TxtOnly-128", 128): "clock-bold-128.zi",  # clock digits; build_fonts adds the degree sign
 }
 
 
@@ -54,10 +55,11 @@ def main() -> int:
         text = {cp: g for cp, g in font.glyphs.items() if cp <= TEXT_LAST}
         try:
             for glyph in text.values():
-                glyph.pixels(font.height)  # the HMI may split big files: verify every glyph
+                if glyph.data[:1] == b"":  # (a black-and-white 0x01 space is kept as is)
+                    glyph.pixels(font.height)  # the HMI may split big files: verify every glyph
         except ValueError:
             continue
-        found[key] = ZiFont(font.name, font.height, text)
+        found[key] = ZiFont(font.name, font.height, text, variant=font.variant)
     args.out.mkdir(parents=True, exist_ok=True)
     for key, filename in WANTED.items():
         if key not in found:

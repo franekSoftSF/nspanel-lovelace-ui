@@ -48,5 +48,10 @@
       }
     },
     "free_bytes": 3713263
+  },
+  "clock_font": {
+    "height": 128,
+    "glyphs": 96,
+    "bytes": 54901
   }
 }

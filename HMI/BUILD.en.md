@@ -67,7 +67,7 @@ EU (`nspanel.HMI`) and US landscape (`nspanel_US_L.HMI`) – 8 fonts each:
 | 2 | text 32 px (`noto-sans-32-sp5` / `-sp6`) | keep |
 | 3 | NotoSans-Regular 48 px with icons | **replace** with `icons-regular-48.zi` |
 | 4 | NotoSans-Bold 80 px with icons | **replace** with `icons-bold-80.zi` |
-| 5 | clock digits 128 px | keep |
+| 5 | clock digits 128 px | **replace** with `clock-bold-128.zi` (adds `°`, BUILD-55.en.md B) |
 | 6 | vertical text 16 px | keep |
 | 7 | `corners1` 15 px | keep |
 | **8** | – | **add** `icons-64.zi` |
@@ -88,7 +88,8 @@ panel in `panels.yaml`. The integration defaults to 8, and to 7 for `model: us-p
 ## 5. Steps for each variant
 
 1. **Open** the project from the table in step 2 (*File → Open*).
-2. **Fonts**: replace indexes 1, 3, 4 and add the 64 px font (step 4).
+2. **Fonts**: replace indexes 1, 3, 4 and 5 and add the 64 px font (step 4).
+   **Firmware 55 changes** (colour weather icons, issue fixes): [BUILD-55.en.md](BUILD-55.en.md), sections A–F.
 3. **Version**: page `pageStartup` (*Page* list on the right), text component `tVersion`,
    attribute `txt`: change `54` to **`55`**. The display sends this number at startup
    (`event,startup,55,eu`), and the integration compares it with the package.
@@ -96,18 +97,19 @@ panel in `panels.yaml`. The integration defaults to 8, and to 7 for `model: us-p
    Estimate: EU about 10.9 MiB, US portrait about 11.0 MiB, US landscape about 12.5 MiB; the limit
    is 16 MB.
 5. **Simulator (Debug)**, before flashing anything:
-   1. Click **Debug**. The simulator opens on the start page.
-   2. In the *Instruction Input Area* (bottom; *Send command to: Simulator*) paste the lines of
-      `HMI/fonts/generated/simulator-test-<variant>.txt` one by one, each followed by Enter:
-      `page pageIcons`, then the 3 icon lines.
-   3. Expected:
-      - left: house (`home`), same as before;
+   1. Click **Debug**. The simulator shows the start page "Waiting for content…". Every few seconds
+      this page switches on the frame mode `recmod=1`, which ignores plain instructions, so leave it.
+   2. **Click the spinning spinner 9 times.** This hidden entry opens the page `pageTest`.
+   3. On `pageTest` click **"disable recmod"** (grey button on the right, above "bauds=115200").
+   4. In the *Instruction Input Area* select **String** and *Keyboard Input*, paste all lines of
+      `HMI/fonts/generated/simulator-test-<variant>.txt` (open it in Notepad; the icons look like empty
+      boxes or Hebrew/Armenian letters there, which is expected), click **Run all commands**.
+   5. Expected on the page `pageIcons` (3 white fields on the right):
+      - top: house (`home`), same as before;
       - middle: thermometer with probe (`thermometer-probe`). It is new in MDI 7, so the old
         firmware would show an empty field here;
-      - right: a large, sharp thermostat (`thermostat-auto`) from the new 64 px font. If it is empty
-        or small, the font index differs from the `tTmp3.font=` command.
-   4. Optional layout check: `page screensaver`, `tTime.txt="12:34"`, `tMainIcon.txt="..."` (paste the
-      character from the `tTmp1` line of the test file).
+      - bottom: a large, sharp thermostat (`thermostat-auto`) from the 64 px font. If it is empty or
+        small, the font index differs from the `tTmp3.font=` command.
 6. **Export**: *File → TFT file output*, choose the folder and name from the table in step 2
    (overwrite the old file). Then check the result:
    ```bash
@@ -132,6 +134,8 @@ part of this guide, so do not overwrite it with the output of `nspanel_US_L.HMI`
 - [ ] Device unchanged: NX4832F035_011, direction as in the table, utf-8
 - [ ] Index 1 → `icons-regular-32.zi`, 3 → `icons-regular-48.zi`, 4 → `icons-bold-80.zi`
 - [ ] `icons-64.zi` appended: index 8 (EU, US landscape) / 7 (US portrait)
+- [ ] Index 5 → `clock-bold-128.zi`
+- [ ] BUILD-55.en.md: A (weather pictures), C, D (US portrait only), E, F
 - [ ] `pageStartup.tVersion` = 55
 - [ ] Compile without errors, size < 16 MB
 - [ ] Debug: the 3 icons of the test file are visible
