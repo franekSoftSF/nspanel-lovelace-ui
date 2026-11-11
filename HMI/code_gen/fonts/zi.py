@@ -6,7 +6,8 @@ glyph byte for byte (32 px: 7120/7120, 48 px: 7119/7119, 80 px: 4584/4584 readab
 
 Layout:
     0x00  44-byte header (see HEADER below)
-    0x2C  font name (length at 0x11)
+    0x2C  font name + encoding, e.g. "NotoSans-Regularutf-8" (total length at 0x11,
+          name length without the encoding at 0x20)
           character map: 10 bytes per glyph, sorted by code point
               u16 code point, u8 width, u8 x-offset?, u8 ?, u24 data offset, u16 data length
               (offsets are relative to the start of the character map)
@@ -24,6 +25,7 @@ VERSION = 6
 HEADER_SIZE = 0x2C
 ALPHA_MAX = 7
 LARGE_FONT_GLYPHS = 4096
+ENCODING_SUFFIX = b"utf-8"
 
 
 @dataclass
@@ -49,7 +51,9 @@ class ZiFont:
         return set(self.glyphs)
 
     def to_bytes(self) -> bytes:
-        name = self.name.encode("ascii")
+        # Nextion stores "<font name><encoding>" and the name length at 0x20; Nextion Editor
+        # derives the encoding it shows from that suffix (a missing "utf-8" shows as garbage).
+        name = self.name.encode("ascii") + ENCODING_SUFFIX
         if len(name) > 255:
             raise ValueError("font name too long")
         glyphs = [self.glyphs[cp] for cp in sorted(self.glyphs)]
@@ -80,8 +84,8 @@ class ZiFont:
         struct.pack_into("<I", header, 0x14, len(body))
         struct.pack_into("<I", header, 0x18, HEADER_SIZE)
         header[0x1C:0x20] = b"\xff\x00\x01\x01"
-        # 0x20: Nextion Editor writes len(name) - 5 here (21 -> 0x10, 18 -> 0x0D, 13 -> 0x08).
-        header[0x20] = max(len(name) - 5, 0)
+        # 0x20: length of the font name without the encoding suffix.
+        header[0x20] = len(name) - len(ENCODING_SUFFIX)
         # 0x24: the glyph count for small fonts, 0x10000 for the large icon fonts (observed:
         # 3 -> 3, 2248 -> 2248, 7120 -> 0x10000). Threshold between those is not known.
         struct.pack_into("<I", header, 0x24, 0x10000 if len(glyphs) > LARGE_FONT_GLYPHS else len(glyphs))
@@ -95,7 +99,10 @@ class ZiFont:
         name_len = raw[0x11]
         height = raw[7]
         base = HEADER_SIZE + name_len
-        font = cls(raw[HEADER_SIZE:base].decode("ascii", "replace"), height)
+        full = raw[HEADER_SIZE:base]
+        if not full.endswith(ENCODING_SUFFIX) or raw[0x20] != name_len - len(ENCODING_SUFFIX):
+            raise ValueError("only UTF-8 fonts are supported")
+        font = cls(full[:raw[0x20]].decode("ascii", "replace"), height)
         for i in range(count):
             pos = base + 10 * i
             cp, width, x_offset, unknown = struct.unpack_from("<HBBB", raw, pos)

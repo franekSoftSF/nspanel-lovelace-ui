@@ -21,9 +21,9 @@ from zi import HEADER_SIZE, ZiFont  # noqa: E402
 TEXT_LAST = 0xFF
 # (font name in the HMI, height) -> base file
 WANTED = {
-    ("NotoSans-Regularutf-8", 32): "text-regular-32.zi",
-    ("NotoSans-Regularutf-8", 48): "text-regular-48.zi",
-    ("NotoSans-Boldutf-8", 80): "text-bold-80.zi",
+    ("NotoSans-Regular", 32): "text-regular-32.zi",
+    ("NotoSans-Regular", 48): "text-regular-48.zi",
+    ("NotoSans-Bold", 80): "text-bold-80.zi",
 }
 
 
