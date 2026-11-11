@@ -87,7 +87,7 @@ def build(out: Path = OUT, only: set[str] | None = None) -> dict:
         print(f"estimated {variant} .tft: {estimate / 1048576:.2f} MiB of {FLASH_BYTES / 1048576:.0f} MiB "
               f"({(FLASH_BYTES - estimate) / 1048576:.2f} MiB free)")
     report["budget"]["free_bytes"] = min(v["free_bytes"] for v in report["budget"]["variants"].values())
-    (out / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    (out / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8", newline="\n")
     return report
 
 

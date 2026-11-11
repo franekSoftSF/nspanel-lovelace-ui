@@ -67,7 +67,8 @@ def main() -> int:
     }
     if args.berry:
         manifest["berry"] = describe(args.berry, args.out, "autoexec.be")
-    (args.out / "firmware.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    (args.out / "firmware.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8",
+                                            newline="\n")
     if args.zip:
         archive = args.out.with_suffix(".zip")
         with zipfile.ZipFile(archive, "w", zipfile.ZIP_STORED) as zf:
