@@ -48,30 +48,12 @@ obecny wygląd z MDI (tak jak frontend Home Assistant), np. `cloud-check`.
 
 ## 2. Nextion Editor (ręcznie, tylko Windows)
 
-Nextion Editor nie ma wiersza poleceń, więc tego kroku nie da się zrobić w CI. Wykonaj go dla każdego
-projektu: `HMI/nspanel.HMI` (EU), `HMI/US/portrait/nspanel_US_P.HMI`, `HMI/US/landscape/nspanel_US_L.HMI`.
-
-1. Otwórz projekt w Nextion Editor (w wersji, w której projekt ostatnio zapisano, albo nowszej; nowszy
-   edytor może poprosić o konwersję projektu, więc zachowaj kopię).
-2. **Podmień** 3 fonty ikon w panelu *Fonts*, zachowując ich ID (kod HMI i backend odwołują się do
-   fontów po ID):
-   - NotoSans-Regular 32 → `HMI/fonts/generated/icons-regular-32.zi`
-   - NotoSans-Regular 48 → `icons-regular-48.zi`
-   - NotoSans-Bold 80 → `icons-bold-80.zi`
-
-   Zaznacz font, *Replace*, wybierz plik, a potem porównaj wysokość. Jeśli Twoja wersja edytora nie ma
-   *Replace* dla fontów, wstaw nowy font (*Insert*) w tym samym miejscu i usuń stary (*Delete*), a potem
-   sprawdź, że ID pozostałych fontów się nie zmieniły.
-3. **Dodaj** `icons-64.zi` jako ostatni font i zanotuj jego ID. HMI czyta wybór fontu jako jedną cyfrę
-   (`...¬8`), więc ID musi mieścić się w 0–9. Backend zakłada 8. Jeśli jest inne, ustaw
-   `largeIconFontId: <id>` dla paneli z tym wariantem w `panels.yaml`.
-4. Strona `pageStartup`, komponent tekstowy `tVersion`: zmień `54` na `55`.
-5. *Compile*. Okno wyników pokazuje zajętość flash; musi zostać poniżej 16 MB (zobacz tabelę).
-6. *File → TFT file output* (albo *Upload → TFT*): zapisz jako `nspanel.tft`, `nspanel_US_P.tft`,
-   `nspanel_US_L.tft` obok projektu (zastąp stary plik). US poziomy ma dodatkowy `nspanel_US_L-I.tft`;
-   jeśli go używasz, zbuduj go tak samo z jego projektu.
-7. Zapisz projekt (`.HMI`) i zacommituj HMI + TFT. Workflow *nextion2text* zaktualizuje `n2t-out`.
-8. Wgraj na jeden panel i sprawdź: ikony na wygaszaczu, kartach, siatce (`font: large-icon`) i w popupach.
+Nextion Editor nie ma wiersza poleceń, więc tego kroku nie da się zrobić w CI. Instrukcja krok po
+kroku z wersją edytora i linkiem do pobrania, tabelą indeksów fontów każdego wariantu, testem w
+symulatorze, eksportem, kontrolą przed flashowaniem, checklistą i typowymi błędami:
+**[BUILD.md](BUILD.md)**. W skrócie: podmień fonty 1, 3, 4 na wygenerowane, dodaj na końcu
+`icons-64.zi` (indeks 8; US pionowy 7), ustaw `pageStartup.tVersion` na 55, skompiluj, wyeksportuj,
+`hmi_info.py --check`.
 
 ## 3. Wydanie
 
@@ -114,4 +96,4 @@ Wymagania:
   serwowanie HTTP z Range/Content-Length tak, jak pyta sterownik Berry, encja aktualizacji (wersja ze
   zdarzenia startup, komenda FlashNextion, postęp do zgłoszenia nowej wersji), akcja sterownika Berry.
 - Tylko statycznie albo wcale: kompilacja w Nextion Editor, prawdziwy rozmiar .tft, wygląd ikon na
-  ekranie, wgrywanie na prawdziwy panel przez Tasmotę albo ESPHome, ID fontów w 3 projektach.
+  ekranie, wgrywanie na prawdziwy panel przez Tasmotę albo ESPHome. Indeksy fontów są odczytane z projektów i sprawdzane testem.

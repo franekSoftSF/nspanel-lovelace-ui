@@ -79,3 +79,39 @@ def test_lookup_names_aliases_and_fallback() -> None:
     # Removed names fall back instead of showing an unrelated icon on a reused code point.
     assert icon_mapping.get_icon_char("mdi:google-home") == icon_mapping.icons["alert-circle-outline"]
     assert icon_mapping.get_icon_char("mdi:does-not-exist") == icon_mapping.icons["alert-circle-outline"]
+
+
+# --- Nextion Editor build data (HMI/BUILD.md) ---------------------------------------------
+
+hmi_info = importlib.import_module("hmi_info")
+
+
+@pytest.mark.parametrize(("variant", "orientation", "icon_fonts", "next_index"), [
+    ("eu", 3, {1: 32, 3: 48, 4: 80}, 8),
+    ("us-p", 2, {1: 32, 3: 48, 4: 80}, 7),
+    ("us-l", 3, {1: 32, 3: 48, 4: 80}, 8),
+])
+def test_hmi_font_indexes_match_build_guide(variant, orientation, icon_fonts, next_index) -> None:
+    info = hmi_info.hmi_info(ROOT / hmi_info.VARIANTS[variant]["hmi"])
+    assert info["model_crc"] == hmi_info.MODEL_CRC
+    assert info["orientation"] == orientation
+    assert info["encoding"] == 0x18  # utf-8
+    fonts = {font["index"]: font for font in info["fonts"]}
+    for index, height in icon_fonts.items():  # the fonts BUILD.md says to replace
+        assert fonts[index]["height"] == height and fonts[index]["glyphs"] == 7120
+    assert len(fonts) == next_index  # the new 64 px font is appended at this index
+
+
+def test_large_icon_font_default_follows_the_variant() -> None:
+    from custom_components.nspanel_lovelace_ui.backend.ha_cards import large_icon_font_id
+
+    assert large_icon_font_id({"model": "eu"}) == 8
+    assert large_icon_font_id({"model": "us-l"}) == 8
+    assert large_icon_font_id({"model": "us-p"}) == 7
+    assert large_icon_font_id({"model": "us-p", "largeIconFontId": 9}) == 9
+
+
+@pytest.mark.parametrize("variant", ["eu", "us-p", "us-l"])
+def test_current_tft_passes_the_pre_flash_check(variant) -> None:
+    folder = Path(hmi_info.VARIANTS[variant]["hmi"]).parent
+    assert hmi_info.check_tft(variant, ROOT / folder / hmi_info.VARIANTS[variant]["tft"]) == []

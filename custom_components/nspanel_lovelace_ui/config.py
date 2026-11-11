@@ -82,7 +82,7 @@ def load_config(path: Path) -> tuple[dict[str, Any], list[str]]:
     data, warnings = _parse_lenient(text)
     config = validate(data)
     for name, panel in config["nspanels"].items():
-        font_id = panel.get("largeIconFontId", 8)
+        font_id = panel.get("largeIconFontId", 7 if panel.get("model", "eu") == "us-p" else 8)
         if type(font_id) is not int or not 0 <= font_id <= 9:
             raise ConfigError(f"{name}.largeIconFontId must be a font ID from 0 to 9 (the HMI reads one digit)")
         if config.get("use_ha_api"):

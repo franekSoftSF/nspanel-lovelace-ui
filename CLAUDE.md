@@ -16,7 +16,7 @@ Talk to the user in Polish; code, comments and commits in English.
 - Icons/firmware (HMI/FIRMWARE.md): `HMI/code_gen/fonts/` (zi.py .zi reader/writer, build_fonts.py,
   mdi.py pinned MDI + sha256) and `HMI/code_gen/icons/update_mdi.py` generate `HMI/fonts/generated/*.zi` and
   `backend/libs/icon_mapping.py` from the same MDI release - never edit them by hand. `.HMI`/`.tft` change only
-  in Nextion Editor (Windows GUI, manual). Integration: `firmware.py` (package), `http.py` (token URL for
+  in Nextion Editor (Windows GUI, manual: HMI/BUILD.md; `hmi_info.py` reads font indexes and checks .tft). Integration: `firmware.py` (package), `http.py` (token URL for
   Tasmota, plain HTTP + Range), `update.py` (Display firmware entity).
 
 ## Rules

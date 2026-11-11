@@ -328,13 +328,19 @@ class HAEntity(panel_cards.Entity):
         # Grid icon/value fonts use TFT IDs 0–3, unlike screensaver status fonts.
         if cardType in ("cardGrid", "cardGrid2"):
             grid_font = {"small": 0, "medium-icon": 1, "medium": 2, "large": 3,
-                         # MDI 7 firmware (HMI 55+): sharp 64 px icon font, appended as the last font.
-                         "large-icon": self.panel.settings.get("largeIconFontId", 8) if self.panel else 8,
+                         # MDI 7 firmware (HMI 55+): sharp 64 px icon font, appended as the last font:
+                         # index 8 (EU, US landscape: 8 fonts before) or 7 (US portrait: 7), HMI/BUILD.md.
+                         "large-icon": large_icon_font_id(self.panel.settings if self.panel else {}),
                          }.get(self.config.get("font"))
             if grid_font is not None:
                 icon_char = f"{icon_char}¬{grid_font}"
 
         return f"~{entity_type_panel}~iid.{self.iid}~{icon_char}~{color}~{name}~{value}"
+
+def large_icon_font_id(settings):
+    default = 7 if settings.get("model", "eu") == "us-p" else 8
+    return settings.get("largeIconFontId", default)
+
 
 class HACard(panel_cards.Card):
     def __init__(self, locale, config, panel):

@@ -48,30 +48,11 @@ renamed names show the current MDI design (as in the Home Assistant frontend), e
 
 ## 2. Nextion Editor (manual, Windows only)
 
-Nextion Editor has no command line, so this step cannot run in CI. Do it for each project:
-`HMI/nspanel.HMI` (EU), `HMI/US/portrait/nspanel_US_P.HMI`, `HMI/US/landscape/nspanel_US_L.HMI`.
-
-1. Open the project in Nextion Editor (the version the project was last saved with or newer;
-   a newer editor may ask to convert the project - keep a copy).
-2. **Replace** the three icon fonts in the *Fonts* panel, keeping their IDs (HMI code and the
-   backend address fonts by ID):
-   - NotoSans-Regular 32 → `HMI/fonts/generated/icons-regular-32.zi`
-   - NotoSans-Regular 48 → `icons-regular-48.zi`
-   - NotoSans-Bold 80 → `icons-bold-80.zi`
-
-   Select the font, *Replace*, choose the file, compare the height afterwards. If your editor version
-   has no *Replace* for fonts, *Insert* the new font at the same position and *Delete* the old one,
-   then check that the IDs of all other fonts are unchanged.
-3. **Add** `icons-64.zi` as the last font. Note its ID. The HMI reads the font override as one digit
-   (`...¬8`), so the ID must be 0–9. The backend assumes 8; if it differs, set
-   `largeIconFontId: <id>` for the panels with this variant in `panels.yaml`.
-4. Page `pageStartup`, text component `tVersion`: change `54` to `55`.
-5. *Compile*. The output window shows the flash usage; it must stay below 16 MB (see the table).
-6. *File → TFT file output* (or *Upload → TFT*): save as `nspanel.tft`, `nspanel_US_P.tft`,
-   `nspanel_US_L.tft` next to the project (replace the old file; US landscape has an extra
-   `nspanel_US_L-I.tft` - build it the same way from its project if you use it).
-7. Save the project (`.HMI`) and commit HMI + TFT. The *nextion2text* workflow updates `n2t-out`.
-8. Flash one panel and check: icons on the screensaver, cards, grid (`font: large-icon`), popups.
+Nextion Editor has no command line, so this step cannot run in CI. Step-by-step guide with the
+editor version and download link, the font index table of every variant, simulator test, export,
+pre-flash check, checklist and common errors: **[BUILD.en.md](BUILD.en.md)**. In short: replace
+fonts 1, 3, 4 with the generated ones, append `icons-64.zi` (index 8; US portrait 7), set
+`pageStartup.tVersion` to 55, compile, export, `hmi_info.py --check`.
 
 ## 3. Release
 
@@ -115,4 +96,4 @@ Requirements:
   Range/Content-Length as the Berry driver requests it, update entity (version from the startup event,
   FlashNextion command, progress until the new version is reported), Berry driver action.
 - Only statically / not at all: compiling in Nextion Editor, the real .tft size, how the icons look on
-  the display, flashing a real panel through Tasmota or ESPHome, font IDs in the three projects.
+  the display, flashing a real panel through Tasmota or ESPHome. The font indexes are read from the projects and checked by a test.

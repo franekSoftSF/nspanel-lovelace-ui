@@ -91,6 +91,27 @@ def build(out: Path = OUT, only: set[str] | None = None) -> dict:
     return report
 
 
+# Index the new 64 px font gets when it is appended as the last font (HMI/BUILD.md).
+LARGE_ICON_FONT_ID = {"eu": 8, "us-p": 7, "us-l": 8}
+SIMULATOR_ICONS = ("home", "thermometer-probe", "thermostat-auto")  # old icon, two new in MDI 7
+
+
+def simulator_commands(out: Path = OUT) -> None:
+    """Commands to paste into Nextion Editor's Debug window (one file per variant)."""
+    icons = {icon["name"]: icon for icon in mdi.load_meta()}
+    old, new_a, new_b = (chr(icons[name]["nextion"]) for name in SIMULATOR_ICONS)
+    for variant, font_id in LARGE_ICON_FONT_ID.items():
+        lines = [
+            "page pageIcons",
+            f'tTmp1.txt="{old}"',
+            f'tTmp2.txt="{new_a}"',
+            f"tTmp3.font={font_id}",
+            f'tTmp3.txt="{new_b}"',
+        ]
+        text = "\n".join(lines) + "\n"
+        (out / f"simulator-test-{variant}.txt").write_text(text, encoding="utf-8", newline="\n")
+
+
 def preview(old_font: Path, new_font: Path, names: list[str], target: Path) -> None:
     """Side-by-side PNG (old | new) of some icons, enlarged 4x, for review."""
     from PIL import Image
@@ -128,6 +149,7 @@ def main() -> int:
     parser.add_argument("--preview", type=Path, help="old 32 px .zi to compare against")
     args = parser.parse_args()
     report = build(args.out, set(args.only) if args.only else None)
+    simulator_commands(args.out)
     if args.preview:
         preview(args.preview, args.out / "icons-regular-32.zi",
                 ["lightbulb-outline", "home", "thermometer", "weather-partly-cloudy", "window-shutter", "fan"],
