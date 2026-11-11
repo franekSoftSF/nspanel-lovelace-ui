@@ -87,7 +87,21 @@ docker run --rm -v "$PWD:/work" nspanel-ha-tests
 Tests use `pytest-homeassistant-custom-component` (Python 3.14). Home Assistant does not run on Windows, so use
 Docker (or WSL / Linux / macOS with a Python 3.14 venv: `pip install -r requirements_test.txt && pytest`).
 
+## Display firmware
+
+The integration can serve the display firmware (.tft) and the Tasmota Berry driver from Home Assistant
+and flash it with the **Display firmware** update entity of each panel. Building the firmware with the
+MDI 7 icon fonts, publishing it and installing the package: [HMI/FIRMWARE.md](HMI/FIRMWARE.md).
+
 ## Changelog
+
+### 5.2.0
+- Icons: Material Design Icons 7.4.47 (7447 icons, aliases of renamed icons work). New icons need display
+  firmware 55; see HMI/FIRMWARE.md.
+- Update entity "Display firmware" per panel and action `nspanel_lovelace_ui.update_berry_driver`: the .tft
+  and the Berry driver are served locally by Home Assistant from `<config>/nspanel_lovelace_ui/firmware/`.
+- New grid font `font: large-icon` (64 px icon font of firmware 55, `largeIconFontId`, default 8).
+- Optional `firmware_base_url` in panels.yaml (plain HTTP address the panels download from).
 
 ### 5.1.0
 - Duplicate keys in `panels.yaml` no longer stop the integration: the last value is used (as with AppDaemon) and

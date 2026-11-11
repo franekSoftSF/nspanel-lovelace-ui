@@ -87,7 +87,21 @@ docker run --rm -v "$PWD:/work" nspanel-ha-tests
 Testy korzystają z `pytest-homeassistant-custom-component` (Python 3.14). Home Assistant nie działa na Windows, więc
 uruchamiaj je w Dockerze (albo w WSL / Linux / macOS z venv Pythona 3.14: `pip install -r requirements_test.txt && pytest`).
 
+## Firmware ekranu
+
+Integracja może serwować z Home Assistant firmware ekranu (.tft) i sterownik Berry dla Tasmoty oraz
+wgrywać go encją aktualizacji **Firmware ekranu** każdego panelu. Budowa firmware z fontami ikon MDI 7,
+wydanie i instalacja pakietu: [HMI/FIRMWARE.pl.md](HMI/FIRMWARE.pl.md).
+
 ## Historia zmian
+
+### 5.2.0
+- Ikony: Material Design Icons 7.4.47 (7447 ikon, działają aliasy przemianowanych ikon). Nowe ikony
+  wymagają firmware ekranu 55, zobacz HMI/FIRMWARE.pl.md.
+- Encja aktualizacji „Firmware ekranu” dla każdego panelu i akcja `nspanel_lovelace_ui.update_berry_driver`:
+  .tft i sterownik Berry są serwowane lokalnie przez Home Assistant z `<config>/nspanel_lovelace_ui/firmware/`.
+- Nowy font siatki `font: large-icon` (font ikon 64 px z firmware 55, `largeIconFontId`, domyślnie 8).
+- Opcjonalne `firmware_base_url` w panels.yaml (adres po zwykłym HTTP, z którego panele pobierają pliki).
 
 ### 5.1.0
 - Zduplikowane klucze w `panels.yaml` nie zatrzymują już integracji. Używana jest ostatnia wartość (jak w AppDaemon),

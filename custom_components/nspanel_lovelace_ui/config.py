@@ -81,7 +81,10 @@ def load_config(path: Path) -> tuple[dict[str, Any], list[str]]:
         raise ConfigError(f"Cannot read {path}: {err}") from err
     data, warnings = _parse_lenient(text)
     config = validate(data)
-    for panel in config["nspanels"].values():
+    for name, panel in config["nspanels"].items():
+        font_id = panel.get("largeIconFontId", 8)
+        if type(font_id) is not int or not 0 <= font_id <= 9:
+            raise ConfigError(f"{name}.largeIconFontId must be a font ID from 0 to 9 (the HMI reads one digit)")
         if config.get("use_ha_api"):
             continue
         for key in ("panelRecvTopic", "panelSendTopic"):

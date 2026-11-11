@@ -37,3 +37,6 @@ Icon[
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# MDI download cache of HMI/code_gen/fonts
+HMI/fonts/.mdi-cache/

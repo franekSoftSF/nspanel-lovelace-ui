@@ -1,15 +1,27 @@
 {
   "domain": "nspanel_lovelace_ui",
   "name": "NSPanel Lovelace UI",
-  "after_dependencies": ["esphome", "mqtt"],
-  "codeowners": ["@franekSoftSF"],
+  "after_dependencies": [
+    "esphome",
+    "mqtt"
+  ],
+  "codeowners": [
+    "@franekSoftSF"
+  ],
   "config_flow": true,
+  "dependencies": [
+    "http"
+  ],
   "documentation": "https://github.com/franekSoftSF/nspanel-lovelace-ui/blob/main/INTEGRATION.md",
   "integration_type": "hub",
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/franekSoftSF/nspanel-lovelace-ui/issues",
-  "loggers": ["custom_components.nspanel_lovelace_ui"],
-  "requirements": ["babel>=2.14.0"],
+  "loggers": [
+    "custom_components.nspanel_lovelace_ui"
+  ],
+  "requirements": [
+    "babel>=2.14.0"
+  ],
   "single_config_entry": true,
-  "version": "5.1.0"
+  "version": "5.2.0"
 }

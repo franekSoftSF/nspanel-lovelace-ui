@@ -13,10 +13,11 @@ from typing import Any
 
 from homeassistant.components import mqtt
 from homeassistant.core import Event, HomeAssistant, callback
+from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.event import async_track_time_change, async_track_time_interval
 
 from .backend.libs import home_assistant as bridge
-from .const import ESPHOME_EVENT
+from .const import ESPHOME_EVENT, SIGNAL_PANEL_STATE
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -127,6 +128,17 @@ class NSPanelRuntime:
         self._outbox: asyncio.Queue = asyncio.Queue()
         self._unsubs: list[Callable[[], None]] = []
         self._sender: asyncio.Task | None = None
+        # Reported by the display in "event,startup,<version>,<model>": name -> {version, model}.
+        self.panel_state: dict[str, dict[str, Any]] = {}
+        # Local firmware package and how panels reach it (set by __init__ before async_start).
+        self.firmware: Any = None
+        self.firmware_base_url: str | None = None
+        self.http_state: Any = None
+
+    def firmware_url(self, filename: str) -> str | None:
+        if self.firmware_base_url is None or self.http_state is None:
+            return None
+        return self.firmware_base_url + self.http_state.path(filename)
 
     async def async_start(self) -> None:
         hass = self.hass
@@ -199,14 +211,30 @@ class NSPanelRuntime:
         except ValueError:
             _LOGGER.debug("Ignoring non-JSON payload on %s: %s", msg.topic, payload)
             return
-        if isinstance(data, dict) and "CustomRecv" in data:
+        if isinstance(data, dict) and isinstance(data.get("CustomRecv"), str):
+            self._observe(worker, data["CustomRecv"])
             worker.inbox.put(("MQTT:", data["CustomRecv"]))
 
     @callback
     def _on_esphome_event(self, event: Event) -> None:
         worker = self.workers.get(event.data.get("device_id"))
         if worker is not None and isinstance(event.data.get("CustomRecv"), str):
+            self._observe(worker, event.data["CustomRecv"])
             worker.inbox.put(("MQTT:", event.data["CustomRecv"]))
+
+    @callback
+    def _observe(self, worker: PanelWorker, message: str) -> None:
+        """Remember the display firmware version and model from the startup event."""
+        fields = message.split(",")
+        if len(fields) >= 4 and fields[0] == "event" and fields[1] == "startup":
+            try:
+                version = int(fields[2])
+            except ValueError:
+                return
+            state = {"version": version, "model": fields[3]}
+            if self.panel_state.get(worker.name) != state:
+                self.panel_state[worker.name] = state
+                async_dispatcher_send(self.hass, SIGNAL_PANEL_STATE, worker.name)
 
     @callback
     def _on_mqtt_connection(self, connected: bool) -> None:
@@ -226,6 +254,37 @@ class NSPanelRuntime:
                 worker.inbox.put(("TIME:", "second"))
 
     # --- outbound -----------------------------------------------------------------------
+
+    def worker_by_name(self, name: str) -> PanelWorker:
+        for worker in self.workers.values():
+            if worker.name == name:
+                return worker
+        raise KeyError(name)
+
+    def _command_topic(self, worker: PanelWorker, command: str) -> str:
+        prefix, separator, suffix = worker.settings["panelSendTopic"].rpartition("/")
+        if not separator or suffix != "CustomSend":
+            raise ValueError("panelSendTopic must end with /CustomSend to send Tasmota commands")
+        return f"{prefix}/{command}"
+
+    @callback
+    def async_flash_display(self, name: str, url: str) -> None:
+        """Tasmota: FlashNextion <url>; ESPHome: the api call with command 255 (as the add-on)."""
+        worker = self.worker_by_name(name)
+        if self.use_ha_api:
+            self._outbox.put_nowait((worker.settings["panelSendTopic"], url, 255))
+        else:
+            self._outbox.put_nowait((self._command_topic(worker, "FlashNextion"), url))
+        _LOGGER.info("Requested display firmware update of %s from %s", name, url)
+
+    @callback
+    def async_update_berry_driver(self, name: str, url: str) -> None:
+        """Tasmota: UpdateDriverVersion <url> (downloads autoexec.be and restarts)."""
+        if self.use_ha_api:
+            raise ValueError("the Berry driver exists only on Tasmota")
+        worker = self.worker_by_name(name)
+        self._outbox.put_nowait((self._command_topic(worker, "UpdateDriverVersion"), url))
+        _LOGGER.info("Requested Berry driver update of %s from %s", name, url)
 
     async def _async_send_loop(self) -> None:
         while True:

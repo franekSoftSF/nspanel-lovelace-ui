@@ -50,15 +50,21 @@ def panels_file(hass: HomeAssistant) -> Path:
     return target
 
 
-async def wait_for(hass: HomeAssistant, predicate: Callable[[], bool], timeout: float = 10) -> None:
-    """Let worker threads and the loop run until predicate() holds."""
+async def wait_for(hass: HomeAssistant, predicate: Callable[[], bool], timeout: float = 10,
+                   block: bool = True) -> None:
+    """Let worker threads and the loop run until predicate() holds.
+
+    block=False while a long-running task (an update install) is pending: async_block_till_done
+    would wait for that task too.
+    """
     loop = asyncio.get_running_loop()
     deadline = loop.time() + timeout
     while not predicate():
         if loop.time() > deadline:
             raise AssertionError("condition not reached in time")
         await asyncio.sleep(0.02)
-        await hass.async_block_till_done()
+        if block:
+            await hass.async_block_till_done()
 
 
 def published(mqtt_mock, topic: str = SEND) -> list[str]:
