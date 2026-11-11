@@ -6,3 +6,39 @@ update_berry_driver:
       selector:
         text:
 download_firmware:
+notify:
+  fields:
+    panel:
+      example: living_room
+      selector:
+        text:
+    message:
+      example: Garage door is open
+      selector:
+        text:
+          multiline: true
+    title:
+      example: Garage
+      selector:
+        text:
+    mode:
+      default: auto
+      selector:
+        select:
+          translation_key: notify_mode
+          options:
+            - auto
+            - screensaver
+            - popup
+            - clear
+    timeout:
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 3600
+          unit_of_measurement: s
+    buzzer:
+      default: false
+      selector:
+        boolean:

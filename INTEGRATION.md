@@ -71,6 +71,33 @@ notification – review them.
 Edit `panels.yaml`, then call the action `nspanel_lovelace_ui.reload` (or reload the integration).
 To use another file: integration menu → *Reconfigure*.
 
+## Entities and notifications
+
+Each panel is a device with these entities:
+
+| Entity | What it does |
+|---|---|
+| **Notification** (`notify`) | `notify.send_message`: on the screensaver the text replaces the weather until a touch; on a card it opens a notification page |
+| **Wake up screen** (`button`) | like a touch on the screensaver |
+| **Page** (`sensor`) | `screensaver` or the title of the card on the screen (attributes `card_type`, `card_key`) |
+| **Card** (`select`) | shows a card, e.g. a camera card when the doorbell rings; the back button returns to the previous card |
+| **Display firmware** (`update`) | display firmware update with progress |
+
+More options with the action `nspanel_lovelace_ui.notify`:
+
+```yaml
+action: nspanel_lovelace_ui.notify
+data:
+  panel: nspanel-1        # optional, empty = all panels
+  title: Washing
+  message: The washing machine has finished
+  mode: popup             # auto | screensaver | popup | clear (closes the screensaver notification)
+  timeout: 60             # notification page only, seconds; 0 = until closed
+  buzzer: true            # Tasmota: Buzzer 2,2,2
+```
+
+Diagnostics for a bug report: Settings → Devices & services → NSPanel Lovelace UI → ⋮ → *Download diagnostics*.
+
 ## Known differences from the add-on
 
 - No web editor (edit `panels.yaml` directly; the add-on's editor can still be used to produce the file).
@@ -106,6 +133,11 @@ and flash it with the **Display firmware** update entity of each panel. Building
 MDI 7 icon fonts, publishing it and installing the package: [HMI/FIRMWARE.md](HMI/FIRMWARE.md).
 
 ## Changelog
+
+### 5.2.3
+- Entities per panel: **Notification** (`notify.send_message`), **Wake up screen** button, **Page** sensor,
+  **Card** select; action `nspanel_lovelace_ui.notify` (screensaver text or notification page, timeout,
+  buzzer, close); diagnostics download.
 
 ### 5.2.2
 Found while migrating a real panel (HMI 53 from 2023, AppDaemon from HACS) to firmware 55:

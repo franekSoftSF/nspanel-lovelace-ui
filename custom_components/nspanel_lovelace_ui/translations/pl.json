@@ -78,6 +78,12 @@
     },
     "download_failed": {
       "message": "Nie udało się pobrać pakietu firmware ekranu: {error}"
+    },
+    "unknown_card": {
+      "message": "Nieznana karta: {card}"
+    },
+    "empty_notification": {
+      "message": "Podaj treść albo tytuł."
     }
   },
   "services": {
@@ -98,6 +104,36 @@
     "download_firmware": {
       "name": "Pobierz firmware ekranu",
       "description": "Pobiera nspanel-firmware.zip dla tej wersji integracji z wydania na GitHubie, sprawdza go i przeładowuje integrację."
+    },
+    "notify": {
+      "name": "Powiadomienie",
+      "description": "Pokazuje powiadomienie na panelu: na wygaszaczu (zamiast pogody) albo na stronie powiadomienia; opcjonalnie buzzer (Tasmota).",
+      "fields": {
+        "panel": {
+          "name": "Panel",
+          "description": "Nazwa panelu z panels.yaml. Puste: wszystkie panele."
+        },
+        "message": {
+          "name": "Treść",
+          "description": "Tekst. Podziały linii zostają zachowane."
+        },
+        "title": {
+          "name": "Tytuł",
+          "description": "Nagłówek powiadomienia."
+        },
+        "mode": {
+          "name": "Tryb",
+          "description": "auto: tekst na wygaszaczu, gdy jest wyświetlany, w przeciwnym razie strona powiadomienia. clear: zamyka powiadomienie na wygaszaczu."
+        },
+        "timeout": {
+          "name": "Czas",
+          "description": "Tylko strona powiadomienia: zamyka się po tylu sekundach; 0 = do zamknięcia."
+        },
+        "buzzer": {
+          "name": "Buzzer",
+          "description": "Sygnał dźwiękowy (Tasmota Buzzer 2,2,2)."
+        }
+      }
     }
   },
   "issues": {
@@ -118,6 +154,36 @@
     "update": {
       "display_firmware": {
         "name": "Firmware ekranu"
+      }
+    },
+    "button": {
+      "wake": {
+        "name": "Obudź ekran"
+      }
+    },
+    "notify": {
+      "notification": {
+        "name": "Powiadomienie"
+      }
+    },
+    "select": {
+      "card": {
+        "name": "Karta"
+      }
+    },
+    "sensor": {
+      "page": {
+        "name": "Strona"
+      }
+    }
+  },
+  "selector": {
+    "notify_mode": {
+      "options": {
+        "auto": "Automatycznie",
+        "screensaver": "Wygaszacz",
+        "popup": "Strona powiadomienia",
+        "clear": "Zamknij powiadomienie"
       }
     }
   }

@@ -78,6 +78,12 @@
     },
     "download_failed": {
       "message": "Downloading the display firmware package failed: {error}"
+    },
+    "unknown_card": {
+      "message": "Unknown card: {card}"
+    },
+    "empty_notification": {
+      "message": "Give a message or a title."
     }
   },
   "services": {
@@ -98,6 +104,36 @@
     "download_firmware": {
       "name": "Download display firmware",
       "description": "Downloads nspanel-firmware.zip of this integration version from the GitHub release, checks it and reloads the integration."
+    },
+    "notify": {
+      "name": "Notify",
+      "description": "Shows a notification on the panel: on the screensaver (replaces the weather) or as a notification page; optional buzzer (Tasmota).",
+      "fields": {
+        "panel": {
+          "name": "Panel",
+          "description": "Panel name from panels.yaml. Empty: all panels."
+        },
+        "message": {
+          "name": "Message",
+          "description": "The text. Line breaks are kept."
+        },
+        "title": {
+          "name": "Title",
+          "description": "Heading of the notification."
+        },
+        "mode": {
+          "name": "Mode",
+          "description": "auto: screensaver text when the screensaver is shown, otherwise a notification page. clear: close the screensaver notification."
+        },
+        "timeout": {
+          "name": "Timeout",
+          "description": "Notification page only: closes after this many seconds; 0 = until closed."
+        },
+        "buzzer": {
+          "name": "Buzzer",
+          "description": "Beep (Tasmota Buzzer 2,2,2)."
+        }
+      }
     }
   },
   "issues": {
@@ -118,6 +154,36 @@
     "update": {
       "display_firmware": {
         "name": "Display firmware"
+      }
+    },
+    "button": {
+      "wake": {
+        "name": "Wake up screen"
+      }
+    },
+    "notify": {
+      "notification": {
+        "name": "Notification"
+      }
+    },
+    "select": {
+      "card": {
+        "name": "Card"
+      }
+    },
+    "sensor": {
+      "page": {
+        "name": "Page"
+      }
+    }
+  },
+  "selector": {
+    "notify_mode": {
+      "options": {
+        "auto": "Automatic",
+        "screensaver": "Screensaver",
+        "popup": "Notification page",
+        "clear": "Close notification"
       }
     }
   }

@@ -14,6 +14,8 @@ from .ha_cards import Screensaver, card_factory, detail_open
 from . import ha_control
 from .firmware import FirmwareUpdater
 
+NOTIFY_ID = "nspanelNotify"  # internal name of the integration's notification page
+
 def _tz(name):
     try:
         return ZoneInfo(name)
@@ -31,6 +33,8 @@ class LovelaceUIPanel:
         # (e.g. 53 before November 2023) do not ask on the screensaver: those are rendered
         # right after the page switch, like the AppDaemon backend did.
         self._requesting_pages = set()
+        # Integration: called with the new card after every page switch (current card sensor).
+        self.on_page_change = None
         self._last_dim_command = None
         self._active_detail = None
         self._last_detail_payload = None
@@ -219,11 +223,24 @@ class LovelaceUIPanel:
             self.screensaver.invalidate()
         if switchPages:
             libs.panel_cmd.page_type(self.msg_out_queue, self.sendTopic, self.current_card.type)
+            if self.on_page_change:
+                self.on_page_change(self.current_card)
         if requested:
             self._requesting_pages.add(self.current_card.type)
             self.current_card.render()
         elif switchPages and self.current_card.type not in self._requesting_pages:
             self.current_card.render()
+
+    def show_notification(self, title, message, timeout=0):
+        """Integration: a notification page (popupNotify); its close button returns to the current card."""
+        if self.updater.active or not self.current_card:
+            return
+        self.privious_cards.append(self.current_card)
+        self._active_detail = None
+        libs.panel_cmd.page_type(self.msg_out_queue, self.sendTopic, "popupNotify")
+        libs.panel_cmd.entityUpdateDetail(
+            self.msg_out_queue, self.sendTopic,
+            f"{NOTIFY_ID}~{title}~65535~~~~~{message}~65535~{int(timeout)}")
 
     def dimmode(self, only_if_changed=False):
         if self.updater.active:

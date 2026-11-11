@@ -23,5 +23,5 @@
     "babel>=2.14.0"
   ],
   "single_config_entry": true,
-  "version": "5.2.2"
+  "version": "5.2.3"
 }
