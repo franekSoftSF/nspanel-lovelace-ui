@@ -22,6 +22,8 @@ on:
 jobs:
   gen-nextion-to-text:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # commits the regenerated n2t-out dumps back to the branch
 
     steps:
     - uses: actions/checkout@v6

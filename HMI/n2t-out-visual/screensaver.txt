@@ -52,6 +52,12 @@ Page screensaver
             vis tSend,0
             //page open event
             // clear weather elements, to keep example content in HMI
+            // firmware 55: weather pictures stay hidden until weatherPics
+            vis pMain,0
+            vis pF1,0
+            vis pF2,0
+            vis pF3,0
+            vis pF4,0
         
         Postinitialize Event
             click m0,1
@@ -979,6 +985,86 @@ Picture p0
         Effect Time      : 300
         Picture ID       : 0
     
+Picture pF1
+    Attributes
+        ID               : 49
+        Scope            : local
+        Dragging         : 0
+        Send Component ID: disabled
+        Opacity          : 127
+        x coordinate     : 146
+        y coordinate     : 242
+        Width            : 40
+        Height           : 40
+        Effect           : load
+        Effect Priority  : 0
+        Effect Time      : 300
+        Picture ID       : 41
+    
+Picture pF2
+    Attributes
+        ID               : 50
+        Scope            : local
+        Dragging         : 0
+        Send Component ID: disabled
+        Opacity          : 127
+        x coordinate     : 228
+        y coordinate     : 242
+        Width            : 40
+        Height           : 40
+        Effect           : load
+        Effect Priority  : 0
+        Effect Time      : 300
+        Picture ID       : 41
+    
+Picture pF3
+    Attributes
+        ID               : 51
+        Scope            : local
+        Dragging         : 0
+        Send Component ID: disabled
+        Opacity          : 127
+        x coordinate     : 309
+        y coordinate     : 242
+        Width            : 40
+        Height           : 40
+        Effect           : load
+        Effect Priority  : 0
+        Effect Time      : 300
+        Picture ID       : 41
+    
+Picture pF4
+    Attributes
+        ID               : 52
+        Scope            : local
+        Dragging         : 0
+        Send Component ID: disabled
+        Opacity          : 127
+        x coordinate     : 390
+        y coordinate     : 242
+        Width            : 40
+        Height           : 40
+        Effect           : load
+        Effect Priority  : 0
+        Effect Time      : 300
+        Picture ID       : 41
+    
+Picture pMain
+    Attributes
+        ID               : 48
+        Scope            : local
+        Dragging         : 0
+        Send Component ID: disabled
+        Opacity          : 127
+        x coordinate     : 26
+        y coordinate     : 208
+        Width            : 70
+        Height           : 66
+        Effect           : load
+        Effect Priority  : 0
+        Effect Time      : 300
+        Picture ID       : 26
+    
 Timer tm0
     Attributes
         ID         : 34
@@ -1093,6 +1179,17 @@ Timer tmSerial
                                         {
                                             vis tAMPM,1
                                         }
+                                        // firmware 55 (#1485): with AM/PM the time is left-aligned so it does not run under AM/PM
+                                        if(p0.w!=320)
+                                        {
+                                            if(tAMPM.txt=="")
+                                            {
+                                                tTime.xcen=1
+                                            }else
+                                            {
+                                                tTime.xcen=0
+                                            }
+                                        }
                                         spstr strCommand.txt,tTimeAdd.txt,"~",2
                                         ref tIcon1
                                         ref tIcon2
@@ -1102,6 +1199,18 @@ Timer tmSerial
                                         //get set date to global variable
                                         spstr strCommand.txt,pageIcons.vaDate.txt,"~",1
                                         tDate.txt=pageIcons.vaDate.txt
+                                        // firmware 55 (#1485): long dates get the 24 px font on the narrow US portrait screen
+                                        if(p0.w==320)
+                                        {
+                                            strlen tDate.txt,sys0
+                                            if(sys0>22)
+                                            {
+                                                tDate.font=0
+                                            }else
+                                            {
+                                                tDate.font=2
+                                            }
+                                        }
                                     }
                                     if(tInstruction.txt=="statusUpdate")
                                     {
@@ -1224,6 +1333,60 @@ Timer tmSerial
                                             }
                                         }
                                     }
+                                    // firmware 55: colour weather pictures (weatherPics~main~f1~f2~f3~f4, empty = font icon)
+                                    if(tInstruction.txt=="weatherPics"&&tNotifyHead.txt==""&&tNotifyText.txt=="")
+                                    {
+                                        spstr strCommand.txt,tTmp.txt,"~",1
+                                        if(tTmp.txt=="")
+                                        {
+                                            vis pMain,0
+                                        }else
+                                        {
+                                            covx tTmp.txt,sys0,0,0
+                                            pMain.pic=sys0
+                                            vis pMain,1
+                                        }
+                                        spstr strCommand.txt,tTmp.txt,"~",2
+                                        if(tTmp.txt=="")
+                                        {
+                                            vis pF1,0
+                                        }else
+                                        {
+                                            covx tTmp.txt,sys0,0,0
+                                            pF1.pic=sys0
+                                            vis pF1,1
+                                        }
+                                        spstr strCommand.txt,tTmp.txt,"~",3
+                                        if(tTmp.txt=="")
+                                        {
+                                            vis pF2,0
+                                        }else
+                                        {
+                                            covx tTmp.txt,sys0,0,0
+                                            pF2.pic=sys0
+                                            vis pF2,1
+                                        }
+                                        spstr strCommand.txt,tTmp.txt,"~",4
+                                        if(tTmp.txt=="")
+                                        {
+                                            vis pF3,0
+                                        }else
+                                        {
+                                            covx tTmp.txt,sys0,0,0
+                                            pF3.pic=sys0
+                                            vis pF3,1
+                                        }
+                                        spstr strCommand.txt,tTmp.txt,"~",5
+                                        if(tTmp.txt=="")
+                                        {
+                                            vis pF4,0
+                                        }else
+                                        {
+                                            covx tTmp.txt,sys0,0,0
+                                            pF4.pic=sys0
+                                            vis pF4,1
+                                        }
+                                    }
                                     if(tInstruction.txt=="color"&&tNotifyHead.txt==""&&tNotifyText.txt=="")
                                     {
                                         spstr strCommand.txt,tTmp.txt,"~",1
@@ -1295,6 +1458,9 @@ Timer tmSerial
                                             tForecast3.pco=tForecast2.pco
                                             tForecast2.pco=tForecast1.pco
                                         }
+                                        // firmware 55 (#1026): redraw the status icons after a colour change
+                                        ref tIcon1
+                                        ref tIcon2
                                     }
                                     if(tInstruction.txt=="notify")
                                     {
@@ -1304,10 +1470,29 @@ Timer tmSerial
                                         {
                                             vis tNotifyHead,1
                                             vis tNotifyText,1
+                                            // firmware 55: the weather pictures would cover the notification
+                                            vis pMain,0
+                                            vis pF1,0
+                                            vis pF2,0
+                                            vis pF3,0
+                                            vis pF4,0
                                         }else
                                         {
                                             vis tNotifyHead,0
                                             vis tNotifyText,0
+                                            // firmware 55: notification closed - ask the backend to send the screensaver again
+                                            tSend.txt="event,renderCurrentPage"
+                                            //send calc crc
+                                            btlen tSend.txt,sys0
+                                            crcrest 1,0xffff // reset CRC
+                                            crcputh 55 bb
+                                            crcputs sys0,2
+                                            crcputs tSend.txt,0
+                                            //send cmd
+                                            printh 55 bb
+                                            prints sys0,2
+                                            prints tSend.txt,0
+                                            prints crcval,2
                                         }
                                         tNotifyHead.bco=tTime.bco
                                         tNotifyText.bco=tTime.bco
@@ -1460,6 +1645,19 @@ TouchCap tc0
                     tNotifyText.txt=""
                     vis tNotifyHead,0
                     vis tNotifyText,0
+                    // firmware 55: notification closed - ask the backend to send the screensaver again
+                    tSend.txt="event,renderCurrentPage"
+                    //send calc crc
+                    btlen tSend.txt,sys0
+                    crcrest 1,0xffff // reset CRC
+                    crcputh 55 bb
+                    crcputs sys0,2
+                    crcputs tSend.txt,0
+                    //send cmd
+                    printh 55 bb
+                    prints sys0,2
+                    prints tSend.txt,0
+                    prints crcval,2
                 }
             }
             dim=dimValueNormal
