@@ -1,6 +1,6 @@
 {
   "domain": "nspanel_lovelace_ui",
-  "name": "NSPanel Lovelace UI",
+  "name": "NSPanel Lovelace UI (by Szymi)",
   "after_dependencies": [
     "esphome",
     "mqtt"

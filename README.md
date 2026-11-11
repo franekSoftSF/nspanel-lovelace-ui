@@ -1,4 +1,4 @@
-# NSPanel Lovelace UI – Home Assistant integration (fork)
+# NSPanel Lovelace UI – Home Assistant integration (fork by Szymi)
 
 [![GitHub Release](https://img.shields.io/github/v/release/franekSoftSF/nspanel-lovelace-ui)](https://github.com/franekSoftSF/nspanel-lovelace-ui/releases)
 [![License: GPL-3.0](https://img.shields.io/github/license/franekSoftSF/nspanel-lovelace-ui)](LICENSE)
@@ -100,6 +100,7 @@ they are not maintained in this fork.
 ## License and credits
 
 - Like the original project, this fork is licensed under the [GNU General Public License v3.0](LICENSE).
+- Fork maintained and modified by **Szymi** ([franekSoftSF](https://github.com/franekSoftSF)), 2026 – what was changed: [NOTICE](NOTICE).
 - Original project: [joBr99/nspanel-lovelace-ui](https://github.com/joBr99/nspanel-lovelace-ui) – joBr99 and contributors.
 - Weather pictures: [Meteocons](https://github.com/basmilius/weather-icons) by Bas Milius (MIT).
 - Icons: [Material Design Icons](https://pictogrammers.com/library/mdi/) by Pictogrammers.

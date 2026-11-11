@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "NSPanel Lovelace UI",
+        "title": "NSPanel Lovelace UI (by Szymi)",
         "description": "Panels and cards are configured in a YAML file in the Home Assistant configuration folder (same format as the add-on's panels.yaml). To migrate, enter your AppDaemon apps.yaml (or an add-on panels.yaml) as the import file; it is converted into the configuration file, which must not exist yet.\n\n{error}",
         "data": {
           "config_file": "Configuration file",
@@ -16,7 +16,7 @@
         }
       },
       "reconfigure": {
-        "title": "NSPanel Lovelace UI",
+        "title": "NSPanel Lovelace UI (by Szymi)",
         "description": "Change the configuration file or import another one.\n\n{error}",
         "data": {
           "config_file": "Configuration file",

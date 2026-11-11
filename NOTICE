@@ -1,0 +1,31 @@
+NSPanel Lovelace UI – Home Assistant integration (fork by Szymi)
+https://github.com/franekSoftSF/nspanel-lovelace-ui
+
+This is a modified version of NSPanel Lovelace UI
+https://github.com/joBr99/nspanel-lovelace-ui
+Copyright (C) joBr99 and the NSPanel Lovelace UI contributors.
+
+Modifications Copyright (C) 2026 Szymi (franekSoftSF).
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU
+General Public License as published by the Free Software Foundation, either version 3 of the License,
+or (at your option) any later version. See LICENSE. This program is distributed WITHOUT ANY WARRANTY.
+
+Changes made in this fork (November 2026, versions 5.0.0 - 5.2.2; details in INTEGRATION.md and the
+git history):
+
+- custom_components/nspanel_lovelace_ui: new native Home Assistant integration. Its backend/ folder is
+  derived from the add-on's mqtt-manager backend (nspanel-lovelace-ui/rootfs/usr/bin/mqtt-manager) and
+  was changed to run inside Home Assistant (in-process bridge instead of the websocket, Home Assistant
+  MQTT, config flow, update entity, firmware download, migration helpers, fixes).
+- HMI/nspanel.HMI, HMI/nspanel.tft: EU display firmware 55 (MDI 7 icon fonts, colour weather
+  pictures, screensaver and notification changes). HMI/code_gen/: font, icon, picture and patch
+  generators. HMI/patches/55: prepared event code for the US variants.
+- tasmota/autoexec.be, tasmota/nsp-lovelace-driver.tapp: Berry driver 10 (flash progress and errors).
+- scripts/, tests_ha/, MIGRATION*.md, INTEGRATION*.md, README*.md, CLAUDE.md: new or rewritten.
+- .github/workflows/nextion2text.yml: write permission for the regenerated dumps.
+
+Third-party material:
+- Meteocons weather icons, Copyright (c) Bas Milius – MIT License (HMI/pictures/weather).
+- Material Design Icons, Pictogrammers – icon fonts generated from the pinned release (HMI/fonts).
+- Noto Sans – SIL Open Font License 1.1 (degree sign of the clock font).
