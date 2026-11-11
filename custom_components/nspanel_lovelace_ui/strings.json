@@ -51,5 +51,11 @@
       "name": "Reload",
       "description": "Re-reads the panel configuration file and restarts all panels."
     }
+  },
+  "issues": {
+    "config_warnings": {
+      "title": "Warnings in the NSPanel configuration",
+      "description": "{file} was loaded, but contains problems that should be fixed:\n\n{warnings}\n\nFix the file and call the action nspanel_lovelace_ui.reload."
+    }
   }
 }

@@ -346,19 +346,23 @@ class HACard(panel_cards.Card):
                 entity = HAEntity(locale, e, panel)
                 self.entities.append(entity)
 
+    def _nav_item(self, number):
+        """navItem1/navItem2 with an entity replace the left/right button (AppDaemon behaviour, #1470)."""
+        attr = f"_nav_item{number}"
+        if not hasattr(self, attr):
+            config = self.config.get(f"navItem{number}")
+            setattr(self, attr, HAEntity(self.locale, config, self.panel)
+                    if isinstance(config, dict) and config.get("entity") else None)
+        return getattr(self, attr)
+
     def navigation_entities(self):
-        if not self.hidden:
-            return []
-        if not hasattr(self, "_nav_item2"):
-            config = self.config.get("navItem2")
-            self._nav_item2 = HAEntity(self.locale, config, self.panel) if isinstance(config, dict) and config.get("entity") else None
-        return [self._nav_item2] if self._nav_item2 else []
+        return [item for item in (self._nav_item(1), self._nav_item(2)) if item]
 
     def navigation_up_icon(self):
         if not self.hidden:
             return None
         if self.config.get("navItem1"):
-            return self.config.get("navItem1")       
+            return self.config.get("navItem1")
         return None
 
     def get_iid_entities(self):
@@ -409,8 +413,10 @@ class HACard(panel_cards.Card):
                                                 'color': [255, 255, 255],
                                             }, self.panel
                                             ).render()[1:]
-        if self.navigation_entities():
-            rightBtn = self.navigation_entities()[0].render()[1:] or "delete~~~~~"
+        if self._nav_item(1):
+            leftBtn = self._nav_item(1).render()[1:] or "delete~~~~~"
+        if self._nav_item(2):
+            rightBtn = self._nav_item(2).render()[1:] or "delete~~~~~"
         result = f"{leftBtn}~{rightBtn}"
         return result
 

@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import json
 import logging
 import queue
+import re
 import threading
 from typing import Any
 
@@ -34,6 +35,28 @@ def panel_settings(settings: dict[str, Any], default_time_zone: str) -> dict[str
         panel.setdefault("dateFormat", settings.get("dateFormat", "full"))
         panels[name] = panel
     return panels
+
+
+_ENTITY_ID = re.compile(r"^[a-z0-9_]+\.[a-z0-9_]+$")
+# Not Home Assistant entities: panel-internal pseudo domains.
+_PSEUDO_DOMAINS = {"navigate", "iText", "delete", "service"}
+# Read by the backend without being configured (brightness schedules use sunrise/sunset).
+_ALWAYS_RELEVANT = {"sun.sun"}
+
+
+def referenced_entities(settings: Any) -> frozenset[str]:
+    """Every string in the configuration that looks like an entity ID."""
+    found: set[str] = set(_ALWAYS_RELEVANT)
+    pending = [settings]
+    while pending:
+        value = pending.pop()
+        if isinstance(value, dict):
+            pending.extend(value.values())
+        elif isinstance(value, list):
+            pending.extend(value)
+        elif isinstance(value, str) and _ENTITY_ID.match(value) and value.split(".", 1)[0] not in _PSEUDO_DOMAINS:
+            found.add(value)
+    return frozenset(found)
 
 
 class OutQueue:
@@ -107,7 +130,7 @@ class NSPanelRuntime:
 
     async def async_start(self) -> None:
         hass = self.hass
-        bridge.async_init(hass, self._on_ha_update)
+        bridge.async_init(hass, self._on_ha_update, referenced_entities(self.settings))
         out = OutQueue(hass, self._outbox)
         for name, panel in panel_settings(self.settings, hass.config.time_zone).items():
             self.workers[panel["panelRecvTopic"]] = PanelWorker(name, panel, out, self.use_ha_api)

@@ -237,6 +237,12 @@ class LovelaceUIPanel:
             libs.panel_cmd.dimmode(self.msg_out_queue, self.sendTopic, *command)
             self._last_dim_command = command
 
+    def _current_items(self):
+        """Card entities plus navItem1/navItem2 overrides (they are addressed by iid too)."""
+        items = list(self.current_card.entities)
+        navigation = getattr(self.current_card, "navigation_entities", None)
+        return items + (navigation() if navigation else [])
+
     def get_default_card(self):
         defaultCard = self.settings.get("defaultCard")
         if defaultCard and "." in defaultCard:
@@ -323,7 +329,7 @@ class LovelaceUIPanel:
                 # replace iid with real entity id
                 if entity_id.startswith("iid."):
                     iid = entity_id.split(".")[1]
-                    for e in self.current_card.entities:
+                    for e in self._current_items():
                         if e.iid == iid:
                             entity_id = e.entity_id
                             entity_config = e.config
@@ -383,7 +389,7 @@ class LovelaceUIPanel:
                 # replace iid with real entity id
                 if entity_id.startswith("iid."):
                     iid = entity_id.split(".")[1]
-                    for e in self.current_card.entities:
+                    for e in self._current_items():
                         if e.iid == iid:
                             entity_id = e.entity_id
                             if entity_id.startswith("light"):

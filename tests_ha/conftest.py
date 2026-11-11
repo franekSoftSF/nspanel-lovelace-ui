@@ -22,6 +22,19 @@ def auto_enable_custom_integrations(enable_custom_integrations):
 
 
 @pytest.fixture(autouse=True)
+async def unload_mqtt(hass: HomeAssistant):
+    """Let the mocked MQTT client's 1 s misc timer fire once before the cleanup check.
+
+    With the mocked client the timer is not rescheduled after its first run, but a test
+    shorter than 1 s would otherwise end with it pending ("Lingering timer").
+    """
+    yield
+    if hass.config_entries.async_entries("mqtt"):
+        await asyncio.sleep(1.1)
+        await hass.async_block_till_done()
+
+
+@pytest.fixture(autouse=True)
 def isolated_config_dir(hass: HomeAssistant, tmp_path: Path) -> Path:
     """Each test gets its own config folder (files must not leak between tests)."""
     hass.config.config_dir = str(tmp_path)

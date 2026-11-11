@@ -7,7 +7,7 @@ from homeassistant.components import mqtt
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady
-from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import config_validation as cv, issue_registry as ir
 from homeassistant.helpers.typing import ConfigType
 
 from .config import ConfigError, load_config, resolve_path
@@ -36,13 +36,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: NSPanelConfigEntry) -> b
     """Load panels.yaml and start one worker per panel."""
     try:
         path = resolve_path(hass.config.config_dir, entry.data[CONF_CONFIG_FILE])
-        settings = await hass.async_add_executor_job(load_config, path)
+        settings, warnings = await hass.async_add_executor_job(load_config, path)
     except ConfigError as err:
         raise ConfigEntryError(
             translation_domain=DOMAIN,
             translation_key="invalid_config",
             translation_placeholders={"error": str(err)},
         ) from err
+
+    if warnings:
+        _LOGGER.warning("%s: %s", path, "; ".join(warnings))
+        ir.async_create_issue(
+            hass, DOMAIN, "config_warnings", is_fixable=False, severity=ir.IssueSeverity.WARNING,
+            translation_key="config_warnings",
+            translation_placeholders={
+                "file": entry.data[CONF_CONFIG_FILE],
+                "warnings": "\n".join(f"- {warning}" for warning in warnings),
+            },
+        )
+    else:
+        ir.async_delete_issue(hass, DOMAIN, "config_warnings")
 
     if not settings.get("use_ha_api") and not await mqtt.async_wait_for_mqtt_client(hass):
         raise ConfigEntryNotReady(translation_domain=DOMAIN, translation_key="mqtt_not_ready")

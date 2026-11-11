@@ -34,15 +34,53 @@ def resolve_path(config_dir: str, relative: str) -> Path:
     return path
 
 
-def load_config(path: Path) -> dict[str, Any]:
-    """Parse and validate panels.yaml (same rules as the add-on's editor)."""
+class _DuplicateKeyLoader(yaml.SafeLoader):
+    """PyYAML semantics (the last duplicate wins), but remember every duplicate."""
+
+    def __init__(self, stream: str) -> None:
+        super().__init__(stream)
+        self.duplicates: list[str] = []
+
+    def construct_mapping(self, node: yaml.MappingNode, deep: bool = False) -> dict[Any, Any]:
+        self.flatten_mapping(node)
+        seen: set[Any] = set()
+        for key_node, _ in node.value:
+            key = self.construct_object(key_node, deep=deep)
+            if key in seen:
+                self.duplicates.append(f"line {key_node.start_mark.line + 1}: duplicate key '{key}' (the last one is used)")
+            seen.add(key)
+        return super().construct_mapping(node, deep=deep)
+
+
+def _parse_lenient(text: str) -> tuple[dict[str, Any], list[str]]:
+    """Strict parse (add-on editor rules); duplicate keys only warn, like AppDaemon and the add-on runtime."""
+    try:
+        return parse_yaml(text), []
+    except ConfigError as err:
+        if not str(err).startswith("Invalid YAML: Duplicate YAML key"):
+            raise
+    loader = _DuplicateKeyLoader(text)
+    try:
+        data = loader.get_single_data()
+    except yaml.YAMLError as err:
+        raise ConfigError(f"Invalid YAML: {err}") from err
+    finally:
+        loader.dispose()
+    if not isinstance(data, dict):
+        raise ConfigError("Configuration must be a YAML mapping.")
+    return data, loader.duplicates
+
+
+def load_config(path: Path) -> tuple[dict[str, Any], list[str]]:
+    """Parse and validate panels.yaml; returns the config and non-fatal warnings."""
     try:
         text = path.read_text(encoding="utf-8")
     except FileNotFoundError as err:
         raise ConfigError(f"File not found: {path}") from err
     except OSError as err:
         raise ConfigError(f"Cannot read {path}: {err}") from err
-    config = validate(parse_yaml(text))
+    data, warnings = _parse_lenient(text)
+    config = validate(data)
     for panel in config["nspanels"].values():
         if config.get("use_ha_api"):
             continue
@@ -50,7 +88,7 @@ def load_config(path: Path) -> dict[str, Any]:
             topic = panel[key]
             if any(char in topic for char in "+#") or "\x00" in topic:
                 raise ConfigError(f"{key} must be a plain MQTT topic without wildcards: {topic}")
-    return config
+    return config, warnings
 
 
 def import_config(source: Path, target: Path) -> ImportResult:

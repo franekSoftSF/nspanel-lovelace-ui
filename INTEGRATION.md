@@ -86,3 +86,14 @@ docker run --rm -v "$PWD:/work" nspanel-ha-tests
 
 Tests use `pytest-homeassistant-custom-component` (Python 3.14). Home Assistant does not run on Windows, so use
 Docker (or WSL / Linux / macOS with a Python 3.14 venv: `pip install -r requirements_test.txt && pytest`).
+
+## Changelog
+
+### 5.1.0
+- Duplicate keys in `panels.yaml` no longer stop the integration: the last value is used (as with AppDaemon) and
+  a warning with the line number appears under Settings → Repairs (upstream #1480).
+- Only state changes of entities used in `panels.yaml` (plus `sun.sun`) wake the panels; templates still follow
+  every entity they use (upstream #1465).
+- `navItem1` / `navItem2` with an `entity` replace the left / right navigation button on every card, including
+  hidden cards – e.g. `navItem1: {entity: navigate.home}` instead of the up arrow (upstream #1470, AppDaemon behaviour).
+- Unloading the integration while a panel is starting no longer leaves its thread running for 5 seconds.

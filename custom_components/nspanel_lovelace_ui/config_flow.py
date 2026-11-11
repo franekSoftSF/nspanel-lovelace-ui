@@ -48,7 +48,7 @@ class NSPanelConfigFlow(ConfigFlow, domain=DOMAIN):
                         title=f"NSPanel Lovelace UI: {result.format} import",
                         notification_id=f"{DOMAIN}_import",
                     )
-            settings = await self.hass.async_add_executor_job(load_config, target)
+            settings, _ = await self.hass.async_add_executor_job(load_config, target)
         except PathOutsideConfigError:
             errors["base"] = "path_outside_config"
         except ConfigExistsError:

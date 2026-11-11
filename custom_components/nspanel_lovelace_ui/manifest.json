@@ -11,5 +11,5 @@
   "loggers": ["custom_components.nspanel_lovelace_ui"],
   "requirements": ["babel>=2.14.0"],
   "single_config_entry": true,
-  "version": "5.0.0"
+  "version": "5.1.0"
 }

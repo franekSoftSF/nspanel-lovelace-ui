@@ -86,3 +86,14 @@ docker run --rm -v "$PWD:/work" nspanel-ha-tests
 
 Testy korzystają z `pytest-homeassistant-custom-component` (Python 3.14). Home Assistant nie działa na Windows, więc
 uruchamiaj je w Dockerze (albo w WSL / Linux / macOS z venv Pythona 3.14: `pip install -r requirements_test.txt && pytest`).
+
+## Historia zmian
+
+### 5.1.0
+- Zduplikowane klucze w `panels.yaml` nie zatrzymują już integracji. Używana jest ostatnia wartość (jak w AppDaemon),
+  a ostrzeżenie z numerem linii pojawia się w Ustawienia → Naprawy (upstream #1480).
+- Panele są budzone tylko przez zmiany stanu encji użytych w `panels.yaml` (plus `sun.sun`). Szablony nadal śledzą
+  wszystkie encje, których używają (upstream #1465).
+- `navItem1` / `navItem2` z polem `entity` zastępują lewy / prawy przycisk nawigacji na każdej karcie, także ukrytej,
+  np. `navItem1: {entity: navigate.home}` zamiast strzałki w górę (upstream #1470, zachowanie z AppDaemon).
+- Wyładowanie integracji w trakcie startu panelu nie zostawia już jego wątku na 5 sekund.

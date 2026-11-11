@@ -51,5 +51,11 @@
       "name": "Przeładuj",
       "description": "Ponownie wczytuje plik konfiguracji paneli i restartuje wszystkie panele."
     }
+  },
+  "issues": {
+    "config_warnings": {
+      "title": "Ostrzeżenia w konfiguracji NSPanel",
+      "description": "Plik {file} został wczytany, ale zawiera problemy do poprawienia:\n\n{warnings}\n\nPopraw plik i wywołaj akcję nspanel_lovelace_ui.reload."
+    }
   }
 }
