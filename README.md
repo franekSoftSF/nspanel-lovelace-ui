@@ -94,8 +94,9 @@ Details: [HMI/FIRMWARE.md](HMI/FIRMWARE.md).
 documentation of the cards and the screensaver applies: <https://docs.nspanel.pky.eu/>. Options added in
 this fork (`weatherIcons`, `timeTemplate`, `firmware_download`, …): [INTEGRATION.md](INTEGRATION.md).
 
-The repository still contains the original add-on and AppDaemon sources the integration is derived from;
-they are not maintained in this fork.
+Example configuration: [examples/panels.yaml](examples/panels.yaml). This repository contains only the
+integration and the EU firmware; the original add-on, AppDaemon app and other backends live in the
+[original project](https://github.com/joBr99/nspanel-lovelace-ui).
 
 ## License and credits
 

@@ -23,6 +23,9 @@ git history):
   generators. HMI/patches/55: prepared event code for the US variants.
 - tasmota/autoexec.be, tasmota/nsp-lovelace-driver.tapp: Berry driver 10 (flash progress and errors).
 - scripts/, tests_ha/, MIGRATION*.md, INTEGRATION*.md, README*.md, CLAUDE.md: new or rewritten.
+- Removed (5.2.2): the AppDaemon app (apps/, appdaemon/), the add-on (nspanel-lovelace-ui/; its
+  panels.yaml.example moved to examples/panels.yaml), ioBroker/, ip-symcon/, nodered/, docs/,
+  docs-standalone/, tests/ and their workflows. They remain in the original project and the git history.
 - .github/workflows/nextion2text.yml: write permission for the regenerated dumps.
 
 Third-party material:

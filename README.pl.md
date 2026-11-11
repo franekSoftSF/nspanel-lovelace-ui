@@ -94,8 +94,9 @@ Szczegóły: [HMI/FIRMWARE.pl.md](HMI/FIRMWARE.pl.md).
 dokumentacja kart i wygaszacza nadal obowiązuje: <https://docs.nspanel.pky.eu/>. Opcje dodane w tym
 forku (`weatherIcons`, `timeTemplate`, `firmware_download`, …): [INTEGRATION.pl.md](INTEGRATION.pl.md).
 
-Repozytorium nadal zawiera źródła oryginalnego dodatku i aplikacji AppDaemon, z których powstała
-integracja; ten fork ich nie rozwija.
+Przykładowa konfiguracja: [examples/panels.yaml](examples/panels.yaml). To repozytorium zawiera tylko
+integrację i firmware EU; oryginalny dodatek, aplikacja AppDaemon i inne backendy są w
+[oryginalnym projekcie](https://github.com/joBr99/nspanel-lovelace-ui).
 
 ## Licencja i podziękowania
 
