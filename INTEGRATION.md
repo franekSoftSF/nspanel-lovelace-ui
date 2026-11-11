@@ -134,6 +134,10 @@ MDI 7 icon fonts, publishing it and installing the package: [HMI/FIRMWARE.md](HM
 
 ## Changelog
 
+### 5.2.4
+- **Wake up screen** works like a touch on the screensaver (the panel shows its card at normal
+  brightness); the HMI command `wake` it sent before did not brighten a real panel.
+
 ### 5.2.3
 - Entities per panel: **Notification** (`notify.send_message`), **Wake up screen** button, **Page** sensor,
   **Card** select; action `nspanel_lovelace_ui.notify` (screensaver text or notification page, timeout,
