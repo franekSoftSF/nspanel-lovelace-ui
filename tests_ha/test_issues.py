@@ -168,3 +168,34 @@ def test_invalid_firmware_55_options(tmp_path: Path, option, value) -> None:
     path.write_text(yaml.safe_dump(config), encoding="utf-8")
     with pytest.raises(ConfigError, match=option):
         load_config(path)
+
+
+# --- 5.2.2: found while migrating a real panel (HMI 53 from 2023, AppDaemon from HACS) ---------
+
+async def test_screensaver_rendered_for_displays_that_do_not_ask(hass: HomeAssistant, mqtt_mock,
+                                                                panels_file: Path) -> None:
+    """Old HMI 53 builds never send renderCurrentPage on the screensaver: render it anyway."""
+    entry = await _setup(hass)
+    await wait_for(hass, lambda: "pageType~pageStartup" in published(mqtt_mock))
+    _recv(hass, "event,startup,54,eu")  # no update prompt (target 54); no render request follows
+    await wait_for(hass, lambda: any(p.startswith("weatherUpdate~") for p in published(mqtt_mock)))
+    sent = published(mqtt_mock)
+    assert sent.index("pageType~screensaver") < max(i for i, p in enumerate(sent) if p.startswith("weatherUpdate~"))
+    await hass.config_entries.async_unload(entry.entry_id)
+    await hass.async_block_till_done()
+
+
+async def test_hidden_update_prompt_does_not_block_the_panel(hass: HomeAssistant, mqtt_mock,
+                                                             panels_file: Path) -> None:
+    """The on-panel update prompt was covered by another backend: the next touch dismisses it."""
+    panels_file.write_text(panels_file.read_text(encoding="utf-8").replace(
+        'updateMode: "manual"', 'updateMode: "auto-notify"'), encoding="utf-8")
+    entry = await _setup(hass)
+    await wait_for(hass, lambda: "pageType~pageStartup" in published(mqtt_mock))
+    _recv(hass, "event,startup,40,eu")  # older than the target: auto-notify shows the prompt
+    await wait_for(hass, lambda: "pageType~popupNotify" in published(mqtt_mock))
+    count = len(published(mqtt_mock))
+    _recv(hass, "event,buttonPress2,screensaver,bExit,1")  # a touch on the screensaver, not the prompt
+    await wait_for(hass, lambda: "pageType~screensaver" in published(mqtt_mock)[count:])
+    await hass.config_entries.async_unload(entry.entry_id)
+    await hass.async_block_till_done()

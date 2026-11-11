@@ -87,7 +87,7 @@
     },
     "update_berry_driver": {
       "name": "Aktualizuj sterownik Berry",
-      "description": "Wysyła sterownik Berry (autoexec.be) z lokalnego pakietu firmware do paneli z Tasmotą. Panele potem się restartują.",
+      "description": "Wysyła sterownik Berry (nsp-lovelace-driver.tapp) z pakietu firmware do paneli z Tasmotą; instalacja autoexec.be jest przenoszona na .tapp. Panele potem się restartują.",
       "fields": {
         "panel": {
           "name": "Panel",

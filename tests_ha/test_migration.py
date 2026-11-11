@@ -238,3 +238,28 @@ async def test_flow_does_not_disable_on_error(hass: HomeAssistant, no_setup) -> 
         result["flow_id"], {CONF_CONFIG_FILE: DEFAULT_CONFIG_FILE, CONF_IMPORT_FILE: "apps.yaml"})
     assert result["errors"] == {"base": "mqtt_not_configured"}  # no MQTT: AppDaemon keeps the panel
     assert "disable" not in Path(hass.config.path("apps.yaml")).read_text(encoding="utf-8")
+
+
+def test_import_panel_without_cards(tmp_path: Path) -> None:
+    """AppDaemon accepted a screensaver-only panel; the import adds a sample card instead of failing."""
+    source = tmp_path / "apps.yaml"
+    text = APPS.read_text(encoding="utf-8")
+    start = text.index("    cards:")
+    source.write_text(text[:start] + text[text.index("other_app:"):], encoding="utf-8")
+    source.write_text(source.read_text(encoding="utf-8").replace('    timezone: "Europe/Warsaw"\n', ""), encoding="utf-8")
+    target = tmp_path / "panels.yaml"
+    result = import_config(source, target, tmp_path, "Europe/Warsaw")
+    panel = yaml.safe_load(target.read_text(encoding="utf-8"))["nspanels"]["nspanel-1"]
+    assert panel["cards"] == [{"type": "cardEntities", "title": "nspanel-1",
+                               "entities": [{"entity": "weather.home"}]}]
+    assert panel["timeZone"] == "Europe/Warsaw"  # Home Assistant's time zone, not Europe/Berlin
+    assert any("sample cardEntities" in warning for warning in result.warnings)
+    assert not any("AppDaemon plugins" in warning for warning in result.warnings)
+
+
+def test_find_appdaemon_apps_in_subfolder(tmp_path: Path) -> None:
+    sub = tmp_path / "appdaemon" / "apps" / "nspanel-lovelace-ui"
+    sub.mkdir(parents=True)
+    (tmp_path / "appdaemon" / "apps" / "apps.yaml").write_text("hello:\n  module: hello\n", encoding="utf-8")
+    shutil.copy(APPS, sub / "apps.yaml")
+    assert find_appdaemon_apps(str(tmp_path)) == "appdaemon/apps/nspanel-lovelace-ui/apps.yaml"

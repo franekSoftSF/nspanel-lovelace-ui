@@ -87,7 +87,7 @@
     },
     "update_berry_driver": {
       "name": "Update Berry driver",
-      "description": "Sends the Berry driver (autoexec.be) from the local firmware package to the Tasmota panels; they restart afterwards.",
+      "description": "Sends the Berry driver (nsp-lovelace-driver.tapp) from the firmware package to the Tasmota panels; an autoexec.be install is moved to .tapp. The panels restart afterwards.",
       "fields": {
         "panel": {
           "name": "Panel",

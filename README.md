@@ -47,6 +47,23 @@ Some (not all) screenshots from the US Portrait Version:
 
 ![screens-us-p](docs/img/screens-us-p.png)
 
+## Remote updates (native integration)
+
+With the native integration (5.2.1+) the display firmware and the Tasmota Berry driver are updated from
+Home Assistant, over Wi-Fi – no cable, no manual `FlashNextion`:
+
+1. The integration downloads the firmware package of its own release from GitHub (SHA-256 checked).
+2. Berry driver: action `nspanel_lovelace_ui.update_berry_driver` (an `autoexec.be` install moves to `.tapp`).
+3. Display firmware: each panel has an update entity **Display firmware** – press *Install*; the entity
+   shows the progress and the panel restarts with the new version.
+
+Moving from the AppDaemon / HACS version: [MIGRATION.md](MIGRATION.md).
+
+**PL – zdalna aktualizacja:** integracja (5.2.1+) sama pobiera z GitHuba pakiet firmware swojego wydania;
+sterownik Berry aktualizuje akcja `nspanel_lovelace_ui.update_berry_driver`, a firmware ekranu encja
+aktualizacji **Firmware ekranu** (*Zainstaluj*, z postępem) – przez Wi-Fi, bez kabla. Przejście z wersji
+AppDaemon / HACS: [MIGRATION.pl.md](MIGRATION.pl.md).
+
 ## Home Assistant add-on editor
 
 The Home Assistant add-on includes a web interface for editing panels, cards, entities, and screensavers. Import existing add-on or AppDaemon YAML, review migration warnings, then save and apply. See the [add-on instructions](nspanel-lovelace-ui/DOCS.md).

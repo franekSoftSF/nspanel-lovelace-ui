@@ -129,7 +129,12 @@ def validate(config):
     return config
 
 
-def import_yaml(text):
+def import_yaml(text, time_zone="Europe/Berlin", integration=False):
+    """Convert AppDaemon apps.yaml / add-on panels.yaml; time_zone fills a missing timeZone.
+
+    integration=True (Home Assistant integration): a panel without cards gets a sample card
+    instead of failing (AppDaemon accepted screensaver-only panels), and add-on-only hints are left out.
+    """
     source = parse_yaml(text)
     warnings = []
     if "nspanels" in source:
@@ -161,7 +166,7 @@ def import_yaml(text):
                 warnings.append(f"{name}: strftime dateFormat replaced with Babel 'full'.")
                 panel["dateFormat"] = "full"
             for key, default in {"locale": "en_US", "timeFormat": "%H:%M", "dateFormat": "full",
-                                 "timeZone": "Europe/Berlin", "cards": [], "screensaver": {}}.items():
+                                 "timeZone": time_zone, "cards": [], "screensaver": {}}.items():
                 panel.setdefault(key, default)
             screen = panel["screensaver"]
             if isinstance(screen, dict):
@@ -177,6 +182,13 @@ def import_yaml(text):
                     warnings.append(f"{name}: weather converted to explicit screensaver entities; review forecast layout.")
                 if screen.get("alternativeLayout"):
                     screen["type"] = "screensaver2"
+            if integration and not panel["cards"]:
+                entities = screen.get("entities") if isinstance(screen, dict) else None
+                first = next((item.get("entity") for item in (entities or [])
+                              if isinstance(item, dict) and item.get("entity")), None)
+                panel["cards"] = [{"type": "cardEntities", "title": name,
+                                   "entities": [{"entity": first or "sun.sun"}]}]
+                warnings.append(f"{name}: no cards in AppDaemon; added a sample cardEntities - replace it with your own cards.")
             units = set()
             for card in panel.get("cards", []) + panel.get("hiddenCards", []):
                 if isinstance(card, dict) and "temperatureUnit" in card:
@@ -187,7 +199,8 @@ def import_yaml(text):
                 raise ConfigError(f"{name}: mixed card temperature units cannot map to one panel temp_unit.")
             if units:
                 panel.setdefault("temp_unit", units.pop())
-            warnings.append(f"{name}: connection settings come from the add-on or panels.yaml, not AppDaemon plugins.")
+            if not integration:
+                warnings.append(f"{name}: connection settings come from the add-on or panels.yaml, not AppDaemon plugins.")
 
     def inspect(value, path):
         if isinstance(value, dict):

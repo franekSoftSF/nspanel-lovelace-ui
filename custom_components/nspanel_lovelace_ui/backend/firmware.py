@@ -79,7 +79,16 @@ class FirmwareUpdater:
         return True
 
     def button(self, fields):
-        if len(fields) < 3 or fields[2] != PROMPT_ID:
+        if len(fields) < 3:
+            return None
+        if fields[2] != PROMPT_ID:
+            if self.prompt:
+                # A button on another page: the prompt is not on the screen (another backend or
+                # a lost frame replaced it). Treat it as dismissed instead of ignoring the panel.
+                logging.info('Display update prompt on %s is not shown; dismissed', self.topic)
+                self.prompt = False
+                self.dismissed = True
+                return 'resume'
             return None
         if not self.prompt:
             return 'ignored'

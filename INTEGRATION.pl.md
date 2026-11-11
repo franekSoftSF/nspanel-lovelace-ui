@@ -107,6 +107,17 @@ wydanie i instalacja pakietu: [HMI/FIRMWARE.pl.md](HMI/FIRMWARE.pl.md).
 
 ## Historia zmian
 
+### 5.2.2
+Poprawki z migracji prawdziwego panelu (HMI 53 z 2023, AppDaemon z HACS) na firmware 55:
+- Ekrany, które nie proszą o zawartość wygaszacza (starsze wydania HMI 53), dostają ją zaraz po
+  zmianie strony, jak w AppDaemon – pogoda nie jest już pusta przed aktualizacją firmware.
+- Okienko aktualizacji ekranu, którego nie widać (przykrył je inny backend), nie blokuje już panelu:
+  następne dotknięcie je zamyka.
+- Import: panel bez kart dostaje przykładową kartę zamiast błędu; brakujący 	imeZone bierze strefę
+  czasową Home Assistant; kreator znajduje plik aplikacji AppDaemon także w podfolderach ppdaemon/apps;
+  zniknęła podpowiedź dotycząca tylko dodatku.
+- Ikona integracji (Home Assistant 2026.3+ czyta ją z rand/); README: zdalna aktualizacja.
+
 ### 5.2.1
 - Pakiet firmware ekranu jest pobierany automatycznie z wydania GitHub o numerze integracji, gdy go nie ma
   albo jest starszy (sprawdzany SHA-256, potem przeładowanie). Akcja `nspanel_lovelace_ui.download_firmware`,

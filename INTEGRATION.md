@@ -107,6 +107,17 @@ MDI 7 icon fonts, publishing it and installing the package: [HMI/FIRMWARE.md](HM
 
 ## Changelog
 
+### 5.2.2
+Found while migrating a real panel (HMI 53 from 2023, AppDaemon from HACS) to firmware 55:
+- Displays that do not ask for the screensaver content (older HMI 53 builds) get it right after the page
+  switch, like AppDaemon did – the weather no longer stays empty before the firmware update.
+- A display update prompt that is not on the screen (covered by another backend) no longer blocks the
+  panel: the next touch dismisses it.
+- Import: a panel without cards gets a sample card instead of failing; a missing 	imeZone takes Home
+  Assistant's time zone; the setup dialog also finds the AppDaemon apps file in subfolders of
+  ppdaemon/apps; the add-on-only connection hint is gone.
+- Integration icon (Home Assistant 2026.3+ reads it from rand/); README: remote updates.
+
 ### 5.2.1
 - The display firmware package is downloaded automatically from the GitHub release with the integration's
   version when it is missing or older (SHA-256 checked, then a reload). Action
