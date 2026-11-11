@@ -254,7 +254,8 @@ def test_hmi_patches_apply_to_the_current_code(variant) -> None:
     # closing a notification asks the backend to send the screensaver (and its pictures) again
     assert touch.index('tSend.txt="event,renderCurrentPage"') > touch.index("vis tNotifyText,0")
     saved = (root / "HMI/patches/55" / variant / "02-screensaver-tmSerial-TimerEvent.txt").read_text(encoding="utf-8")
-    assert saved.replace("\r\n", "\n").rstrip("\n") == serial
+    # Once the project has the code (EU), the dump keeps the editor's indentation: compare the code only.
+    assert [line.strip() for line in saved.splitlines()] == [line.strip() for line in serial.splitlines()]
 
 
 async def test_pictures_resent_after_a_repaint(hass: HomeAssistant, weather_panel: Path) -> None:

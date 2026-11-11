@@ -85,6 +85,8 @@ def load_config(path: Path) -> tuple[dict[str, Any], list[str]]:
         raise ConfigError(f"Cannot read {path}: {err}") from err
     data, warnings = _parse_lenient(text)
     config = validate(data)
+    if type(config.get("firmware_download", True)) is not bool:
+        raise ConfigError("firmware_download must be true or false")
     for name, panel in config["nspanels"].items():
         font_id = panel.get("largeIconFontId", 7 if panel.get("model", "eu") == "us-p" else 8)
         if type(font_id) is not int or not 0 <= font_id <= 9:

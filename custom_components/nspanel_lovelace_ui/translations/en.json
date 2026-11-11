@@ -75,6 +75,9 @@
     },
     "flash_failed": {
       "message": "The display update failed: {error}. Check the Tasmota console; the display keeps its old firmware or waits for a new FlashNextion."
+    },
+    "download_failed": {
+      "message": "Downloading the display firmware package failed: {error}"
     }
   },
   "services": {
@@ -91,6 +94,10 @@
           "description": "Panel name from panels.yaml. Empty: all panels."
         }
       }
+    },
+    "download_firmware": {
+      "name": "Download display firmware",
+      "description": "Downloads nspanel-firmware.zip of this integration version from the GitHub release, checks it and reloads the integration."
     }
   },
   "issues": {
@@ -101,6 +108,10 @@
     "firmware_invalid": {
       "title": "Invalid NSPanel display firmware package",
       "description": "The package in {folder} was ignored: {error}\n\nCreate it again with scripts/make_firmware_package.py or remove the folder, then reload the integration."
+    },
+    "firmware_download_failed": {
+      "title": "NSPanel display firmware package not downloaded",
+      "description": "The package {url} could not be downloaded: {error}\n\nDisplay updates use the package already in {folder}/firmware (if any). Retry with the action nspanel_lovelace_ui.download_firmware, or download the file yourself and put it into {folder}. Set firmware_download: false in panels.yaml to stop downloads."
     }
   },
   "entity": {

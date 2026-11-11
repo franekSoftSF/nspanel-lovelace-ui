@@ -109,7 +109,7 @@ def load_package(folder: Path) -> FirmwarePackage | None:
 
 ZIP_PATTERN = "nspanel-firmware*.zip"
 ZIP_DONE_SUFFIX = ".installed"
-_ZIP_MAX_BYTES = 64 * 1024 * 1024
+ZIP_MAX_BYTES = 64 * 1024 * 1024
 
 
 def install_zip(folder: Path) -> str | None:
@@ -131,7 +131,7 @@ def install_zip(folder: Path) -> str | None:
         try:
             with zipfile.ZipFile(archive) as zf:
                 members = [info for info in zf.infolist() if not info.is_dir()]
-                if sum(info.file_size for info in members) > _ZIP_MAX_BYTES:
+                if sum(info.file_size for info in members) > ZIP_MAX_BYTES:
                     raise FirmwareError(f"{archive.name}: too large for a firmware package")
                 for info in members:
                     name = info.filename.removeprefix("firmware/")

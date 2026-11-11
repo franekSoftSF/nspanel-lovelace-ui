@@ -5,6 +5,7 @@ import asyncio
 from collections.abc import Callable
 from pathlib import Path
 import shutil
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -32,6 +33,16 @@ async def unload_mqtt(hass: HomeAssistant):
     if hass.config_entries.async_entries("mqtt"):
         await asyncio.sleep(1.1)
         await hass.async_block_till_done()
+
+
+@pytest.fixture(autouse=True)
+def firmware_download():
+    """No internet in tests: the release download fails unless a test replaces this mock."""
+    from custom_components.nspanel_lovelace_ui.firmware import FirmwareError
+
+    with patch("custom_components.nspanel_lovelace_ui.download.async_download_package",
+               AsyncMock(side_effect=FirmwareError("offline (tests)"))) as mock:
+        yield mock
 
 
 @pytest.fixture(autouse=True)
