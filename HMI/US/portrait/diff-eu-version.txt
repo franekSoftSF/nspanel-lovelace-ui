@@ -1177,6 +1177,23 @@
 │          Max. Text Size: 80
 │      
 │  Variable (string) nent2
+│ @@ -121,15 +129,15 @@
+│          Text          : 
+│          Max. Text Size: 80
+│      
+│  Variable (string) strCommand
+│      Attributes
+│          Scope         : local
+│          Text          : 
+│ -        Max. Text Size: 900
+│ +        Max. Text Size: 700
+│      
+│  Variable (string) tSend
+│      Attributes
+│          Scope         : local
+│          Text          : 
+│          Max. Text Size: 200
+│      
 │ @@ -177,14 +185,20 @@
 │      
 │  Variable (string) type8
@@ -1855,6 +1872,23 @@
 │          Scope              : local
 │          Dragging           : 0
 │          Send Component ID  : disabled
+│ @@ -141,15 +135,15 @@
+│      
+│  Text tVersion
+│      Attributes
+│          Scope              : local
+│          Dragging           : 0
+│          Send Component ID  : disabled
+│          Associated Keyboard: none
+│ -        Text               : 55
+│ +        Text               : 54
+│          Max. Text Size     : 10
+│      
+│  Picture p0
+│      Attributes
+│          Scope            : local
+│          Dragging         : 0
+│          Send Component ID: disabled
 │ @@ -164,15 +158,15 @@
 │          Max. Text Size   : 10
 │      
@@ -2209,25 +2243,31 @@
 │              vis p0,0
 │              vis tNotifyHead,0
 │              vis tNotifyText,0
-│ @@ -41,17 +28,14 @@
+│ @@ -40,23 +27,14 @@
+│                  vis tAMPM,0
 │              }
 │              tDate.txt=pageIcons.vaDate.txt
 │              dim=dimValue
 │              vis tSend,0
 │              //page open event
 │              // clear weather elements, to keep example content in HMI
-│          
+│ -            // firmware 55: weather pictures stay hidden until weatherPics
+│ -            vis pMain,0
+│ -            vis pF1,0
+│ -            vis pF2,0
+│ -            vis pF3,0
+│ -            vis pF4,0
+│ -        
 │ -        Postinitialize Event
 │ -            click m0,1
-│ -        
+│          
 │  Variable (string) strCommand
 │      Attributes
 │          Scope         : local
 │          Text          : 
 │          Max. Text Size: 600
 │      
-│  Variable (string) strTmp
-│ @@ -115,34 +99,14 @@
+│ @@ -121,34 +99,14 @@
 │          Value: 0
 │      
 │  Variable (int32) ycR
@@ -2262,7 +2302,51 @@
 │          Send Component ID  : disabled
 │          Associated Keyboard: none
 │          Text               : |
-│ @@ -398,20 +362,14 @@
+│ @@ -390,64 +348,28 @@
+│      
+│  Picture p0
+│      Attributes
+│          Scope            : local
+│          Dragging         : 0
+│          Send Component ID: disabled
+│      
+│ -Picture pF1
+│ -    Attributes
+│ -        Scope            : local
+│ -        Dragging         : 0
+│ -        Send Component ID: disabled
+│ -    
+│ -Picture pF2
+│ -    Attributes
+│ -        Scope            : local
+│ -        Dragging         : 0
+│ -        Send Component ID: disabled
+│ -    
+│ -Picture pF3
+│ -    Attributes
+│ -        Scope            : local
+│ -        Dragging         : 0
+│ -        Send Component ID: disabled
+│ -    
+│ -Picture pF4
+│ -    Attributes
+│ -        Scope            : local
+│ -        Dragging         : 0
+│ -        Send Component ID: disabled
+│ -    
+│ -Picture pMain
+│ -    Attributes
+│ -        Scope            : local
+│ -        Dragging         : 0
+│ -        Send Component ID: disabled
+│ -    
+│  Timer tm0
+│      Attributes
+│          Scope      : local
+│          Period (ms): 50
+│          Enabled    : yes
+│      
+│      Events
 │          Timer Event
 │              if(tc0.val!=0)
 │              {
@@ -2283,7 +2367,7 @@
 │          Enabled    : yes
 │      
 │      Events
-│ @@ -491,17 +449,14 @@
+│ @@ -527,50 +449,24 @@
 │                                          //get set time to global variable
 │                                          spstr strCommand.txt,pageIcons.vaTime.txt,"~",1
 │                                          spstr pageIcons.vaTime.txt,tTime.txt,"?",0
@@ -2294,6 +2378,17 @@
 │ -                                        }else
 │ -                                        {
 │ -                                            vis tAMPM,1
+│ -                                        }
+│ -                                        // firmware 55 (#1485): with AM/PM the time is left-aligned so it does not run under AM/PM
+│ -                                        if(p0.w!=320)
+│ -                                        {
+│ -                                            if(tAMPM.txt=="")
+│ -                                            {
+│ -                                                tTime.xcen=1
+│ -                                            }else
+│ -                                            {
+│ -                                                tTime.xcen=0
+│ -                                            }
 │                                          }
 │                                          spstr strCommand.txt,tTimeAdd.txt,"~",2
 │                                          ref tIcon1
@@ -2301,7 +2396,29 @@
 │                                      }
 │                                      if(tInstruction.txt=="date")
 │                                      {
-│ @@ -618,20 +573,14 @@
+│                                          //get set date to global variable
+│                                          spstr strCommand.txt,pageIcons.vaDate.txt,"~",1
+│                                          tDate.txt=pageIcons.vaDate.txt
+│ -                                        // firmware 55 (#1485): long dates get the 24 px font on the narrow US portrait screen
+│ -                                        if(p0.w==320)
+│ -                                        {
+│ -                                            strlen tDate.txt,sys0
+│ -                                            if(sys0>22)
+│ -                                            {
+│ -                                                tDate.font=0
+│ -                                            }else
+│ -                                            {
+│ -                                                tDate.font=2
+│ -                                            }
+│ -                                        }
+│                                      }
+│                                      if(tInstruction.txt=="statusUpdate")
+│                                      {
+│                                          //statusIcon1
+│                                          spstr strCommand.txt,tIcon1.txt,"~",1
+│                                          spstr strCommand.txt,tTmp.txt,"~",2
+│                                          covx tTmp.txt,tIcon1.pco,0,0
+│ @@ -677,74 +573,14 @@
 │                                          {
 │                                              vis tMainIcon,1
 │                                              vis tMainIconAlt,0
@@ -2315,6 +2432,60 @@
 │ -                                                vis tF1Icon,1
 │ -                                                vis tForecast1Val,1
 │ -                                            }
+│ -                                        }
+│ -                                    }
+│ -                                    // firmware 55: colour weather pictures (weatherPics~main~f1~f2~f3~f4, empty = font icon)
+│ -                                    if(tInstruction.txt=="weatherPics"&&tNotifyHead.txt==""&&tNotifyText.txt=="")
+│ -                                    {
+│ -                                        spstr strCommand.txt,tTmp.txt,"~",1
+│ -                                        if(tTmp.txt=="")
+│ -                                        {
+│ -                                            vis pMain,0
+│ -                                        }else
+│ -                                        {
+│ -                                            covx tTmp.txt,sys0,0,0
+│ -                                            pMain.pic=sys0
+│ -                                            vis pMain,1
+│ -                                        }
+│ -                                        spstr strCommand.txt,tTmp.txt,"~",2
+│ -                                        if(tTmp.txt=="")
+│ -                                        {
+│ -                                            vis pF1,0
+│ -                                        }else
+│ -                                        {
+│ -                                            covx tTmp.txt,sys0,0,0
+│ -                                            pF1.pic=sys0
+│ -                                            vis pF1,1
+│ -                                        }
+│ -                                        spstr strCommand.txt,tTmp.txt,"~",3
+│ -                                        if(tTmp.txt=="")
+│ -                                        {
+│ -                                            vis pF2,0
+│ -                                        }else
+│ -                                        {
+│ -                                            covx tTmp.txt,sys0,0,0
+│ -                                            pF2.pic=sys0
+│ -                                            vis pF2,1
+│ -                                        }
+│ -                                        spstr strCommand.txt,tTmp.txt,"~",4
+│ -                                        if(tTmp.txt=="")
+│ -                                        {
+│ -                                            vis pF3,0
+│ -                                        }else
+│ -                                        {
+│ -                                            covx tTmp.txt,sys0,0,0
+│ -                                            pF3.pic=sys0
+│ -                                            vis pF3,1
+│ -                                        }
+│ -                                        spstr strCommand.txt,tTmp.txt,"~",5
+│ -                                        if(tTmp.txt=="")
+│ -                                        {
+│ -                                            vis pF4,0
+│ -                                        }else
+│ -                                        {
+│ -                                            covx tTmp.txt,sys0,0,0
+│ -                                            pF4.pic=sys0
+│ -                                            vis pF4,1
 │                                          }
 │                                      }
 │                                      if(tInstruction.txt=="color"&&tNotifyHead.txt==""&&tNotifyText.txt=="")
@@ -2322,6 +2493,84 @@
 │                                          spstr strCommand.txt,tTmp.txt,"~",1
 │                                          covx tTmp.txt,tTime.bco,0,0
 │                                          if(tTime.bco!=screensaver.bco)
+│ @@ -810,49 +646,27 @@
+│                                              tForecast4Val.pco=tForecast3Val.pco
+│                                              tForecast3Val.pco=tForecast2Val.pco
+│                                              tForecast2Val.pco=tForecast1Val.pco
+│                                              tForecast4.pco=tForecast3.pco
+│                                              tForecast3.pco=tForecast2.pco
+│                                              tForecast2.pco=tForecast1.pco
+│                                          }
+│ -                                        // firmware 55 (#1026): redraw the status icons after a colour change
+│ -                                        ref tIcon1
+│ -                                        ref tIcon2
+│                                      }
+│                                      if(tInstruction.txt=="notify")
+│                                      {
+│                                          spstr strCommand.txt,tNotifyHead.txt,"~",1
+│                                          spstr strCommand.txt,tNotifyText.txt,"~",2
+│                                          if(tNotifyHead.txt!=""||tNotifyText.txt!="")
+│                                          {
+│                                              vis tNotifyHead,1
+│                                              vis tNotifyText,1
+│ -                                            // firmware 55: the weather pictures would cover the notification
+│ -                                            vis pMain,0
+│ -                                            vis pF1,0
+│ -                                            vis pF2,0
+│ -                                            vis pF3,0
+│ -                                            vis pF4,0
+│                                          }else
+│                                          {
+│                                              vis tNotifyHead,0
+│                                              vis tNotifyText,0
+│ -                                            // firmware 55: notification closed - ask the backend to send the screensaver again
+│ -                                            tSend.txt="event,renderCurrentPage"
+│ -                                            //send calc crc
+│ -                                            btlen tSend.txt,sys0
+│ -                                            crcrest 1,0xffff // reset CRC
+│ -                                            crcputh 55 bb
+│ -                                            crcputs sys0,2
+│ -                                            crcputs tSend.txt,0
+│ -                                            //send cmd
+│ -                                            printh 55 bb
+│ -                                            prints sys0,2
+│ -                                            prints tSend.txt,0
+│ -                                            prints crcval,2
+│                                          }
+│                                          tNotifyHead.bco=tTime.bco
+│                                          tNotifyText.bco=tTime.bco
+│                                          spstr strCommand.txt,tTmp.txt,"~",3
+│                                          if(tTmp.txt!="")
+│                                          {
+│                                              covx tTmp.txt,tNotifyHead.pco,0,0
+│ @@ -995,27 +809,14 @@
+│              {
+│                  if(dim!=0)
+│                  {
+│                      tNotifyHead.txt=""
+│                      tNotifyText.txt=""
+│                      vis tNotifyHead,0
+│                      vis tNotifyText,0
+│ -                    // firmware 55: notification closed - ask the backend to send the screensaver again
+│ -                    tSend.txt="event,renderCurrentPage"
+│ -                    //send calc crc
+│ -                    btlen tSend.txt,sys0
+│ -                    crcrest 1,0xffff // reset CRC
+│ -                    crcputh 55 bb
+│ -                    crcputs sys0,2
+│ -                    crcputs tSend.txt,0
+│ -                    //send cmd
+│ -                    printh 55 bb
+│ -                    prints sys0,2
+│ -                    prints tSend.txt,0
+│ -                    prints crcval,2
+│                  }
+│              }
+│              dim=dimValueNormal
+│              vaTap.val+=1
+│              covx vaTap.val,tTmp.txt,0,0
+│              tSend.txt="event,buttonPress2,screensaver,bExit,"+tTmp.txt
+│              //send calc crc
 │   --- HMI/n2t-out/screensaver2.txt
 ├── +++ HMI/US/portrait/n2t-out/screensaver2.txt
 │ @@ -7,27 +7,14 @@
