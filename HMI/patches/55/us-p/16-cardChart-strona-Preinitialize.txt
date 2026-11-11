@@ -1,0 +1,42 @@
+tSend.txt="event,renderCurrentPage"
+//send calc crc
+btlen tSend.txt,sys0
+crcrest 1,0xffff // reset CRC
+crcputh 55 bb
+crcputs sys0,2
+crcputs tSend.txt,0
+//send cmd
+printh 55 bb
+prints sys0,2
+prints tSend.txt,0
+prints crcval,2
+dim=dimValueNormal
+vis p0,0
+vis tSend,0
+vis tInstruction,0
+vis tTmp,0
+vis tId,0
+vis bPrev,0
+vis bNext,0
+cardChart.bco=defaultBcoColor
+vis x0,0
+x0.bco=defaultBcoColor
+x0.borderc=defaultBcoColor
+for(sys0=0;sys0<32;sys0++)
+{
+    if(b[sys0].type==98||b[sys0].type==116)
+    {
+        b[sys0].bco=defaultBcoColor
+        b[sys0].pco=defaultFontColor
+    }
+    if(b[sys0].type==53&&defaultBcoColor==6371)
+    {
+        b[sys0].pic=1
+        b[sys0].pic2=2
+    }
+    if(b[sys0].type==53&&defaultBcoColor==0)
+    {
+        b[sys0].pic=10
+        b[sys0].pic2=11
+    }
+}

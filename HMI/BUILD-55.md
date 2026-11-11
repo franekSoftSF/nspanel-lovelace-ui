@@ -80,6 +80,11 @@ if(tF4Icon.txt=="")
 
 (Backend zostawia pustą ikonę z fontu tam, gdzie pokazuje obrazek, więc pusty tekst oznacza obrazek.)
 
+Ten sam kod przywracania wklej też w komponencie **`tc0`** (TouchCap, pasek komponentów pod ekranem),
+zdarzenie **Touch Press Event**, po `vis tNotifyText,0` (wewnątrz `if(dim!=0)`): dotknięcie ekranu też
+zamyka powiadomienie. Handlery poleceń (`notify`, `weatherUpdate`, `color`) są w komponencie **`tmSerial`**
+(Timer), zdarzenie **Timer Event**.
+
 **4. Nowe polecenie `weatherPics`.** Strona `screensaver`, komponent timera z obsługą poleceń (to ten
 sam kod, w którym jest `if(tInstruction.txt=="weatherUpdate"…)`). Wklej ten blok tuż **przed**
 linią `if(tInstruction.txt=="color"&&tNotifyHead.txt==""&&tNotifyText.txt=="")`:
@@ -146,7 +151,7 @@ Test w symulatorze (po wyjściu z trybu ramek, BUILD.md krok 5): `page screensav
 ## B. Font zegara z `°`
 
 W panelu *Fonts* zaznacz **indeks 5** (`NotoSand-Bold-TxtOnly-128`, h:128) i podmień (🔄) na
-`HMI/fonts/generated/clock-bold-128.zi`. Wynik: `clock-bold-128(h:128, encode:utf-8, qty:96)`.
+`HMI/fonts/generated/clock-bold-128.zi`. Wynik: `NotoSand-Bold-TxtOnly-128(h:128, encode:utf-8, qty:96)` (nazwa zostaje, liczba znaków rośnie z 95 do 96).
 Dzięki temu `timeTemplate` w `panels.yaml` (np. `"{{ states('sensor.nspanel_temp') }}°"`) pokaże
 temperaturę zamiast godziny. W US pionowym pole godziny ma 320 px, więc mieści się „21.5°” bez litery „C”.
 

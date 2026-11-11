@@ -80,6 +80,11 @@ if(tF4Icon.txt=="")
 
 (The backend leaves the font icon empty wherever it shows a picture, so an empty text means a picture.)
 
+Paste the same restore code in component **`tc0`** (TouchCap, component strip below the screen),
+**Touch Press Event**, after `vis tNotifyText,0` (inside `if(dim!=0)`): touching the screen also closes
+the notification. The command handlers (`notify`, `weatherUpdate`, `color`) are in component **`tmSerial`**
+(Timer), **Timer Event**.
+
 **4. New command `weatherPics`.** Page `screensaver`, the timer component with the command handling
 (the code that contains `if(tInstruction.txt=="weatherUpdate"…)`). Paste this block right **before**
 the line `if(tInstruction.txt=="color"&&tNotifyHead.txt==""&&tNotifyText.txt=="")`:
@@ -146,7 +151,7 @@ Simulator test (after leaving the frame mode, BUILD.en.md step 5): `page screens
 ## B. Clock font with `°`
 
 In the *Fonts* panel select **index 5** (`NotoSand-Bold-TxtOnly-128`, h:128) and replace it (🔄) with
-`HMI/fonts/generated/clock-bold-128.zi`. Result: `clock-bold-128(h:128, encode:utf-8, qty:96)`.
+`HMI/fonts/generated/clock-bold-128.zi`. Result: `NotoSand-Bold-TxtOnly-128(h:128, encode:utf-8, qty:96)` (the name stays, the glyph count grows from 95 to 96).
 With it, `timeTemplate` in `panels.yaml` (e.g. `"{{ states('sensor.nspanel_temp') }}°"`) shows a
 temperature instead of the time. On US portrait the time field is 320 px wide, so "21.5°" fits, without the "C".
 

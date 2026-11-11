@@ -1,0 +1,105 @@
+tSend.txt="event,renderCurrentPage"
+//send calc crc
+btlen tSend.txt,sys0
+crcrest 1,0xffff // reset CRC
+crcputh 55 bb
+crcputs sys0,2
+crcputs tSend.txt,0
+//send cmd
+printh 55 bb
+prints sys0,2
+prints tSend.txt,0
+prints crcval,2
+dim=dimValueNormal
+//wup=cardEntities
+//remove background & activate reparse mode
+vis p0,0
+recmod=1
+baud=115200
+//debug stuff
+vis tTmp,0
+vis tSend,0
+vis tInstruction,0
+vis tId,0
+//ui e1
+vis btOnOff1,0
+vis bUp1,0
+vis bStop1,0
+vis bDown1,0
+vis tIcon1,0
+vis tEntity1,0
+vis bText1,0
+vis hSlider1,0
+vis nNum1,0
+//ui e2
+vis btOnOff2,0
+vis bUp2,0
+vis bStop2,0
+vis bDown2,0
+vis tIcon2,0
+vis tEntity2,0
+vis bText2,0
+vis hSlider2,0
+vis nNum2,0
+//ui e3
+vis btOnOff3,0
+vis bUp3,0
+vis bStop3,0
+vis bDown3,0
+vis tIcon3,0
+vis tEntity3,0
+vis bText3,0
+vis hSlider3,0
+vis nNum3,0
+//ui e4
+vis btOnOff4,0
+vis bUp4,0
+vis bStop4,0
+vis bDown4,0
+vis tIcon4,0
+vis tEntity4,0
+vis bText4,0
+vis hSlider4,0
+vis nNum4,0
+vis bPrev,0
+vis bNext,0
+//ui e5
+vis btOnOff5,0
+vis bUp5,0
+vis bStop5,0
+vis bDown5,0
+vis tIcon5,0
+vis tEntity5,0
+vis bText5,0
+vis hSlider5,0
+vis nNum5,0
+//ui e6
+vis btOnOff6,0
+vis bUp6,0
+vis bStop6,0
+vis bDown6,0
+vis tIcon6,0
+vis tEntity6,0
+vis bText6,0
+vis hSlider6,0
+vis nNum6,0
+cardEntities.bco=defaultBcoColor
+for(sys0=0;sys0<90;sys0++)
+{
+    if(b[sys0].type==98||b[sys0].type==116||b[sys0].type==54)
+    {
+        b[sys0].bco=defaultBcoColor
+        b[sys0].pco=defaultFontColor
+    }
+    if(b[sys0].type==53&&defaultBcoColor==0)
+    {
+        b[sys0].pic=10
+        b[sys0].pic2=11
+    }
+    if(b[sys0].type==1&&defaultBcoColor==0)
+    {
+        b[sys0].pic=14
+        b[sys0].pic1=13
+        b[sys0].pic2=15
+    }
+}

@@ -235,3 +235,21 @@ def test_picture_files_match_the_backend_order() -> None:
     expected = [f"{i:02d}-{size}-{name}.png" for i, (size, name) in enumerate(
         [("main", n) for n in weather.PICTURES] + [("forecast", n) for n in weather.PICTURES])]
     assert files == expected
+
+
+@pytest.mark.parametrize("variant", ["eu", "us-p", "us-l"])
+def test_hmi_patches_apply_to_the_current_code(variant) -> None:
+    """HMI/code_gen/patches_55.py finds all its anchors in the nextion2text dumps."""
+    import importlib.util
+
+    root = Path(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location("patches_55", root / "HMI/code_gen/patches_55.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    files = module.screensaver_files(module.VARIANTS[variant], variant)
+    serial = "\n".join(files["02-screensaver-tmSerial-TimerEvent.txt"])
+    assert 'tInstruction.txt=="weatherPics"' in serial
+    assert serial.index('"weatherPics"') < serial.index('tInstruction.txt=="color"')
+    assert "vis pMain,1" in "\n".join(files["03-screensaver-tc0-TouchPressEvent.txt"])
+    saved = (root / "HMI/patches/55" / variant / "02-screensaver-tmSerial-TimerEvent.txt").read_text(encoding="utf-8")
+    assert saved.replace("\r\n", "\n").rstrip("\n") == serial
