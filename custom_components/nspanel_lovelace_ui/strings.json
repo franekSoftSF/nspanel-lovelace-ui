@@ -6,11 +6,13 @@
         "description": "Panels and cards are configured in a YAML file in the Home Assistant configuration folder (same format as the add-on's panels.yaml). To migrate, enter your AppDaemon apps.yaml (or an add-on panels.yaml) as the import file; it is converted into the configuration file, which must not exist yet.\n\n{error}",
         "data": {
           "config_file": "Configuration file",
-          "import_file": "Import from (optional)"
+          "import_file": "Import from (optional)",
+          "disable_appdaemon": "Disable the imported AppDaemon apps"
         },
         "data_description": {
           "config_file": "Path relative to the configuration folder, e.g. nspanel_lovelace_ui/panels.yaml.",
-          "import_file": "Path relative to the configuration folder, e.g. appdaemon/apps/apps.yaml."
+          "import_file": "Path relative to the configuration folder, e.g. appdaemon/apps/apps.yaml.",
+          "disable_appdaemon": "Adds disable: true to the imported apps in apps.yaml after the setup (a copy is kept as apps.yaml.nspanel-backup), so the old backend stops driving the panels."
         }
       },
       "reconfigure": {
@@ -18,11 +20,13 @@
         "description": "Change the configuration file or import another one.\n\n{error}",
         "data": {
           "config_file": "Configuration file",
-          "import_file": "Import from (optional)"
+          "import_file": "Import from (optional)",
+          "disable_appdaemon": "Disable the imported AppDaemon apps"
         },
         "data_description": {
           "config_file": "Path relative to the configuration folder, e.g. nspanel_lovelace_ui/panels.yaml.",
-          "import_file": "Path relative to the configuration folder, e.g. appdaemon/apps/apps.yaml."
+          "import_file": "Path relative to the configuration folder, e.g. appdaemon/apps/apps.yaml.",
+          "disable_appdaemon": "Adds disable: true to the imported apps in apps.yaml after the setup (a copy is kept as apps.yaml.nspanel-backup), so the old backend stops driving the panels."
         }
       }
     },

@@ -16,10 +16,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
+import shutil
 from typing import Any
 from urllib.parse import urlsplit
+import zipfile
 
 MANIFEST = "firmware.json"
 MODELS = ("eu", "us-p", "us-l")
@@ -102,6 +105,54 @@ def load_package(folder: Path) -> FirmwarePackage | None:
     if release_url is not None and (not isinstance(release_url, str) or urlsplit(release_url).scheme != "https"):
         raise FirmwareError("release_url must be an https URL")
     return FirmwarePackage(version, str(data.get("release") or version), release_url, tft, berry)
+
+
+ZIP_PATTERN = "nspanel-firmware*.zip"
+ZIP_DONE_SUFFIX = ".installed"
+_ZIP_MAX_BYTES = 64 * 1024 * 1024
+
+
+def install_zip(folder: Path) -> str | None:
+    """Unpack a release asset (nspanel-firmware*.zip) dropped next to or into ``folder``.
+
+    The newest zip in <config>/nspanel_lovelace_ui/ or in the firmware folder is checked
+    (manifest, names, sizes, sha256) before it replaces the package; then it is renamed to
+    *.zip.installed so it is not unpacked again. Returns the zip name, None if there was none.
+    """
+    zips = [*folder.parent.glob(ZIP_PATTERN), *folder.glob(ZIP_PATTERN)]
+    if not zips:
+        return None
+    archive = max(zips, key=lambda item: item.stat().st_mtime)
+    staging = folder.parent / ".firmware-unpack"
+    if staging.exists():
+        shutil.rmtree(staging)
+    staging.mkdir(parents=True)
+    try:
+        try:
+            with zipfile.ZipFile(archive) as zf:
+                members = [info for info in zf.infolist() if not info.is_dir()]
+                if sum(info.file_size for info in members) > _ZIP_MAX_BYTES:
+                    raise FirmwareError(f"{archive.name}: too large for a firmware package")
+                for info in members:
+                    name = info.filename.removeprefix("firmware/")
+                    if not _FILENAME.match(name):
+                        raise FirmwareError(f"{archive.name}: unexpected entry {info.filename!r}")
+                    with zf.open(info) as source, (staging / name).open("wb") as target:
+                        shutil.copyfileobj(source, target)
+        except (OSError, zipfile.BadZipFile) as err:
+            raise FirmwareError(f"{archive.name}: {err}") from err
+        if load_package(staging) is None:
+            raise FirmwareError(f"{archive.name}: no {MANIFEST} in the archive")
+        folder.mkdir(parents=True, exist_ok=True)
+        for old in folder.iterdir():
+            if old.is_file() and old.suffix in (".tft", ".tapp", ".be", ".json"):
+                old.unlink()
+        for item in staging.iterdir():
+            os.replace(item, folder / item.name)
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
+    os.replace(archive, archive.with_name(archive.name + ZIP_DONE_SUFFIX))
+    return archive.name
 
 
 def validate_base_url(url: str) -> str:

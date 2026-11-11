@@ -40,3 +40,6 @@ Temporary Items
 
 # MDI download cache of HMI/code_gen/fonts
 HMI/fonts/.mdi-cache/
+
+# firmware packages built by scripts/make_firmware_package.py
+dist/

@@ -36,7 +36,7 @@ HACS cannot be installed on Home Assistant 2026.11 or newer. It was replaced by 
 3. Install *NSPanel Lovelace UI*, restart Home Assistant if asked.
 
 If you used the AppDaemon variant through HACS: after the migration to Marketplace, AppDaemon apps keep working
-but are no longer updated. Switch to this integration.
+but are no longer updated. Switch to this integration step by step: [MIGRATION.md](MIGRATION.md).
 
 ### B) Manual copy (always works, no GitHub connection)
 
@@ -119,6 +119,10 @@ MDI 7 icon fonts, publishing it and installing the package: [HMI/FIRMWARE.md](HM
   and the Berry driver are served locally by Home Assistant from `<config>/nspanel_lovelace_ui/firmware/`.
 - New grid font `font: large-icon` (64 px icon font of firmware 55, `largeIconFontId`, default 8).
 - Optional `firmware_base_url` in panels.yaml (plain HTTP address the panels download from).
+- Migration: an `nspanel-firmware.zip` dropped into `<config>/nspanel_lovelace_ui/` is checked and unpacked on
+  reload; the `apps.yaml` import resolves `!secret`, the setup dialog finds `appdaemon/apps/apps.yaml` and
+  disables the imported AppDaemon apps (`disable: true`, copy `apps.yaml.nspanel-backup`).
+  Step-by-step move from the AppDaemon/HACS version: [MIGRATION.md](MIGRATION.md).
 
 ### 5.1.0
 - Duplicate keys in `panels.yaml` no longer stop the integration: the last value is used (as with AppDaemon) and

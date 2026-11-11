@@ -70,7 +70,7 @@ Pakiet to `firmware.json` (wersja, SHA-256 i rozmiar każdego pliku) plus same p
 
 ## 4. Instalacja (integracja Home Assistant)
 
-1. Rozpakuj plik z wydania tak, żeby istniał `<config>/nspanel_lovelace_ui/firmware/firmware.json`.
+1. Wrzuć plik z wydania `nspanel-firmware.zip` do `<config>/nspanel_lovelace_ui/` (integracja sprawdzi go i rozpakuje przy przeładowaniu) albo rozpakuj go sam tak, żeby istniał `<config>/nspanel_lovelace_ui/firmware/firmware.json`.
 2. Przeładuj integrację (albo wywołaj `nspanel_lovelace_ui.reload`).
 3. Każdy panel ma encję aktualizacji **Firmware ekranu**. Gdy ekran przy starcie zgłosi starszą wersję,
    *Zainstaluj* wysyła do Tasmoty `FlashNextion http://<home-assistant>/api/nspanel_lovelace_ui/firmware/<token>/<plik>`

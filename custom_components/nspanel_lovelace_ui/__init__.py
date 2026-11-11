@@ -27,7 +27,7 @@ from .const import (
     SERVICE_RELOAD,
     SERVICE_UPDATE_BERRY_DRIVER,
 )
-from .firmware import FirmwareError, FirmwarePackage, load_package, validate_base_url
+from .firmware import FirmwareError, FirmwarePackage, install_zip, load_package, validate_base_url
 from .http import async_get_http_state
 from .runtime import NSPanelRuntime
 
@@ -135,8 +135,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: NSPanelConfigEntry) -> b
     runtime.http_state = async_get_http_state(hass)
     runtime.firmware_base_url = base_url
     folder = Path(hass.config.path(FIRMWARE_FOLDER))
+    zip_error: FirmwareError | None = None
+    try:
+        if installed := await hass.async_add_executor_job(install_zip, folder):
+            _LOGGER.info("Display firmware package %s unpacked into %s", installed, folder)
+    except FirmwareError as err:  # keep the package that is already there
+        zip_error = err
     try:
         runtime.firmware = await hass.async_add_executor_job(load_package, folder)
+        if zip_error:
+            raise zip_error
     except FirmwareError as err:
         _LOGGER.error("Display firmware package in %s ignored: %s", folder, err)
         ir.async_create_issue(hass, DOMAIN, "firmware_invalid", is_fixable=False,

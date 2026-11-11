@@ -36,7 +36,7 @@ Na Home Assistant 2026.11 i nowszym nie da się zainstalować HACS. Zastąpił g
 3. Zainstaluj *NSPanel Lovelace UI* i zrestartuj Home Assistant, jeśli pojawi się taka prośba.
 
 Jeśli używałeś wersji AppDaemon z HACS: po migracji do Marketplace aplikacje AppDaemon nadal działają, ale nie
-dostają już aktualizacji. Przejdź na tę integrację.
+dostają już aktualizacji. Przejdź na tę integrację krok po kroku: [MIGRATION.pl.md](MIGRATION.pl.md).
 
 ### B) Ręczne kopiowanie (działa zawsze, bez połączenia z GitHubem)
 
@@ -119,6 +119,10 @@ wydanie i instalacja pakietu: [HMI/FIRMWARE.pl.md](HMI/FIRMWARE.pl.md).
   .tft i sterownik Berry są serwowane lokalnie przez Home Assistant z `<config>/nspanel_lovelace_ui/firmware/`.
 - Nowy font siatki `font: large-icon` (font ikon 64 px z firmware 55, `largeIconFontId`, domyślnie 8).
 - Opcjonalne `firmware_base_url` w panels.yaml (adres po zwykłym HTTP, z którego panele pobierają pliki).
+- Migracja: `nspanel-firmware.zip` wrzucony do `<config>/nspanel_lovelace_ui/` jest sprawdzany i rozpakowywany
+  przy przeładowaniu; import `apps.yaml` rozwiązuje `!secret`, kreator sam znajduje `appdaemon/apps/apps.yaml` i
+  wyłącza zaimportowane aplikacje AppDaemon (`disable: true`, kopia `apps.yaml.nspanel-backup`).
+  Instrukcja przejścia z wersji AppDaemon/HACS: [MIGRATION.pl.md](MIGRATION.pl.md).
 
 ### 5.1.0
 - Zduplikowane klucze w `panels.yaml` nie zatrzymują już integracji. Używana jest ostatnia wartość (jak w AppDaemon),

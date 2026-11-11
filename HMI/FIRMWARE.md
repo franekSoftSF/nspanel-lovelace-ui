@@ -69,7 +69,7 @@ The package is `firmware.json` (version, SHA-256 and size of every file) plus th
 
 ## 4. Install (Home Assistant integration)
 
-1. Unzip the release asset so that `<config>/nspanel_lovelace_ui/firmware/firmware.json` exists.
+1. Drop the release asset `nspanel-firmware.zip` into `<config>/nspanel_lovelace_ui/` (the integration checks and unpacks it on reload), or unzip it yourself so that `<config>/nspanel_lovelace_ui/firmware/firmware.json` exists.
 2. Reload the integration (or call `nspanel_lovelace_ui.reload`).
 3. Each panel has an update entity **Display firmware**. When the display reports an older version
    at startup, *Install* sends `FlashNextion http://<home-assistant>/api/nspanel_lovelace_ui/firmware/<token>/<file>`
