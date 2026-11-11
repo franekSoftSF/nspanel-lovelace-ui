@@ -82,8 +82,17 @@ async def test_notify_entity_and_wake_button(hass: HomeAssistant, mqtt_mock, pan
         "entity_id": _entity(hass, "notify"), "title": "Garaż", "message": "Brama~otwarta"}, blocking=True)
     await wait_for(hass, lambda: "notify~Garaż~Brama-otwarta" in published(mqtt_mock))  # '~' would split fields
 
+    # Wake up = a touch on the screensaver: the panel switches to its card (brightness from pageType).
+    count = len(published(mqtt_mock))
     await hass.services.async_call("button", "press", {"entity_id": _entity(hass, "button")}, blocking=True)
-    await wait_for(hass, lambda: "wake" in published(mqtt_mock))
+    await wait_for(hass, lambda: "pageType~cardEntities" in published(mqtt_mock)[count:])
+    sensor = _entity(hass, "sensor")
+    await wait_for(hass, lambda: hass.states.get(sensor).state == "Salon")
+    # On a card the screen is awake: nothing is sent.
+    count = len(published(mqtt_mock))
+    await hass.services.async_call("button", "press", {"entity_id": _entity(hass, "button")}, blocking=True)
+    await hass.async_block_till_done()
+    assert not any(p.startswith("pageType~") for p in published(mqtt_mock)[count:])
     await _unload(hass, entry)
 
 

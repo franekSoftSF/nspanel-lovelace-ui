@@ -134,6 +134,10 @@ wydanie i instalacja pakietu: [HMI/FIRMWARE.pl.md](HMI/FIRMWARE.pl.md).
 
 ## Historia zmian
 
+### 5.2.4
+- **Obudź ekran** działa jak dotknięcie wygaszacza (panel pokazuje swoją kartę z normalną jasnością);
+  wysyłane wcześniej polecenie HMI `wake` nie rozjaśniało prawdziwego panelu.
+
 ### 5.2.3
 - Encje każdego panelu: **Powiadomienie** (`notify.send_message`), przycisk **Obudź ekran**, czujnik
   **Strona**, wybór **Karta**; akcja `nspanel_lovelace_ui.notify` (tekst na wygaszaczu albo strona

@@ -369,8 +369,14 @@ class NSPanelRuntime:
 
     @callback
     def async_wake(self, name: str) -> None:
-        """Like a touch on the screensaver (HMI command 'wake')."""
-        self._outbox.put_nowait((self.worker_by_name(name).settings["panelSendTopic"], "wake"))
+        """Like a touch on the screensaver: the panel shows its card at normal brightness.
+
+        Goes through the panel logic (the event a touch sends), not the HMI command 'wake': that one
+        only clicks the screensaver's touch area and did not brighten the screen on a real panel.
+        On a card the screen is awake already.
+        """
+        if self._on_screensaver(name):
+            self.worker_by_name(name).inbox.put(("MQTT:", "event,buttonPress2,screensaver,bExit,1"))
 
     @callback
     def async_buzzer(self, name: str, pattern: str = "2,2,2") -> None:
