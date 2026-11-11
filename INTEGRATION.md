@@ -107,6 +107,12 @@ MDI 7 icon fonts, publishing it and installing the package: [HMI/FIRMWARE.md](HM
 
 ## Changelog
 
+### 5.2.1
+- The display firmware package is downloaded automatically from the GitHub release with the integration's
+  version when it is missing or older (SHA-256 checked, then a reload). Action
+  `nspanel_lovelace_ui.download_firmware`; turn it off with `firmware_download: false` in `panels.yaml`.
+  A failed download shows in Repairs.
+
 ### 5.2.0
 - Weather: each forecast day has its own icon and colour (it used the current weather's colour),
   night variants, Home Assistant colours, `windy-variant` colour fixed, `exceptional` icon.

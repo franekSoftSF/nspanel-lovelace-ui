@@ -82,22 +82,26 @@ some new icons (MDI 7) may show a wrong glyph – that goes away after step 6.
 **Something wrong?** Remove the integration and restore `apps.yaml.nspanel-backup` as `apps.yaml` (or
 delete the `disable: true` lines) – you are back where you started.
 
-## 4. Put the firmware package into Home Assistant
+## 4. Firmware package in Home Assistant
 
-1. Download `nspanel-firmware.zip` from release
-   [v5.2.0](https://github.com/franekSoftSF/nspanel-lovelace-ui/releases/tag/v5.2.0).
-2. Drop the file **without unzipping** into `<config>/nspanel_lovelace_ui/` (Samba, File editor, SSH).
-   On reload the integration checks the archive (names, sizes, SHA-256), unpacks it into
-   `nspanel_lovelace_ui/firmware/` and renames it to `nspanel-firmware.zip.installed`. A broken archive
-   leaves the previous package alone; the error shows in Settings → Repairs.
-3. If Home Assistant runs on **HTTPS** or under a name the panel cannot resolve, add a plain HTTP address
-   at the top of `panels.yaml` (the Berry driver has no TLS):
-   ```yaml
-   firmware_base_url: http://192.168.1.10:8123
-   ```
-4. Action `nspanel_lovelace_ui.reload`.
+The integration (5.2.1 and newer) **downloads** `nspanel-firmware.zip` itself from the GitHub release with
+its own version number (e.g. 5.2.1 → [v5.2.1](https://github.com/franekSoftSF/nspanel-lovelace-ui/releases))
+when it has no package or an older one. It checks the archive (names, sizes, SHA-256), unpacks it into
+`<config>/nspanel_lovelace_ui/firmware/` and reloads. A newer or self-built package is never replaced.
 
-Each panel now has an update entity **Display firmware** with the installed and the available version (55).
+- **Check:** after a minute each panel has an update entity **Display firmware** with the installed and
+  the available version (55).
+- **No internet or a failed download:** Settings → Repairs shows *NSPanel display firmware package not
+  downloaded*. Retry with the action `nspanel_lovelace_ui.download_firmware`, or download the file from
+  the release yourself and drop it **without unzipping** into `<config>/nspanel_lovelace_ui/`, then
+  `nspanel_lovelace_ui.reload`. A broken archive leaves the previous package alone.
+- **No downloads:** `firmware_download: false` at the top of `panels.yaml`.
+
+If Home Assistant runs on **HTTPS** or under a name the panel cannot resolve, add a plain HTTP address at
+the top of `panels.yaml` (the Berry driver has no TLS) and call `nspanel_lovelace_ui.reload`:
+```yaml
+firmware_base_url: http://192.168.1.10:8123
+```
 
 ## 5. Update the Berry driver (9 → 10)
 
@@ -138,5 +142,5 @@ The integration also works on the old firmware (without colour pictures and new 
 ## Later updates (5.2.x)
 
 - Integration: Marketplace / HACS shows the update; or copy the folder again. Restart HA.
-- Display firmware and driver: drop the new `nspanel-firmware.zip` into `<config>/nspanel_lovelace_ui/`,
-  `nspanel_lovelace_ui.reload` (replaces the previous package), then steps 5 and 6 if the version changed.
+- Display firmware and driver: a new integration version downloads its own package (step 4). Then steps 5
+  and 6 if the firmware or driver version changed.

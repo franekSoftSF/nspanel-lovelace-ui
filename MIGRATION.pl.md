@@ -83,22 +83,26 @@ część nowych ikon (MDI 7) może być pokazana błędnym znakiem – znikną p
 **Coś nie działa?** Usuń integrację i przywróć `apps.yaml.nspanel-backup` jako `apps.yaml` (albo usuń
 linie `disable: true`) – wracasz do stanu sprzed migracji.
 
-## 4. Wgraj pakiet firmware do Home Assistant
+## 4. Pakiet firmware w Home Assistant
 
-1. Pobierz `nspanel-firmware.zip` z wydania
-   [v5.2.0](https://github.com/franekSoftSF/nspanel-lovelace-ui/releases/tag/v5.2.0).
-2. Wrzuć plik **bez rozpakowywania** do `<config>/nspanel_lovelace_ui/` (Samba, File editor, SSH).
-   Przy przeładowaniu integracja sprawdza archiwum (nazwy, rozmiary, SHA-256), rozpakowuje je do
-   `nspanel_lovelace_ui/firmware/` i zmienia jego nazwę na `nspanel-firmware.zip.installed`.
-   Uszkodzone archiwum nie rusza poprzedniego pakietu; błąd pojawia się w Ustawienia → Naprawy.
-3. Jeśli Home Assistant działa po **HTTPS** albo pod nazwą, której panel nie rozwiąże, dopisz na początku
-   `panels.yaml` adres po zwykłym HTTP (sterownik Berry nie obsługuje TLS):
-   ```yaml
-   firmware_base_url: http://192.168.1.10:8123
-   ```
-4. Akcja `nspanel_lovelace_ui.reload`.
+Integracja (od 5.2.1) **sama pobiera** `nspanel-firmware.zip` z wydania GitHub o tym samym numerze co
+ona (np. 5.2.1 → [v5.2.1](https://github.com/franekSoftSF/nspanel-lovelace-ui/releases)), gdy nie ma
+pakietu albo ma starszy. Sprawdza archiwum (nazwy, rozmiary, SHA-256), rozpakowuje je do
+`<config>/nspanel_lovelace_ui/firmware/` i przeładowuje się. Nowszego ani własnego pakietu nie nadpisuje.
 
-Każdy panel ma teraz encję aktualizacji **Firmware ekranu** z wersją zainstalowaną i dostępną (55).
+- **Sprawdzenie:** po minucie każdy panel ma encję aktualizacji **Firmware ekranu** z wersją
+  zainstalowaną i dostępną (55).
+- **Brak internetu albo błąd pobierania:** w Ustawienia → Naprawy pojawia się *Nie pobrano pakietu
+  firmware ekranu NSPanel*. Ponów akcją `nspanel_lovelace_ui.download_firmware` albo pobierz plik z
+  wydania sam i wrzuć go **bez rozpakowywania** do `<config>/nspanel_lovelace_ui/`, potem
+  `nspanel_lovelace_ui.reload`. Uszkodzone archiwum nie rusza poprzedniego pakietu.
+- **Bez pobierania:** `firmware_download: false` na początku `panels.yaml`.
+
+Jeśli Home Assistant działa po **HTTPS** albo pod nazwą, której panel nie rozwiąże, dopisz na początku
+`panels.yaml` adres po zwykłym HTTP (sterownik Berry nie obsługuje TLS) i wywołaj `nspanel_lovelace_ui.reload`:
+```yaml
+firmware_base_url: http://192.168.1.10:8123
+```
 
 ## 5. Zaktualizuj sterownik Berry (9 → 10)
 
@@ -139,5 +143,5 @@ Integracja działa też na starym firmware (bez kolorowych obrazków i nowych ik
 ## Kolejne aktualizacje (5.2.x)
 
 - Integracja: Marketplace / HACS pokaże aktualizację; albo skopiuj folder ponownie. Restart HA.
-- Firmware ekranu i sterownik: wrzuć nowy `nspanel-firmware.zip` do `<config>/nspanel_lovelace_ui/`,
-  `nspanel_lovelace_ui.reload` (zastępuje poprzedni pakiet), potem kroki 5 i 6, jeśli wersja się zmieniła.
+- Firmware ekranu i sterownik: nowa wersja integracji sama pobiera swój pakiet (krok 4). Potem kroki 5 i 6,
+  jeśli wersja firmware albo sterownika się zmieniła.

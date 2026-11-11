@@ -92,8 +92,19 @@ RENDER_REQUEST = ['tSend.txt="event,renderCurrentPage"', "//send calc crc", "btl
 RESTORE = ["// firmware 55: notification closed - ask the backend to send the screensaver again"] + RENDER_REQUEST
 
 
+def applied(code: list[str]) -> bool:
+    """The dump was made from an HMI that already has the firmware 55 code (CI regenerates it)."""
+    return any("firmware 55" in line for line in code)
+
+
 def screensaver_files(folder: Path, variant: str) -> dict[str, list[str]]:
     files = {}
+    serial = event_code("screensaver", folder, "tmSerial", "Timer Event")
+    if applied(serial):  # keep the code as it is in the project
+        return {"01-screensaver-strona-Preinitialize.txt":
+                event_code("screensaver", folder, "screensaver", "Preinitialize Event"),
+                "02-screensaver-tmSerial-TimerEvent.txt": serial,
+                "03-screensaver-tc0-TouchPressEvent.txt": event_code("screensaver", folder, "tc0", "Touch Press Event")}
     pre = event_code("screensaver", folder, "screensaver", "Preinitialize Event")
     if variant == "us-p":
         pre = RENDER_REQUEST + pre  # D (#1475)

@@ -75,6 +75,9 @@
     },
     "flash_failed": {
       "message": "Aktualizacja ekranu nie powiodła się: {error}. Sprawdź konsolę Tasmoty; ekran ma stary firmware albo czeka na ponowne FlashNextion."
+    },
+    "download_failed": {
+      "message": "Nie udało się pobrać pakietu firmware ekranu: {error}"
     }
   },
   "services": {
@@ -91,6 +94,10 @@
           "description": "Nazwa panelu z panels.yaml. Puste: wszystkie panele."
         }
       }
+    },
+    "download_firmware": {
+      "name": "Pobierz firmware ekranu",
+      "description": "Pobiera nspanel-firmware.zip dla tej wersji integracji z wydania na GitHubie, sprawdza go i przeładowuje integrację."
     }
   },
   "issues": {
@@ -101,6 +108,10 @@
     "firmware_invalid": {
       "title": "Nieprawidłowy pakiet firmware ekranu NSPanel",
       "description": "Pakiet w {folder} został pominięty: {error}\n\nUtwórz go ponownie skryptem scripts/make_firmware_package.py albo usuń folder, a potem przeładuj integrację."
+    },
+    "firmware_download_failed": {
+      "title": "Nie pobrano pakietu firmware ekranu NSPanel",
+      "description": "Nie udało się pobrać pakietu {url}: {error}\n\nAktualizacje ekranu korzystają z pakietu, który już jest w {folder}/firmware (jeśli jest). Spróbuj ponownie akcją nspanel_lovelace_ui.download_firmware albo pobierz plik sam i wrzuć go do {folder}. Ustaw firmware_download: false w panels.yaml, żeby wyłączyć pobieranie."
     }
   },
   "entity": {

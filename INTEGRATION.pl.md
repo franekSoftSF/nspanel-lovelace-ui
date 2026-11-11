@@ -107,6 +107,11 @@ wydanie i instalacja pakietu: [HMI/FIRMWARE.pl.md](HMI/FIRMWARE.pl.md).
 
 ## Historia zmian
 
+### 5.2.1
+- Pakiet firmware ekranu jest pobierany automatycznie z wydania GitHub o numerze integracji, gdy go nie ma
+  albo jest starszy (sprawdzany SHA-256, potem przeładowanie). Akcja `nspanel_lovelace_ui.download_firmware`,
+  wyłączenie: `firmware_download: false` w `panels.yaml`. Błąd pobierania widać w Naprawach.
+
 ### 5.2.0
 - Pogoda: każdy dzień prognozy ma własną ikonę i kolor (wcześniej kolor bieżącej pogody), warianty
   nocne, kolory jak w Home Assistant, poprawiony kolor `windy-variant`, ikona dla `exceptional`.

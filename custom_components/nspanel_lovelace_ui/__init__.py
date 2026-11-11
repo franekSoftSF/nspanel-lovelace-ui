@@ -12,18 +12,28 @@ from homeassistant.components import mqtt
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
-from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady, ServiceValidationError
+from homeassistant.exceptions import (
+    ConfigEntryError,
+    ConfigEntryNotReady,
+    HomeAssistantError,
+    ServiceValidationError,
+)
 from homeassistant.helpers import config_validation as cv, issue_registry as ir
 from homeassistant.helpers.network import NoURLAvailableError, get_url
 from homeassistant.helpers.typing import ConfigType
+from homeassistant.loader import async_get_integration
 
+from . import download
 from .config import ConfigError, load_config, resolve_path
 from .const import (
     ATTR_PANEL,
     CONF_CONFIG_FILE,
     CONF_FIRMWARE_BASE_URL,
+    CONF_FIRMWARE_DOWNLOAD,
+    DATA_DOWNLOAD_ATTEMPTED,
     DOMAIN,
     FIRMWARE_FOLDER,
+    SERVICE_DOWNLOAD_FIRMWARE,
     SERVICE_RELOAD,
     SERVICE_UPDATE_BERRY_DRIVER,
 )
@@ -69,7 +79,21 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         except ValueError as err:
             raise ServiceValidationError(str(err)) from err
 
+    async def _download_firmware(call: ServiceCall) -> None:  # noqa: ARG001
+        entries = hass.config_entries.async_loaded_entries(DOMAIN)
+        if not entries:
+            raise ServiceValidationError(translation_domain=DOMAIN, translation_key="not_loaded")
+        tag = download.release_tag(str((await async_get_integration(hass, DOMAIN)).version))
+        try:
+            await download.async_download_package(hass, tag, Path(hass.config.path(FIRMWARE_FOLDER)).parent)
+        except FirmwareError as err:
+            raise HomeAssistantError(translation_domain=DOMAIN, translation_key="download_failed",
+                                     translation_placeholders={"error": str(err)}) from err
+        ir.async_delete_issue(hass, DOMAIN, "firmware_download_failed")
+        await hass.config_entries.async_reload(entries[0].entry_id)
+
     hass.services.async_register(DOMAIN, SERVICE_RELOAD, _reload)
+    hass.services.async_register(DOMAIN, SERVICE_DOWNLOAD_FIRMWARE, _download_firmware)
     hass.services.async_register(DOMAIN, SERVICE_UPDATE_BERRY_DRIVER, _update_berry,
                                  schema=vol.Schema({vol.Optional(ATTR_PANEL): cv.string}))
     return True
@@ -160,7 +184,31 @@ async def async_setup_entry(hass: HomeAssistant, entry: NSPanelConfigEntry) -> b
     entry.runtime_data = runtime
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     _LOGGER.info("Started %d NSPanel(s) from %s", len(runtime.workers), path)
+
+    tag = download.release_tag(str((await async_get_integration(hass, DOMAIN)).version))
+    attempted: set[str] = hass.data.setdefault(DATA_DOWNLOAD_ATTEMPTED, set())
+    if (settings.get(CONF_FIRMWARE_DOWNLOAD, True) and tag not in attempted
+            and download.needs_download(runtime.firmware, tag)):
+        attempted.add(tag)  # once per Home Assistant run; the action retries on demand
+        entry.async_create_background_task(
+            hass, _async_download(hass, entry, tag), f"{DOMAIN} firmware download")
     return True
+
+
+async def _async_download(hass: HomeAssistant, entry: NSPanelConfigEntry, tag: str) -> None:
+    """Fetch the release's firmware package, then reload so it is checked and unpacked."""
+    try:
+        await download.async_download_package(hass, tag, Path(hass.config.path(FIRMWARE_FOLDER)).parent)
+    except FirmwareError as err:
+        _LOGGER.warning("Display firmware package %s not downloaded: %s", tag, err)
+        ir.async_create_issue(hass, DOMAIN, "firmware_download_failed", is_fixable=False,
+                              severity=ir.IssueSeverity.WARNING, translation_key="firmware_download_failed",
+                              translation_placeholders={"url": download.asset_url(tag), "error": str(err),
+                                                        "folder": str(Path(FIRMWARE_FOLDER).parent)})
+        return
+    ir.async_delete_issue(hass, DOMAIN, "firmware_download_failed")
+    _LOGGER.info("Display firmware package %s downloaded", tag)
+    hass.config_entries.async_schedule_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: NSPanelConfigEntry) -> bool:

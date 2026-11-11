@@ -5,3 +5,4 @@ update_berry_driver:
       example: living_room
       selector:
         text:
+download_firmware:
