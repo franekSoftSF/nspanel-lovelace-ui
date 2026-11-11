@@ -1,0 +1,57 @@
+{
+  "mdi_version": "7.4.47",
+  "icons": 7447,
+  "fonts": {
+    "icons-regular-32.zi": {
+      "height": 32,
+      "icon_em": 27,
+      "glyphs": 7671,
+      "bytes": 1158644
+    },
+    "icons-regular-48.zi": {
+      "height": 48,
+      "icon_em": 43,
+      "glyphs": 7671,
+      "bytes": 2103391
+    },
+    "icons-bold-80.zi": {
+      "height": 80,
+      "icon_em": 66,
+      "glyphs": 7671,
+      "bytes": 3751108
+    },
+    "icons-64.zi": {
+      "height": 64,
+      "icon_em": 48,
+      "glyphs": 7447,
+      "bytes": 2032912
+    }
+  },
+  "budget": {
+    "flash_bytes": 16777216,
+    "added_bytes": 2863089,
+    "variants": {
+      "eu": {
+        "current_tft": 8549736,
+        "estimated_tft": 11412825,
+        "free_bytes": 5364391
+      },
+      "us-p": {
+        "current_tft": 8643104,
+        "estimated_tft": 11506193,
+        "free_bytes": 5271023
+      },
+      "us-l": {
+        "current_tft": 10200864,
+        "estimated_tft": 13063953,
+        "free_bytes": 3713263
+      }
+    },
+    "free_bytes": 3713263
+  },
+  "clock_font": {
+    "height": 128,
+    "glyphs": 96,
+    "bytes": 54901
+  }
+}

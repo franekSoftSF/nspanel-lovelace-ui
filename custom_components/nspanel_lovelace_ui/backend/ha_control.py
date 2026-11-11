@@ -19,13 +19,15 @@ def sun_events():
     return events
 
 def wait_for_ha_cache():
+    # Integration: states live in-process, so only wait while the bridge is active
+    # (an unload during startup must not keep the worker thread alive).
     mustend = time.time() + 5
-    while time.time() < mustend:
-        if len(libs.home_assistant.home_assistant_entity_state_cache) == 0:
-            time.sleep(0.1)
-    if len(libs.home_assistant.home_assistant_entity_state_cache) == 0:
+    while time.time() < mustend and libs.home_assistant.ws_connected:
+        if len(libs.home_assistant.home_assistant_entity_state_cache) > 0:
+            return
+        time.sleep(0.1)
+    if libs.home_assistant.ws_connected:
         logging.warning("Home Assistant entity cache is still empty after waiting 5 seconds")
-    time.sleep(1)
 
 def calculate_dim_values(sleepTracking, sleepTrackingZones, sleepBrightness, screenBrightness, sleepOverride, return_involved_entities=False, timezone="Europe/Berlin", now=None):
     dimmode = 10

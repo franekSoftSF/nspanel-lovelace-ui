@@ -137,6 +137,7 @@ class Nextion : Driver
         log("FLH: Total "+str(self.flash_written),3)
         if (self.flash_written==self.flash_size)
             log("FLH: Flashing complete - Time elapsed: %d", (tasmota.millis()-self.flash_start_millis)/1000)
+            tasmota.publish_result(string.format("{\"Flashing\":{\"complete\": 100, \"time_elapsed\": %d}}", (tasmota.millis()-self.flash_start_millis)/1000), "RESULT")
             self.flash_mode = 0
             self.ser.deinit()
             self.ser = serial(17, 16, 115200, serial.SERIAL_8N1)
@@ -259,7 +260,10 @@ class Nextion : Driver
         end
         if a==0
             log("FLH: Nothing available to read!",3)
-            return
+            if pos == 0
+                self.flash_error("no response from the download server")
+            end
+            return -1
         end
         var b = self.tcp.readbytes()
         i = 0
@@ -280,6 +284,9 @@ class Nextion : Driver
         else
             log("FLH: HTTP Respose is not 200 OK or 206 Partial Content",3)
             print(headers)
+            if pos == 0
+                self.flash_error("download failed (HTTP status)")
+            end
             return -1
         end
         # only set flash size if pos is zero
@@ -295,6 +302,14 @@ class Nextion : Driver
             log("FLH: Flash file size: "+str(self.flash_size),3)
         end
 
+    end
+
+    # Reported to Home Assistant (integration: update entity "Display firmware"). Only for
+    # failures before flashing starts (the download cannot be opened); unexpected serial replies
+    # during a flash are often harmless and stay a log message as before.
+    def flash_error(reason)
+        import string
+        tasmota.publish_result(string.format("{\"Flashing\":{\"error\":\"%s\"}}", reason), "RESULT")
     end
 
     def flash_nextion(url)
@@ -321,7 +336,7 @@ tasmota.add_driver(nextion)
 
 def get_current_version(cmd, idx, payload, payload_json)
     import string
-    var version_of_this_script = 9
+    var version_of_this_script = 10
     var jm = string.format("{\"nlui_driver_version\":\"%s\"}", version_of_this_script)
     tasmota.publish_result(jm, "RESULT")
 end

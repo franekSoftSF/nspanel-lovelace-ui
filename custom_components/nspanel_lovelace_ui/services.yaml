@@ -1,1 +1,7 @@
 reload:
+update_berry_driver:
+  fields:
+    panel:
+      example: living_room
+      selector:
+        text:

@@ -36,7 +36,7 @@ HACS cannot be installed on Home Assistant 2026.11 or newer. It was replaced by 
 3. Install *NSPanel Lovelace UI*, restart Home Assistant if asked.
 
 If you used the AppDaemon variant through HACS: after the migration to Marketplace, AppDaemon apps keep working
-but are no longer updated. Switch to this integration.
+but are no longer updated. Switch to this integration step by step: [MIGRATION.md](MIGRATION.md).
 
 ### B) Manual copy (always works, no GitHub connection)
 
@@ -86,3 +86,49 @@ docker run --rm -v "$PWD:/work" nspanel-ha-tests
 
 Tests use `pytest-homeassistant-custom-component` (Python 3.14). Home Assistant does not run on Windows, so use
 Docker (or WSL / Linux / macOS with a Python 3.14 venv: `pip install -r requirements_test.txt && pytest`).
+
+### Screensaver options (firmware 55)
+
+| Option (panel level) | Default | Meaning |
+|---|---|---|
+| `weatherIcons` | `color` | `color`: colour weather pictures (Meteocons) on firmware 55+ with the default black screensaver background; `font`: always the single-colour MDI icons |
+| `weatherPictureBase` | 26 (EU), 24 (US) | ID of the first weather picture, if you imported them at another position (HMI/BUILD-55.md) |
+| `timeTemplate` | – | template shown instead of the clock, e.g. `"{{ states('sensor.nspanel_temp') }}°"` (`°` needs firmware 55) |
+| `largeIconFontId` | 8 (US portrait: 7) | font index of the 64 px icons for `font: large-icon` |
+
+Forecast icons now use the condition and colour of their own day, partly cloudy nights show the moon,
+and grids switch between 3×2 and 4×2 by the number of *visible* items.
+
+## Display firmware
+
+The integration can serve the display firmware (.tft) and the Tasmota Berry driver from Home Assistant
+and flash it with the **Display firmware** update entity of each panel. Building the firmware with the
+MDI 7 icon fonts, publishing it and installing the package: [HMI/FIRMWARE.md](HMI/FIRMWARE.md).
+
+## Changelog
+
+### 5.2.0
+- Weather: each forecast day has its own icon and colour (it used the current weather's colour),
+  night variants, Home Assistant colours, `windy-variant` colour fixed, `exceptional` icon.
+- Colour weather pictures (Meteocons) with firmware 55 (`weatherIcons`), `timeTemplate` instead of the
+  clock (upstream #1405), grid layout by visible items (upstream #1190).
+- Display update progress and errors in the update entity (Berry driver 10 reports them, upstream #995).
+- Icons: Material Design Icons 7.4.47 (7447 icons, aliases of renamed icons work). New icons need display
+  firmware 55; see HMI/FIRMWARE.md.
+- Update entity "Display firmware" per panel and action `nspanel_lovelace_ui.update_berry_driver`: the .tft
+  and the Berry driver are served locally by Home Assistant from `<config>/nspanel_lovelace_ui/firmware/`.
+- New grid font `font: large-icon` (64 px icon font of firmware 55, `largeIconFontId`, default 8).
+- Optional `firmware_base_url` in panels.yaml (plain HTTP address the panels download from).
+- Migration: an `nspanel-firmware.zip` dropped into `<config>/nspanel_lovelace_ui/` is checked and unpacked on
+  reload; the `apps.yaml` import resolves `!secret`, the setup dialog finds `appdaemon/apps/apps.yaml` and
+  disables the imported AppDaemon apps (`disable: true`, copy `apps.yaml.nspanel-backup`).
+  Step-by-step move from the AppDaemon/HACS version: [MIGRATION.md](MIGRATION.md).
+
+### 5.1.0
+- Duplicate keys in `panels.yaml` no longer stop the integration: the last value is used (as with AppDaemon) and
+  a warning with the line number appears under Settings → Repairs (upstream #1480).
+- Only state changes of entities used in `panels.yaml` (plus `sun.sun`) wake the panels; templates still follow
+  every entity they use (upstream #1465).
+- `navItem1` / `navItem2` with an `entity` replace the left / right navigation button on every card, including
+  hidden cards – e.g. `navItem1: {entity: navigate.home}` instead of the up arrow (upstream #1470, AppDaemon behaviour).
+- Unloading the integration while a panel is starting no longer leaves its thread running for 5 seconds.

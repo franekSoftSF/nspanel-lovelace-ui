@@ -6,11 +6,13 @@
         "description": "Panele i karty konfiguruje się w pliku YAML w folderze konfiguracji Home Assistant (ten sam format co panels.yaml z dodatku). Aby przenieść konfigurację, podaj apps.yaml z AppDaemon (albo panels.yaml z dodatku) jako plik do importu. Zostanie on przekonwertowany do pliku konfiguracji, który nie może jeszcze istnieć.\n\n{error}",
         "data": {
           "config_file": "Plik konfiguracji",
-          "import_file": "Importuj z (opcjonalnie)"
+          "import_file": "Importuj z (opcjonalnie)",
+          "disable_appdaemon": "Wyłącz zaimportowane aplikacje AppDaemon"
         },
         "data_description": {
           "config_file": "Ścieżka względem folderu konfiguracji, np. nspanel_lovelace_ui/panels.yaml.",
-          "import_file": "Ścieżka względem folderu konfiguracji, np. appdaemon/apps/apps.yaml."
+          "import_file": "Ścieżka względem folderu konfiguracji, np. appdaemon/apps/apps.yaml.",
+          "disable_appdaemon": "Po konfiguracji dopisuje disable: true do zaimportowanych aplikacji w apps.yaml (kopia zostaje jako apps.yaml.nspanel-backup), żeby stary backend przestał sterować panelami."
         }
       },
       "reconfigure": {
@@ -18,11 +20,13 @@
         "description": "Zmień plik konfiguracji albo zaimportuj inny.\n\n{error}",
         "data": {
           "config_file": "Plik konfiguracji",
-          "import_file": "Importuj z (opcjonalnie)"
+          "import_file": "Importuj z (opcjonalnie)",
+          "disable_appdaemon": "Wyłącz zaimportowane aplikacje AppDaemon"
         },
         "data_description": {
           "config_file": "Ścieżka względem folderu konfiguracji, np. nspanel_lovelace_ui/panels.yaml.",
-          "import_file": "Ścieżka względem folderu konfiguracji, np. appdaemon/apps/apps.yaml."
+          "import_file": "Ścieżka względem folderu konfiguracji, np. appdaemon/apps/apps.yaml.",
+          "disable_appdaemon": "Po konfiguracji dopisuje disable: true do zaimportowanych aplikacji w apps.yaml (kopia zostaje jako apps.yaml.nspanel-backup), żeby stary backend przestał sterować panelami."
         }
       }
     },
@@ -44,12 +48,66 @@
     },
     "mqtt_not_ready": {
       "message": "MQTT nie jest jeszcze połączone."
+    },
+    "no_firmware_package": {
+      "message": "Brak pakietu firmware ekranu w nspanel_lovelace_ui/firmware (zobacz dokumentację)."
+    },
+    "panel_not_reported": {
+      "message": "Panel nie zgłosił jeszcze wersji ani modelu ekranu. Poczekaj, aż się uruchomi."
+    },
+    "no_firmware_for_model": {
+      "message": "Pakiet firmware nie zawiera pliku .tft dla modelu ekranu {model}."
+    },
+    "no_http_url": {
+      "message": "Brak adresu Home Assistant po zwykłym HTTP, z którego panel mógłby pobrać plik. Ustaw firmware_base_url w panels.yaml, np. http://192.168.1.10:8123."
+    },
+    "no_berry_driver": {
+      "message": "Pakiet firmware nie zawiera sterownika Berry."
+    },
+    "unknown_panel": {
+      "message": "Nieznany panel: {panel}"
+    },
+    "not_loaded": {
+      "message": "NSPanel Lovelace UI nie jest załadowany."
+    },
+    "flash_timeout": {
+      "message": "Ekran nie uruchomił się z nowym firmware w ciągu {minutes} minut. Sprawdź konsolę Tasmoty (FlashNextion)."
+    },
+    "flash_failed": {
+      "message": "Aktualizacja ekranu nie powiodła się: {error}. Sprawdź konsolę Tasmoty; ekran ma stary firmware albo czeka na ponowne FlashNextion."
     }
   },
   "services": {
     "reload": {
       "name": "Przeładuj",
       "description": "Ponownie wczytuje plik konfiguracji paneli i restartuje wszystkie panele."
+    },
+    "update_berry_driver": {
+      "name": "Aktualizuj sterownik Berry",
+      "description": "Wysyła sterownik Berry (autoexec.be) z lokalnego pakietu firmware do paneli z Tasmotą. Panele potem się restartują.",
+      "fields": {
+        "panel": {
+          "name": "Panel",
+          "description": "Nazwa panelu z panels.yaml. Puste: wszystkie panele."
+        }
+      }
+    }
+  },
+  "issues": {
+    "config_warnings": {
+      "title": "Ostrzeżenia w konfiguracji NSPanel",
+      "description": "Plik {file} został wczytany, ale zawiera problemy do poprawienia:\n\n{warnings}\n\nPopraw plik i wywołaj akcję nspanel_lovelace_ui.reload."
+    },
+    "firmware_invalid": {
+      "title": "Nieprawidłowy pakiet firmware ekranu NSPanel",
+      "description": "Pakiet w {folder} został pominięty: {error}\n\nUtwórz go ponownie skryptem scripts/make_firmware_package.py albo usuń folder, a potem przeładuj integrację."
+    }
+  },
+  "entity": {
+    "update": {
+      "display_firmware": {
+        "name": "Firmware ekranu"
+      }
     }
   }
 }

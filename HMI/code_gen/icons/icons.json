@@ -100,8 +100,24 @@
       "hex":"F869"
    },
    {
+      "name":"account-badge",
+      "hex":"FB09"
+   },
+   {
+      "name":"account-badge-outline",
+      "hex":"FB0A"
+   },
+   {
       "name":"account-box",
       "hex":"E005"
+   },
+   {
+      "name":"account-box-edit-outline",
+      "hex":"FCC7"
+   },
+   {
+      "name":"account-box-minus-outline",
+      "hex":"FCC8"
    },
    {
       "name":"account-box-multiple",
@@ -116,12 +132,24 @@
       "hex":"E006"
    },
    {
+      "name":"account-box-plus-outline",
+      "hex":"FCC9"
+   },
+   {
       "name":"account-cancel",
       "hex":"F2DE"
    },
    {
       "name":"account-cancel-outline",
       "hex":"F2DF"
+   },
+   {
+      "name":"account-card",
+      "hex":"FBA3"
+   },
+   {
+      "name":"account-card-outline",
+      "hex":"FBA4"
    },
    {
       "name":"account-cash",
@@ -192,6 +220,14 @@
       "hex":"F7F2"
    },
    {
+      "name":"account-credit-card",
+      "hex":"FBA5"
+   },
+   {
+      "name":"account-credit-card-outline",
+      "hex":"FBA6"
+   },
+   {
       "name":"account-details",
       "hex":"E630"
    },
@@ -214,6 +250,22 @@
    {
       "name":"account-eye-outline",
       "hex":"F27A"
+   },
+   {
+      "name":"account-file",
+      "hex":"FCA6"
+   },
+   {
+      "name":"account-file-outline",
+      "hex":"FCA7"
+   },
+   {
+      "name":"account-file-text",
+      "hex":"FCA8"
+   },
+   {
+      "name":"account-file-text-outline",
+      "hex":"FCA9"
    },
    {
       "name":"account-filter",
@@ -340,6 +392,14 @@
       "hex":"E010"
    },
    {
+      "name":"account-network-off",
+      "hex":"FAF0"
+   },
+   {
+      "name":"account-network-off-outline",
+      "hex":"FAF1"
+   },
+   {
       "name":"account-network-outline",
       "hex":"EBE5"
    },
@@ -452,6 +512,14 @@
       "hex":"F91B"
    },
    {
+      "name":"account-tag",
+      "hex":"FC1A"
+   },
+   {
+      "name":"account-tag-outline",
+      "hex":"FC1B"
+   },
+   {
       "name":"account-tie",
       "hex":"ECE2"
    },
@@ -538,6 +606,10 @@
    {
       "name":"air-purifier",
       "hex":"ED43"
+   },
+   {
+      "name":"air-purifier-off",
+      "hex":"FB56"
    },
    {
       "name":"airbag",
@@ -1420,10 +1492,6 @@
       "hex":"E031"
    },
    {
-      "name":"android-messages",
-      "hex":"ED44"
-   },
-   {
       "name":"android-studio",
       "hex":"E033"
    },
@@ -2152,6 +2220,14 @@
       "hex":"F7A7"
    },
    {
+      "name":"arrow-oscillating",
+      "hex":"FC90"
+   },
+   {
+      "name":"arrow-oscillating-off",
+      "hex":"FC91"
+   },
+   {
       "name":"arrow-projectile",
       "hex":"F83F"
    },
@@ -2480,6 +2556,10 @@
       "hex":"F15B"
    },
    {
+      "name":"artboard",
+      "hex":"FB99"
+   },
+   {
       "name":"artstation",
       "hex":"EB5A"
    },
@@ -2548,6 +2628,10 @@
       "hex":"FAC4"
    },
    {
+      "name":"atv",
+      "hex":"FB6F"
+   },
+   {
       "name":"audio-input-rca",
       "hex":"F86A"
    },
@@ -2572,12 +2656,20 @@
       "hex":"E84F"
    },
    {
+      "name":"aurora",
+      "hex":"FBB8"
+   },
+   {
       "name":"auto-download",
       "hex":"F37D"
    },
    {
       "name":"auto-fix",
       "hex":"E067"
+   },
+   {
+      "name":"auto-mode",
+      "hex":"FC1F"
    },
    {
       "name":"auto-upload",
@@ -2594,6 +2686,14 @@
    {
       "name":"av-timer",
       "hex":"E06A"
+   },
+   {
+      "name":"awning",
+      "hex":"FB86"
+   },
+   {
+      "name":"awning-outline",
+      "hex":"FB87"
    },
    {
       "name":"aws",
@@ -2698,6 +2798,10 @@
    {
       "name":"baby-buggy",
       "hex":"F3DF"
+   },
+   {
+      "name":"baby-buggy-off",
+      "hex":"FAF2"
    },
    {
       "name":"baby-carriage",
@@ -2808,6 +2912,22 @@
       "hex":"EE12"
    },
    {
+      "name":"bag-personal-plus",
+      "hex":"FCA3"
+   },
+   {
+      "name":"bag-personal-plus-outline",
+      "hex":"FCA4"
+   },
+   {
+      "name":"bag-personal-tag",
+      "hex":"FB0B"
+   },
+   {
+      "name":"bag-personal-tag-outline",
+      "hex":"FB0C"
+   },
+   {
       "name":"bag-suitcase",
       "hex":"F58A"
    },
@@ -2862,6 +2982,14 @@
    {
       "name":"bank-check",
       "hex":"F654"
+   },
+   {
+      "name":"bank-circle",
+      "hex":"FC02"
+   },
+   {
+      "name":"bank-circle-outline",
+      "hex":"FC03"
    },
    {
       "name":"bank-minus",
@@ -2946,6 +3074,10 @@
    {
       "name":"baseball-diamond-outline",
       "hex":"F5EC"
+   },
+   {
+      "name":"baseball-outline",
+      "hex":"FC59"
    },
    {
       "name":"bash",
@@ -3436,6 +3568,10 @@
       "hex":"E2E2"
    },
    {
+      "name":"bed-clock",
+      "hex":"FB93"
+   },
+   {
       "name":"bed-double",
       "hex":"EFD3"
    },
@@ -3608,6 +3744,14 @@
       "hex":"EA92"
    },
    {
+      "name":"bench",
+      "hex":"FC20"
+   },
+   {
+      "name":"bench-back",
+      "hex":"FC21"
+   },
+   {
       "name":"beta",
       "hex":"E0A0"
    },
@@ -3646,6 +3790,18 @@
    {
       "name":"bike-fast",
       "hex":"F11E"
+   },
+   {
+      "name":"bike-pedal",
+      "hex":"FC22"
+   },
+   {
+      "name":"bike-pedal-clipless",
+      "hex":"FC23"
+   },
+   {
+      "name":"bike-pedal-mountain",
+      "hex":"FC24"
    },
    {
       "name":"billboard",
@@ -3984,6 +4140,10 @@
       "hex":"E0BD"
    },
    {
+      "name":"book-open-blank-variant-outline",
+      "hex":"FCCA"
+   },
+   {
       "name":"book-open-outline",
       "hex":"EB62"
    },
@@ -3998,6 +4158,10 @@
    {
       "name":"book-open-variant",
       "hex":"F4F6"
+   },
+   {
+      "name":"book-open-variant-outline",
+      "hex":"FCCB"
    },
    {
       "name":"book-outline",
@@ -4080,12 +4244,12 @@
       "hex":"E0BE"
    },
    {
-      "name":"book-variant-multiple",
-      "hex":"E0BB"
-   },
-   {
       "name":"bookmark",
       "hex":"E0BF"
+   },
+   {
+      "name":"bookmark-box",
+      "hex":"FB74"
    },
    {
       "name":"bookmark-box-multiple",
@@ -4094,6 +4258,10 @@
    {
       "name":"bookmark-box-multiple-outline",
       "hex":"F96C"
+   },
+   {
+      "name":"bookmark-box-outline",
+      "hex":"FB75"
    },
    {
       "name":"bookmark-check",
@@ -4258,6 +4426,10 @@
    {
       "name":"border-outside",
       "hex":"E0CD"
+   },
+   {
+      "name":"border-radius",
+      "hex":"FAF3"
    },
    {
       "name":"border-right",
@@ -4628,6 +4800,30 @@
       "hex":"EA2F"
    },
    {
+      "name":"bug-pause",
+      "hex":"FAF4"
+   },
+   {
+      "name":"bug-pause-outline",
+      "hex":"FAF5"
+   },
+   {
+      "name":"bug-play",
+      "hex":"FAF6"
+   },
+   {
+      "name":"bug-play-outline",
+      "hex":"FAF7"
+   },
+   {
+      "name":"bug-stop",
+      "hex":"FAF8"
+   },
+   {
+      "name":"bug-stop-outline",
+      "hex":"FAF9"
+   },
+   {
       "name":"bugle",
       "hex":"EDB3"
    },
@@ -4728,6 +4924,10 @@
       "hex":"E79F"
    },
    {
+      "name":"bus-sign",
+      "hex":"FCC0"
+   },
+   {
       "name":"bus-stop",
       "hex":"F011"
    },
@@ -4740,12 +4940,24 @@
       "hex":"F013"
    },
    {
+      "name":"bus-wrench",
+      "hex":"FCC1"
+   },
+   {
       "name":"butterfly",
       "hex":"F588"
    },
    {
       "name":"butterfly-outline",
       "hex":"F589"
+   },
+   {
+      "name":"button-cursor",
+      "hex":"FB4E"
+   },
+   {
+      "name":"button-pointer",
+      "hex":"FB4F"
    },
    {
       "name":"cabin-a-frame",
@@ -4808,12 +5020,24 @@
       "hex":"EA30"
    },
    {
+      "name":"calendar-alert-outline",
+      "hex":"FB61"
+   },
+   {
       "name":"calendar-arrow-left",
       "hex":"F133"
    },
    {
       "name":"calendar-arrow-right",
       "hex":"F134"
+   },
+   {
+      "name":"calendar-badge",
+      "hex":"FB9C"
+   },
+   {
+      "name":"calendar-badge-outline",
+      "hex":"FB9D"
    },
    {
       "name":"calendar-blank",
@@ -4848,36 +5072,84 @@
       "hex":"F89C"
    },
    {
+      "name":"calendar-collapse-horizontal-outline",
+      "hex":"FB62"
+   },
+   {
       "name":"calendar-cursor",
       "hex":"F57A"
+   },
+   {
+      "name":"calendar-cursor-outline",
+      "hex":"FB63"
    },
    {
       "name":"calendar-edit",
       "hex":"E8A6"
    },
    {
+      "name":"calendar-edit-outline",
+      "hex":"FB64"
+   },
+   {
       "name":"calendar-end",
       "hex":"F66B"
+   },
+   {
+      "name":"calendar-end-outline",
+      "hex":"FB65"
    },
    {
       "name":"calendar-expand-horizontal",
       "hex":"F89D"
    },
    {
+      "name":"calendar-expand-horizontal-outline",
+      "hex":"FB66"
+   },
+   {
       "name":"calendar-export",
       "hex":"EB23"
+   },
+   {
+      "name":"calendar-export-outline",
+      "hex":"FB67"
+   },
+   {
+      "name":"calendar-filter",
+      "hex":"FA31"
+   },
+   {
+      "name":"calendar-filter-outline",
+      "hex":"FA32"
    },
    {
       "name":"calendar-heart",
       "hex":"E9D1"
    },
    {
+      "name":"calendar-heart-outline",
+      "hex":"FB68"
+   },
+   {
       "name":"calendar-import",
       "hex":"EB24"
    },
    {
+      "name":"calendar-import-outline",
+      "hex":"FB69"
+   },
+   {
       "name":"calendar-lock",
       "hex":"F640"
+   },
+   {
+      "name":"calendar-lock-open",
+      "hex":"FB5A"
+   },
+   {
+      "name":"calendar-lock-open-outline",
+      "hex":"FB5B"
    },
    {
       "name":"calendar-lock-outline",
@@ -4886,6 +5158,10 @@
    {
       "name":"calendar-minus",
       "hex":"ED5B"
+   },
+   {
+      "name":"calendar-minus-outline",
+      "hex":"FB6A"
    },
    {
       "name":"calendar-month",
@@ -4908,6 +5184,10 @@
       "hex":"EA31"
    },
    {
+      "name":"calendar-multiselect-outline",
+      "hex":"FB54"
+   },
+   {
       "name":"calendar-outline",
       "hex":"EB66"
    },
@@ -4916,8 +5196,16 @@
       "hex":"E0F2"
    },
    {
+      "name":"calendar-plus-outline",
+      "hex":"FB6B"
+   },
+   {
       "name":"calendar-question",
       "hex":"E691"
+   },
+   {
+      "name":"calendar-question-outline",
+      "hex":"FB6C"
    },
    {
       "name":"calendar-range",
@@ -4948,12 +5236,28 @@
       "hex":"E94B"
    },
    {
+      "name":"calendar-search-outline",
+      "hex":"FB6D"
+   },
+   {
       "name":"calendar-star",
       "hex":"E9D2"
    },
    {
+      "name":"calendar-star-four-points",
+      "hex":"FC1E"
+   },
+   {
+      "name":"calendar-star-outline",
+      "hex":"FB52"
+   },
+   {
       "name":"calendar-start",
       "hex":"F66C"
+   },
+   {
+      "name":"calendar-start-outline",
+      "hex":"FB6E"
    },
    {
       "name":"calendar-sync",
@@ -4990,14 +5294,6 @@
    {
       "name":"calendar-week-begin-outline",
       "hex":"FA30"
-   },
-   {
-      "name":"calendar-week-end",
-      "hex":"FA31"
-   },
-   {
-      "name":"calendar-week-end-outline",
-      "hex":"FA32"
    },
    {
       "name":"calendar-week-outline",
@@ -5102,6 +5398,14 @@
    {
       "name":"camera-lock",
       "hex":"FA13"
+   },
+   {
+      "name":"camera-lock-open",
+      "hex":"FC0C"
+   },
+   {
+      "name":"camera-lock-open-outline",
+      "hex":"FC0D"
    },
    {
       "name":"camera-lock-outline",
@@ -5356,6 +5660,10 @@
       "hex":"F09C"
    },
    {
+      "name":"car-door-lock-open",
+      "hex":"FC80"
+   },
+   {
       "name":"car-electric",
       "hex":"EB6B"
    },
@@ -5430,6 +5738,14 @@
    {
       "name":"car-pickup",
       "hex":"E7A9"
+   },
+   {
+      "name":"car-search",
+      "hex":"FB8C"
+   },
+   {
+      "name":"car-search-outline",
+      "hex":"FB8D"
    },
    {
       "name":"car-seat",
@@ -5784,6 +6100,10 @@
       "hex":"E110"
    },
    {
+      "name":"cart-percent",
+      "hex":"FBAD"
+   },
+   {
       "name":"cart-plus",
       "hex":"E111"
    },
@@ -5816,6 +6136,10 @@
       "hex":"FA90"
    },
    {
+      "name":"cash-edit",
+      "hex":"FCAA"
+   },
+   {
       "name":"cash-fast",
       "hex":"F85B"
    },
@@ -5838,6 +6162,10 @@
    {
       "name":"cash-multiple",
       "hex":"E115"
+   },
+   {
+      "name":"cash-off",
+      "hex":"FC78"
    },
    {
       "name":"cash-plus",
@@ -6064,6 +6392,10 @@
       "hex":"EC4E"
    },
    {
+      "name":"charity-search",
+      "hex":"FC81"
+   },
+   {
       "name":"chart-arc",
       "hex":"E125"
    },
@@ -6094,6 +6426,14 @@
    {
       "name":"chart-box",
       "hex":"F54C"
+   },
+   {
+      "name":"chart-box-multiple",
+      "hex":"FCCC"
+   },
+   {
+      "name":"chart-box-multiple-outline",
+      "hex":"FCCD"
    },
    {
       "name":"chart-box-outline",
@@ -6146,6 +6486,10 @@
    {
       "name":"chart-pie",
       "hex":"E12A"
+   },
+   {
+      "name":"chart-pie-outline",
+      "hex":"FBDE"
    },
    {
       "name":"chart-ppf",
@@ -6308,6 +6652,14 @@
       "hex":"EA9C"
    },
    {
+      "name":"checkbook-arrow-left",
+      "hex":"FC1C"
+   },
+   {
+      "name":"checkbook-arrow-right",
+      "hex":"FC1D"
+   },
+   {
       "name":"checkbox-blank",
       "hex":"E12D"
    },
@@ -6344,12 +6696,24 @@
       "hex":"E855"
    },
    {
+      "name":"checkbox-intermediate-variant",
+      "hex":"FB53"
+   },
+   {
       "name":"checkbox-marked",
       "hex":"E131"
    },
    {
       "name":"checkbox-marked-circle",
       "hex":"E132"
+   },
+   {
+      "name":"checkbox-marked-circle-auto-outline",
+      "hex":"FC25"
+   },
+   {
+      "name":"checkbox-marked-circle-minus-outline",
+      "hex":"FC26"
    },
    {
       "name":"checkbox-marked-circle-outline",
@@ -6620,6 +6984,10 @@
       "hex":"E143"
    },
    {
+      "name":"church-outline",
+      "hex":"FB01"
+   },
+   {
       "name":"cigar",
       "hex":"F188"
    },
@@ -6726,6 +7094,10 @@
    {
       "name":"city",
       "hex":"E145"
+   },
+   {
+      "name":"city-switch",
+      "hex":"FC27"
    },
    {
       "name":"city-variant",
@@ -7048,6 +7420,14 @@
       "hex":"F865"
    },
    {
+      "name":"clock-star-four-points",
+      "hex":"FC28"
+   },
+   {
+      "name":"clock-star-four-points-outline",
+      "hex":"FC29"
+   },
+   {
       "name":"clock-start",
       "hex":"E154"
    },
@@ -7224,20 +7604,92 @@
       "hex":"E9DF"
    },
    {
+      "name":"cloud-alert-outline",
+      "hex":"FBDF"
+   },
+   {
+      "name":"cloud-arrow-down",
+      "hex":"FBE0"
+   },
+   {
+      "name":"cloud-arrow-down-outline",
+      "hex":"FBE1"
+   },
+   {
+      "name":"cloud-arrow-left",
+      "hex":"FBE2"
+   },
+   {
+      "name":"cloud-arrow-left-outline",
+      "hex":"FBE3"
+   },
+   {
+      "name":"cloud-arrow-right",
+      "hex":"FBE4"
+   },
+   {
+      "name":"cloud-arrow-right-outline",
+      "hex":"FBE5"
+   },
+   {
+      "name":"cloud-arrow-up",
+      "hex":"FBE6"
+   },
+   {
+      "name":"cloud-arrow-up-outline",
+      "hex":"FBE7"
+   },
+   {
       "name":"cloud-braces",
       "hex":"E7B4"
    },
    {
+      "name":"cloud-cancel",
+      "hex":"FBE8"
+   },
+   {
+      "name":"cloud-cancel-outline",
+      "hex":"FBE9"
+   },
+   {
       "name":"cloud-check",
-      "hex":"E15F"
+      "hex":"FBEA"
    },
    {
       "name":"cloud-check-outline",
+      "hex":"FBEB"
+   },
+   {
+      "name":"cloud-check-variant",
+      "hex":"E15F"
+   },
+   {
+      "name":"cloud-check-variant-outline",
       "hex":"F2CB"
    },
    {
       "name":"cloud-circle",
       "hex":"E160"
+   },
+   {
+      "name":"cloud-circle-outline",
+      "hex":"FBEC"
+   },
+   {
+      "name":"cloud-clock",
+      "hex":"FBED"
+   },
+   {
+      "name":"cloud-clock-outline",
+      "hex":"FBEE"
+   },
+   {
+      "name":"cloud-cog",
+      "hex":"FBEF"
+   },
+   {
+      "name":"cloud-cog-outline",
+      "hex":"FBF0"
    },
    {
       "name":"cloud-download",
@@ -7248,12 +7700,40 @@
       "hex":"EB7C"
    },
    {
+      "name":"cloud-key",
+      "hex":"FCA0"
+   },
+   {
+      "name":"cloud-key-outline",
+      "hex":"FCA1"
+   },
+   {
       "name":"cloud-lock",
       "hex":"F1F0"
    },
    {
+      "name":"cloud-lock-open",
+      "hex":"FBF1"
+   },
+   {
+      "name":"cloud-lock-open-outline",
+      "hex":"FBF2"
+   },
+   {
       "name":"cloud-lock-outline",
       "hex":"F1F1"
+   },
+   {
+      "name":"cloud-minus",
+      "hex":"FBF3"
+   },
+   {
+      "name":"cloud-minus-outline",
+      "hex":"FBF4"
+   },
+   {
+      "name":"cloud-off",
+      "hex":"FBF5"
    },
    {
       "name":"cloud-off-outline",
@@ -7272,6 +7752,14 @@
       "hex":"FA35"
    },
    {
+      "name":"cloud-plus",
+      "hex":"FBF6"
+   },
+   {
+      "name":"cloud-plus-outline",
+      "hex":"FBF7"
+   },
+   {
       "name":"cloud-print",
       "hex":"E164"
    },
@@ -7284,8 +7772,32 @@
       "hex":"EA38"
    },
    {
+      "name":"cloud-question-outline",
+      "hex":"FBF8"
+   },
+   {
       "name":"cloud-refresh",
+      "hex":"FBF9"
+   },
+   {
+      "name":"cloud-refresh-outline",
+      "hex":"FBFA"
+   },
+   {
+      "name":"cloud-refresh-variant",
       "hex":"E529"
+   },
+   {
+      "name":"cloud-refresh-variant-outline",
+      "hex":"FBFB"
+   },
+   {
+      "name":"cloud-remove",
+      "hex":"FBFC"
+   },
+   {
+      "name":"cloud-remove-outline",
+      "hex":"FBFD"
    },
    {
       "name":"cloud-search",
@@ -7316,8 +7828,16 @@
       "hex":"EB7D"
    },
    {
+      "name":"clouds",
+      "hex":"FB94"
+   },
+   {
       "name":"clover",
       "hex":"E815"
+   },
+   {
+      "name":"clover-outline",
+      "hex":"FC61"
    },
    {
       "name":"coach-lamp",
@@ -7334,6 +7854,22 @@
    {
       "name":"code-array",
       "hex":"E167"
+   },
+   {
+      "name":"code-block-braces",
+      "hex":"FC82"
+   },
+   {
+      "name":"code-block-brackets",
+      "hex":"FC83"
+   },
+   {
+      "name":"code-block-parentheses",
+      "hex":"FC84"
+   },
+   {
+      "name":"code-block-tags",
+      "hex":"FC85"
    },
    {
       "name":"code-braces",
@@ -7896,6 +8432,14 @@
       "hex":"ECFB"
    },
    {
+      "name":"content-save-minus",
+      "hex":"FB42"
+   },
+   {
+      "name":"content-save-minus-outline",
+      "hex":"FB43"
+   },
+   {
       "name":"content-save-move",
       "hex":"EE26"
    },
@@ -7914,6 +8458,14 @@
    {
       "name":"content-save-outline",
       "hex":"E817"
+   },
+   {
+      "name":"content-save-plus",
+      "hex":"FB40"
+   },
+   {
+      "name":"content-save-plus-outline",
+      "hex":"FB41"
    },
    {
       "name":"content-save-settings",
@@ -7936,12 +8488,20 @@
       "hex":"E196"
    },
    {
+      "name":"controller",
+      "hex":"E2B3"
+   },
+   {
       "name":"controller-classic",
       "hex":"EB81"
    },
    {
       "name":"controller-classic-outline",
       "hex":"EB82"
+   },
+   {
+      "name":"controller-off",
+      "hex":"E2B4"
    },
    {
       "name":"cookie",
@@ -8118,6 +8678,10 @@
    {
       "name":"creation",
       "hex":"E673"
+   },
+   {
+      "name":"creation-outline",
+      "hex":"FC2A"
    },
    {
       "name":"creative-commons",
@@ -8528,12 +9092,20 @@
       "hex":"E7BD"
    },
    {
+      "name":"currency-thb",
+      "hex":"FC04"
+   },
+   {
       "name":"currency-try",
       "hex":"E1B1"
    },
    {
       "name":"currency-twd",
       "hex":"E7BE"
+   },
+   {
+      "name":"currency-uah",
+      "hex":"FB9A"
    },
    {
       "name":"currency-usd",
@@ -8972,20 +9544,20 @@
       "hex":"E95E"
    },
    {
+      "name":"desk-lamp-off",
+      "hex":"FB1E"
+   },
+   {
+      "name":"desk-lamp-on",
+      "hex":"FB1F"
+   },
+   {
       "name":"deskphone",
       "hex":"E1C2"
    },
    {
       "name":"desktop-classic",
       "hex":"E7BF"
-   },
-   {
-      "name":"desktop-mac",
-      "hex":"E1C3"
-   },
-   {
-      "name":"desktop-mac-dashboard",
-      "hex":"E9E7"
    },
    {
       "name":"desktop-tower",
@@ -9050,6 +9622,10 @@
    {
       "name":"diamond-stone",
       "hex":"E1C7"
+   },
+   {
+      "name":"diaper-outline",
+      "hex":"FCCE"
    },
    {
       "name":"dice-1",
@@ -9184,10 +9760,6 @@
       "hex":"E95F"
    },
    {
-      "name":"discord",
-      "hex":"E66E"
-   },
-   {
       "name":"dishwasher",
       "hex":"EAAB"
    },
@@ -9245,11 +9817,15 @@
    },
    {
       "name":"diving-scuba",
-      "hex":"EDC0"
+      "hex":"FB76"
    },
    {
       "name":"diving-scuba-flag",
       "hex":"EDC1"
+   },
+   {
+      "name":"diving-scuba-mask",
+      "hex":"EDC0"
    },
    {
       "name":"diving-scuba-tank",
@@ -9360,6 +9936,10 @@
       "hex":"F0AD"
    },
    {
+      "name":"domain-switch",
+      "hex":"FC2B"
+   },
+   {
       "name":"dome-light",
       "hex":"F41D"
    },
@@ -9378,6 +9958,10 @@
    {
       "name":"door-closed",
       "hex":"E81A"
+   },
+   {
+      "name":"door-closed-cancel",
+      "hex":"FC92"
    },
    {
       "name":"door-closed-lock",
@@ -9486,6 +10070,10 @@
    {
       "name":"download-multiple",
       "hex":"E9E8"
+   },
+   {
+      "name":"download-multiple-outline",
+      "hex":"FCCF"
    },
    {
       "name":"download-network",
@@ -9616,8 +10204,20 @@
       "hex":"E1E6"
    },
    {
+      "name":"earth-arrow-down",
+      "hex":"FC86"
+   },
+   {
+      "name":"earth-arrow-left",
+      "hex":"FC87"
+   },
+   {
       "name":"earth-arrow-right",
       "hex":"F310"
+   },
+   {
+      "name":"earth-arrow-up",
+      "hex":"FC88"
    },
    {
       "name":"earth-box",
@@ -9690,6 +10290,14 @@
    {
       "name":"eject",
       "hex":"E1E9"
+   },
+   {
+      "name":"eject-circle",
+      "hex":"FB22"
+   },
+   {
+      "name":"eject-circle-outline",
+      "hex":"FB23"
    },
    {
       "name":"eject-outline",
@@ -9768,6 +10376,22 @@
       "hex":"ED41"
    },
    {
+      "name":"email-arrow-left",
+      "hex":"F0D9"
+   },
+   {
+      "name":"email-arrow-left-outline",
+      "hex":"F0DA"
+   },
+   {
+      "name":"email-arrow-right",
+      "hex":"F0DB"
+   },
+   {
+      "name":"email-arrow-right-outline",
+      "hex":"F0DC"
+   },
+   {
       "name":"email-box",
       "hex":"ED02"
    },
@@ -9796,8 +10420,16 @@
       "hex":"F86F"
    },
    {
+      "name":"email-heart-outline",
+      "hex":"FC5A"
+   },
+   {
       "name":"email-lock",
       "hex":"E1F0"
+   },
+   {
+      "name":"email-lock-outline",
+      "hex":"FB60"
    },
    {
       "name":"email-mark-as-unread",
@@ -9836,6 +10468,10 @@
       "hex":"E1EE"
    },
    {
+      "name":"email-open-heart-outline",
+      "hex":"FC5B"
+   },
+   {
       "name":"email-open-multiple",
       "hex":"EEE8"
    },
@@ -9860,14 +10496,6 @@
       "hex":"E9EB"
    },
    {
-      "name":"email-receive",
-      "hex":"F0D9"
-   },
-   {
-      "name":"email-receive-outline",
-      "hex":"F0DA"
-   },
-   {
       "name":"email-remove",
       "hex":"F660"
    },
@@ -9890,14 +10518,6 @@
    {
       "name":"email-search-outline",
       "hex":"E961"
-   },
-   {
-      "name":"email-send",
-      "hex":"F0DB"
-   },
-   {
-      "name":"email-send-outline",
-      "hex":"F0DC"
    },
    {
       "name":"email-sync",
@@ -10012,6 +10632,14 @@
       "hex":"F214"
    },
    {
+      "name":"emoticon-minus",
+      "hex":"FCB1"
+   },
+   {
+      "name":"emoticon-minus-outline",
+      "hex":"FCB2"
+   },
+   {
       "name":"emoticon-neutral",
       "hex":"EC73"
    },
@@ -10024,12 +10652,28 @@
       "hex":"E1F1"
    },
    {
+      "name":"emoticon-plus",
+      "hex":"FCB3"
+   },
+   {
+      "name":"emoticon-plus-outline",
+      "hex":"FCB4"
+   },
+   {
       "name":"emoticon-poop",
       "hex":"E1F6"
    },
    {
       "name":"emoticon-poop-outline",
       "hex":"EC74"
+   },
+   {
+      "name":"emoticon-remove",
+      "hex":"FCB5"
+   },
+   {
+      "name":"emoticon-remove-outline",
+      "hex":"FCB6"
    },
    {
       "name":"emoticon-sad",
@@ -10146,6 +10790,10 @@
    {
       "name":"ethernet-cable-off",
       "hex":"E201"
+   },
+   {
+      "name":"ethernet-off",
+      "hex":"FCD0"
    },
    {
       "name":"ev-plug-ccs1",
@@ -10266,6 +10914,26 @@
    {
       "name":"eye-circle-outline",
       "hex":"EB94"
+   },
+   {
+      "name":"eye-closed",
+      "hex":"FCA2"
+   },
+   {
+      "name":"eye-lock",
+      "hex":"FC05"
+   },
+   {
+      "name":"eye-lock-open",
+      "hex":"FC06"
+   },
+   {
+      "name":"eye-lock-open-outline",
+      "hex":"FC07"
+   },
+   {
+      "name":"eye-lock-outline",
+      "hex":"FC08"
    },
    {
       "name":"eye-minus",
@@ -10492,6 +11160,10 @@
       "hex":"ED05"
    },
    {
+      "name":"fast-forward-45",
+      "hex":"FB11"
+   },
+   {
       "name":"fast-forward-5",
       "hex":"F1F7"
    },
@@ -10502,6 +11174,14 @@
    {
       "name":"fast-forward-outline",
       "hex":"E6D1"
+   },
+   {
+      "name":"faucet",
+      "hex":"FB28"
+   },
+   {
+      "name":"faucet-variant",
+      "hex":"FB29"
    },
    {
       "name":"fax",
@@ -10688,6 +11368,14 @@
       "hex":"FA97"
    },
    {
+      "name":"file-document-arrow-right",
+      "hex":"FC0E"
+   },
+   {
+      "name":"file-document-arrow-right-outline",
+      "hex":"FC0F"
+   },
+   {
       "name":"file-document-check",
       "hex":"FA98"
    },
@@ -10730,6 +11418,14 @@
    {
       "name":"file-document-plus-outline",
       "hex":"FA9D"
+   },
+   {
+      "name":"file-document-refresh",
+      "hex":"FC79"
+   },
+   {
+      "name":"file-document-refresh-outline",
+      "hex":"FC7A"
    },
    {
       "name":"file-document-remove",
@@ -11072,6 +11768,14 @@
       "hex":"F039"
    },
    {
+      "name":"file-star-four-points",
+      "hex":"FC2C"
+   },
+   {
+      "name":"file-star-four-points-outline",
+      "hex":"FC2D"
+   },
+   {
       "name":"file-star-outline",
       "hex":"F03A"
    },
@@ -11162,6 +11866,10 @@
    {
       "name":"file-word-outline",
       "hex":"F03D"
+   },
+   {
+      "name":"file-xml-box",
+      "hex":"FB4A"
    },
    {
       "name":"film",
@@ -11328,6 +12036,10 @@
       "hex":"F721"
    },
    {
+      "name":"fire-station",
+      "hex":"FCC2"
+   },
+   {
       "name":"fire-truck",
       "hex":"E8AA"
    },
@@ -11444,8 +12156,40 @@
       "hex":"E23F"
    },
    {
+      "name":"flag-variant-minus",
+      "hex":"FBB3"
+   },
+   {
+      "name":"flag-variant-minus-outline",
+      "hex":"FBB4"
+   },
+   {
+      "name":"flag-variant-off",
+      "hex":"FBAF"
+   },
+   {
+      "name":"flag-variant-off-outline",
+      "hex":"FBB0"
+   },
+   {
       "name":"flag-variant-outline",
       "hex":"E23D"
+   },
+   {
+      "name":"flag-variant-plus",
+      "hex":"FBB1"
+   },
+   {
+      "name":"flag-variant-plus-outline",
+      "hex":"FBB2"
+   },
+   {
+      "name":"flag-variant-remove",
+      "hex":"FBB5"
+   },
+   {
+      "name":"flag-variant-remove-outline",
+      "hex":"FBB6"
    },
    {
       "name":"flare",
@@ -11472,12 +12216,24 @@
       "hex":"E242"
    },
    {
+      "name":"flash-off-outline",
+      "hex":"FB44"
+   },
+   {
       "name":"flash-outline",
       "hex":"E6D4"
    },
    {
       "name":"flash-red-eye",
       "hex":"E67A"
+   },
+   {
+      "name":"flash-triangle",
+      "hex":"FB1C"
+   },
+   {
+      "name":"flash-triangle-outline",
+      "hex":"FB1D"
    },
    {
       "name":"flashlight",
@@ -11900,6 +12656,14 @@
       "hex":"F26D"
    },
    {
+      "name":"folder-minus",
+      "hex":"FB48"
+   },
+   {
+      "name":"folder-minus-outline",
+      "hex":"FB49"
+   },
+   {
       "name":"folder-move",
       "hex":"E251"
    },
@@ -12212,6 +12976,10 @@
       "hex":"F896"
    },
    {
+      "name":"forest-outline",
+      "hex":"FC62"
+   },
+   {
       "name":"forklift",
       "hex":"E7C8"
    },
@@ -12420,8 +13188,16 @@
       "hex":"F955"
    },
    {
+      "name":"format-letter-spacing-variant",
+      "hex":"FAFA"
+   },
+   {
       "name":"format-letter-starts-with",
       "hex":"EFB9"
+   },
+   {
+      "name":"format-line-height",
+      "hex":"FAFB"
    },
    {
       "name":"format-line-spacing",
@@ -12464,6 +13240,10 @@
       "hex":"F85F"
    },
    {
+      "name":"format-list-group-plus",
+      "hex":"FB55"
+   },
+   {
       "name":"format-list-numbered",
       "hex":"E27A"
    },
@@ -12496,8 +13276,20 @@
       "hex":"E27C"
    },
    {
+      "name":"format-paragraph-spacing",
+      "hex":"FAFC"
+   },
+   {
       "name":"format-pilcrow",
       "hex":"E6D7"
+   },
+   {
+      "name":"format-pilcrow-arrow-left",
+      "hex":"E285"
+   },
+   {
+      "name":"format-pilcrow-arrow-right",
+      "hex":"E284"
    },
    {
       "name":"format-quote-close",
@@ -12598,14 +13390,6 @@
    {
       "name":"format-textbox",
       "hex":"ED10"
-   },
-   {
-      "name":"format-textdirection-l-to-r",
-      "hex":"E284"
-   },
-   {
-      "name":"format-textdirection-r-to-l",
-      "hex":"E285"
    },
    {
       "name":"format-title",
@@ -13020,6 +13804,14 @@
       "hex":"E297"
    },
    {
+      "name":"gas-station-in-use",
+      "hex":"FCC3"
+   },
+   {
+      "name":"gas-station-in-use-outline",
+      "hex":"FCC4"
+   },
+   {
       "name":"gas-station-off",
       "hex":"F408"
    },
@@ -13050,6 +13842,10 @@
    {
       "name":"gate-arrow-right",
       "hex":"F168"
+   },
+   {
+      "name":"gate-buffer",
+      "hex":"FAFD"
    },
    {
       "name":"gate-nand",
@@ -13126,6 +13922,18 @@
    {
       "name":"gender-transgender",
       "hex":"E29E"
+   },
+   {
+      "name":"generator-mobile",
+      "hex":"FC89"
+   },
+   {
+      "name":"generator-portable",
+      "hex":"FC8A"
+   },
+   {
+      "name":"generator-stationary",
+      "hex":"FC8B"
    },
    {
       "name":"gentoo",
@@ -13305,6 +14113,10 @@
    },
    {
       "name":"globe-light",
+      "hex":"E66E"
+   },
+   {
+      "name":"globe-light-outline",
       "hex":"F2D6"
    },
    {
@@ -13404,14 +14216,6 @@
       "hex":"F1F5"
    },
    {
-      "name":"google-controller",
-      "hex":"E2B3"
-   },
-   {
-      "name":"google-controller-off",
-      "hex":"E2B4"
-   },
-   {
       "name":"google-downasaur",
       "hex":"F361"
    },
@@ -13434,10 +14238,6 @@
    {
       "name":"google-hangouts",
       "hex":"E2C8"
-   },
-   {
-      "name":"google-home",
-      "hex":"E823"
    },
    {
       "name":"google-keep",
@@ -13684,6 +14484,10 @@
       "hex":"F88F"
    },
    {
+      "name":"hand-cycle",
+      "hex":"FB9B"
+   },
+   {
       "name":"hand-extended",
       "hex":"F8B5"
    },
@@ -13814,6 +14618,10 @@
    {
       "name":"hazard-lights",
       "hex":"EC88"
+   },
+   {
+      "name":"hdmi-port",
+      "hex":"FBB7"
    },
    {
       "name":"hdr",
@@ -14068,6 +14876,10 @@
       "hex":"F432"
    },
    {
+      "name":"heart-search",
+      "hex":"FC8C"
+   },
+   {
       "name":"heart-settings",
       "hex":"F664"
    },
@@ -14102,6 +14914,18 @@
    {
       "name":"help-box",
       "hex":"E78A"
+   },
+   {
+      "name":"help-box-multiple",
+      "hex":"FC09"
+   },
+   {
+      "name":"help-box-multiple-outline",
+      "hex":"FC0A"
+   },
+   {
+      "name":"help-box-outline",
+      "hex":"FC0B"
    },
    {
       "name":"help-circle",
@@ -14400,6 +15224,14 @@
       "hex":"E6A0"
    },
    {
+      "name":"home-percent",
+      "hex":"FC7B"
+   },
+   {
+      "name":"home-percent-outline",
+      "hex":"FC7C"
+   },
+   {
       "name":"home-plus",
       "hex":"E974"
    },
@@ -14426,6 +15258,30 @@
    {
       "name":"home-search-outline",
       "hex":"F3B0"
+   },
+   {
+      "name":"home-silo",
+      "hex":"FB9F"
+   },
+   {
+      "name":"home-silo-outline",
+      "hex":"FBA0"
+   },
+   {
+      "name":"home-sound-in",
+      "hex":"FC2E"
+   },
+   {
+      "name":"home-sound-in-outline",
+      "hex":"FC2F"
+   },
+   {
+      "name":"home-sound-out",
+      "hex":"FC30"
+   },
+   {
+      "name":"home-sound-out-outline",
+      "hex":"FC31"
    },
    {
       "name":"home-switch",
@@ -14520,8 +15376,20 @@
       "hex":"E827"
    },
    {
+      "name":"hours-12",
+      "hex":"FC93"
+   },
+   {
       "name":"hours-24",
       "hex":"F477"
+   },
+   {
+      "name":"hub",
+      "hex":"FC94"
+   },
+   {
+      "name":"hub-outline",
+      "hex":"FC95"
    },
    {
       "name":"hubspot",
@@ -14578,6 +15446,10 @@
    {
       "name":"human-female-female",
       "hex":"EA59"
+   },
+   {
+      "name":"human-female-female-child",
+      "hex":"FC8D"
    },
    {
       "name":"human-female-girl",
@@ -14648,6 +15520,10 @@
       "hex":"EA5D"
    },
    {
+      "name":"human-male-male-child",
+      "hex":"FC8E"
+   },
+   {
       "name":"human-non-binary",
       "hex":"F847"
    },
@@ -14662,6 +15538,10 @@
    {
       "name":"human-scooter",
       "hex":"F1E8"
+   },
+   {
+      "name":"human-walker",
+      "hex":"FB70"
    },
    {
       "name":"human-wheelchair",
@@ -14756,6 +15636,14 @@
       "hex":"E2ED"
    },
    {
+      "name":"image-check",
+      "hex":"FB24"
+   },
+   {
+      "name":"image-check-outline",
+      "hex":"FB25"
+   },
+   {
       "name":"image-edit",
       "hex":"F1E2"
    },
@@ -14788,12 +15676,20 @@
       "hex":"E2F2"
    },
    {
+      "name":"image-filter-drama-outline",
+      "hex":"FBFE"
+   },
+   {
       "name":"image-filter-frames",
       "hex":"E2F3"
    },
    {
       "name":"image-filter-hdr",
       "hex":"E2F4"
+   },
+   {
+      "name":"image-filter-hdr-outline",
+      "hex":"FC63"
    },
    {
       "name":"image-filter-none",
@@ -14832,6 +15728,10 @@
       "hex":"F418"
    },
    {
+      "name":"image-minus-outline",
+      "hex":"FB46"
+   },
+   {
       "name":"image-move",
       "hex":"E9F7"
    },
@@ -14860,6 +15760,10 @@
       "hex":"E87B"
    },
    {
+      "name":"image-plus-outline",
+      "hex":"FB45"
+   },
+   {
       "name":"image-refresh",
       "hex":"F9FD"
    },
@@ -14870,6 +15774,10 @@
    {
       "name":"image-remove",
       "hex":"F417"
+   },
+   {
+      "name":"image-remove-outline",
+      "hex":"FB47"
    },
    {
       "name":"image-search",
@@ -14984,6 +15892,14 @@
       "hex":"E2FB"
    },
    {
+      "name":"information-box",
+      "hex":"FC64"
+   },
+   {
+      "name":"information-box-outline",
+      "hex":"FC65"
+   },
+   {
       "name":"information-off",
       "hex":"F78B"
    },
@@ -14996,8 +15912,48 @@
       "hex":"E2FC"
    },
    {
+      "name":"information-slab-box",
+      "hex":"FC66"
+   },
+   {
+      "name":"information-slab-box-outline",
+      "hex":"FC67"
+   },
+   {
+      "name":"information-slab-circle",
+      "hex":"FC68"
+   },
+   {
+      "name":"information-slab-circle-outline",
+      "hex":"FC69"
+   },
+   {
+      "name":"information-slab-symbol",
+      "hex":"FC6A"
+   },
+   {
+      "name":"information-symbol",
+      "hex":"FC6B"
+   },
+   {
       "name":"information-variant",
       "hex":"E64D"
+   },
+   {
+      "name":"information-variant-box",
+      "hex":"FC6C"
+   },
+   {
+      "name":"information-variant-box-outline",
+      "hex":"FC6D"
+   },
+   {
+      "name":"information-variant-circle",
+      "hex":"FC6E"
+   },
+   {
+      "name":"information-variant-circle-outline",
+      "hex":"FC6F"
    },
    {
       "name":"instagram",
@@ -15018,6 +15974,218 @@
    {
       "name":"invert-colors-off",
       "hex":"EE49"
+   },
+   {
+      "name":"invoice",
+      "hex":"FCD1"
+   },
+   {
+      "name":"invoice-arrow-left",
+      "hex":"FCD2"
+   },
+   {
+      "name":"invoice-arrow-left-outline",
+      "hex":"FCD3"
+   },
+   {
+      "name":"invoice-arrow-right",
+      "hex":"FCD4"
+   },
+   {
+      "name":"invoice-arrow-right-outline",
+      "hex":"FCD5"
+   },
+   {
+      "name":"invoice-check",
+      "hex":"FCD6"
+   },
+   {
+      "name":"invoice-check-outline",
+      "hex":"FCD7"
+   },
+   {
+      "name":"invoice-clock",
+      "hex":"FCD8"
+   },
+   {
+      "name":"invoice-clock-outline",
+      "hex":"FCD9"
+   },
+   {
+      "name":"invoice-edit",
+      "hex":"FCDA"
+   },
+   {
+      "name":"invoice-edit-outline",
+      "hex":"FCDB"
+   },
+   {
+      "name":"invoice-export-outline",
+      "hex":"FCDC"
+   },
+   {
+      "name":"invoice-fast",
+      "hex":"FCDD"
+   },
+   {
+      "name":"invoice-fast-outline",
+      "hex":"FCDE"
+   },
+   {
+      "name":"invoice-import",
+      "hex":"FCDF"
+   },
+   {
+      "name":"invoice-import-outline",
+      "hex":"FCE0"
+   },
+   {
+      "name":"invoice-list",
+      "hex":"FCE1"
+   },
+   {
+      "name":"invoice-list-outline",
+      "hex":"FCE2"
+   },
+   {
+      "name":"invoice-minus",
+      "hex":"FCE3"
+   },
+   {
+      "name":"invoice-minus-outline",
+      "hex":"FCE4"
+   },
+   {
+      "name":"invoice-multiple",
+      "hex":"FCE5"
+   },
+   {
+      "name":"invoice-multiple-outline",
+      "hex":"FCE6"
+   },
+   {
+      "name":"invoice-outline",
+      "hex":"FCE7"
+   },
+   {
+      "name":"invoice-plus",
+      "hex":"FCE8"
+   },
+   {
+      "name":"invoice-plus-outline",
+      "hex":"FCE9"
+   },
+   {
+      "name":"invoice-remove",
+      "hex":"FCEA"
+   },
+   {
+      "name":"invoice-remove-outline",
+      "hex":"FCEB"
+   },
+   {
+      "name":"invoice-send",
+      "hex":"FCEC"
+   },
+   {
+      "name":"invoice-send-outline",
+      "hex":"FCED"
+   },
+   {
+      "name":"invoice-text",
+      "hex":"FCEE"
+   },
+   {
+      "name":"invoice-text-arrow-left",
+      "hex":"FCEF"
+   },
+   {
+      "name":"invoice-text-arrow-left-outline",
+      "hex":"FCF0"
+   },
+   {
+      "name":"invoice-text-arrow-right",
+      "hex":"FCF1"
+   },
+   {
+      "name":"invoice-text-arrow-right-outline",
+      "hex":"FCF2"
+   },
+   {
+      "name":"invoice-text-check",
+      "hex":"FCF3"
+   },
+   {
+      "name":"invoice-text-check-outline",
+      "hex":"FCF4"
+   },
+   {
+      "name":"invoice-text-clock",
+      "hex":"FCF5"
+   },
+   {
+      "name":"invoice-text-clock-outline",
+      "hex":"FCF6"
+   },
+   {
+      "name":"invoice-text-edit",
+      "hex":"FCF7"
+   },
+   {
+      "name":"invoice-text-edit-outline",
+      "hex":"FCF8"
+   },
+   {
+      "name":"invoice-text-fast",
+      "hex":"FCF9"
+   },
+   {
+      "name":"invoice-text-fast-outline",
+      "hex":"FCFA"
+   },
+   {
+      "name":"invoice-text-minus",
+      "hex":"FCFB"
+   },
+   {
+      "name":"invoice-text-minus-outline",
+      "hex":"FCFC"
+   },
+   {
+      "name":"invoice-text-multiple",
+      "hex":"FCFD"
+   },
+   {
+      "name":"invoice-text-multiple-outline",
+      "hex":"FCFE"
+   },
+   {
+      "name":"invoice-text-outline",
+      "hex":"FCFF"
+   },
+   {
+      "name":"invoice-text-plus",
+      "hex":"FD00"
+   },
+   {
+      "name":"invoice-text-plus-outline",
+      "hex":"FD01"
+   },
+   {
+      "name":"invoice-text-remove",
+      "hex":"FD02"
+   },
+   {
+      "name":"invoice-text-remove-outline",
+      "hex":"FD03"
+   },
+   {
+      "name":"invoice-text-send",
+      "hex":"FD04"
+   },
+   {
+      "name":"invoice-text-send-outline",
+      "hex":"FD05"
    },
    {
       "name":"iobroker",
@@ -15058,6 +16226,10 @@
    {
       "name":"island",
       "hex":"F04E"
+   },
+   {
+      "name":"island-variant",
+      "hex":"FCC5"
    },
    {
       "name":"iv-bag",
@@ -15232,6 +16404,10 @@
       "hex":"E30E"
    },
    {
+      "name":"keyboard-close-outline",
+      "hex":"FBFF"
+   },
+   {
       "name":"keyboard-esc",
       "hex":"F2B6"
    },
@@ -15356,6 +16532,10 @@
       "hex":"E9FB"
    },
    {
+      "name":"knob",
+      "hex":"FB95"
+   },
+   {
       "name":"koala",
       "hex":"F73E"
    },
@@ -15470,6 +16650,10 @@
    {
       "name":"land-plots-circle-variant",
       "hex":"FAB4"
+   },
+   {
+      "name":"land-plots-marker",
+      "hex":"FC5C"
    },
    {
       "name":"land-rows-horizontal",
@@ -15704,7 +16888,7 @@
       "hex":"EDD7"
    },
    {
-      "name":"lecturn",
+      "name":"lectern",
       "hex":"FAEF"
    },
    {
@@ -16008,6 +17192,18 @@
       "hex":"ED1C"
    },
    {
+      "name":"link-circle",
+      "hex":"FCAB"
+   },
+   {
+      "name":"link-circle-outline",
+      "hex":"FCAC"
+   },
+   {
+      "name":"link-edit",
+      "hex":"FCAD"
+   },
+   {
       "name":"link-lock",
       "hex":"F0B9"
    },
@@ -16062,6 +17258,14 @@
    {
       "name":"liquor",
       "hex":"F91D"
+   },
+   {
+      "name":"list-box",
+      "hex":"FB7A"
+   },
+   {
+      "name":"list-box-outline",
+      "hex":"FB7B"
    },
    {
       "name":"list-status",
@@ -16186,6 +17390,30 @@
    {
       "name":"lock-pattern",
       "hex":"E6E9"
+   },
+   {
+      "name":"lock-percent",
+      "hex":"FC11"
+   },
+   {
+      "name":"lock-percent-open",
+      "hex":"FC12"
+   },
+   {
+      "name":"lock-percent-open-outline",
+      "hex":"FC13"
+   },
+   {
+      "name":"lock-percent-open-variant",
+      "hex":"FC14"
+   },
+   {
+      "name":"lock-percent-open-variant-outline",
+      "hex":"FC15"
+   },
+   {
+      "name":"lock-percent-outline",
+      "hex":"FC16"
    },
    {
       "name":"lock-plus",
@@ -16656,12 +17884,24 @@
       "hex":"FAB7"
    },
    {
+      "name":"medication",
+      "hex":"FB13"
+   },
+   {
+      "name":"medication-outline",
+      "hex":"FB14"
+   },
+   {
       "name":"meditation",
       "hex":"F17A"
    },
    {
       "name":"memory",
       "hex":"E35A"
+   },
+   {
+      "name":"memory-arrow-down",
+      "hex":"FCA5"
    },
    {
       "name":"menorah",
@@ -16674,6 +17914,10 @@
    {
       "name":"menu",
       "hex":"E35B"
+   },
+   {
+      "name":"menu-close",
+      "hex":"FC8F"
    },
    {
       "name":"menu-down",
@@ -16774,6 +18018,14 @@
    {
       "name":"message-bulleted-off",
       "hex":"E6A2"
+   },
+   {
+      "name":"message-check",
+      "hex":"FB89"
+   },
+   {
+      "name":"message-check-outline",
+      "hex":"FB8A"
    },
    {
       "name":"message-cog",
@@ -16966,6 +18218,14 @@
    {
       "name":"microphone",
       "hex":"E36B"
+   },
+   {
+      "name":"microphone-message",
+      "hex":"E509"
+   },
+   {
+      "name":"microphone-message-off",
+      "hex":"E50A"
    },
    {
       "name":"microphone-minus",
@@ -17344,6 +18604,10 @@
       "hex":"EDDB"
    },
    {
+      "name":"monitor-vertical",
+      "hex":"FC32"
+   },
+   {
       "name":"moon-first-quarter",
       "hex":"EF60"
    },
@@ -17405,6 +18669,10 @@
    },
    {
       "name":"mosque",
+      "hex":"ED44"
+   },
+   {
+      "name":"mosque-outline",
       "hex":"F826"
    },
    {
@@ -17456,12 +18724,24 @@
       "hex":"F5B9"
    },
    {
+      "name":"motorbike-off",
+      "hex":"FB15"
+   },
+   {
       "name":"mouse",
       "hex":"E37C"
    },
    {
       "name":"mouse-bluetooth",
       "hex":"E98A"
+   },
+   {
+      "name":"mouse-left-click",
+      "hex":"FD06"
+   },
+   {
+      "name":"mouse-left-click-outline",
+      "hex":"FD07"
    },
    {
       "name":"mouse-move-down",
@@ -17478,6 +18758,22 @@
    {
       "name":"mouse-off",
       "hex":"E37D"
+   },
+   {
+      "name":"mouse-outline",
+      "hex":"FD08"
+   },
+   {
+      "name":"mouse-right-click",
+      "hex":"FD09"
+   },
+   {
+      "name":"mouse-right-click-outline",
+      "hex":"FD0A"
+   },
+   {
+      "name":"mouse-scroll-wheel",
+      "hex":"FD0B"
    },
    {
       "name":"mouse-variant",
@@ -17700,12 +18996,24 @@
       "hex":"F66F"
    },
    {
+      "name":"mower-bag-on",
+      "hex":"FB5F"
+   },
+   {
+      "name":"mower-on",
+      "hex":"FB5E"
+   },
+   {
       "name":"muffin",
       "hex":"E98B"
    },
    {
       "name":"multicast",
       "hex":"F892"
+   },
+   {
+      "name":"multimedia",
+      "hex":"FB96"
    },
    {
       "name":"multiplication",
@@ -17820,6 +19128,10 @@
       "hex":"EF71"
    },
    {
+      "name":"music-note-minus",
+      "hex":"FB88"
+   },
+   {
       "name":"music-note-off",
       "hex":"E389"
    },
@@ -17904,8 +19216,16 @@
       "hex":"E38D"
    },
    {
+      "name":"nature-outline",
+      "hex":"FC70"
+   },
+   {
       "name":"nature-people",
       "hex":"E38E"
+   },
+   {
+      "name":"nature-people-outline",
+      "hex":"FC71"
    },
    {
       "name":"navigation",
@@ -18668,8 +19988,32 @@
       "hex":"E6F8"
    },
    {
+      "name":"octagram-edit",
+      "hex":"FC33"
+   },
+   {
+      "name":"octagram-edit-outline",
+      "hex":"FC34"
+   },
+   {
+      "name":"octagram-minus",
+      "hex":"FC35"
+   },
+   {
+      "name":"octagram-minus-outline",
+      "hex":"FC36"
+   },
+   {
       "name":"octagram-outline",
       "hex":"E774"
+   },
+   {
+      "name":"octagram-plus",
+      "hex":"FC37"
+   },
+   {
+      "name":"octagram-plus-outline",
+      "hex":"FC38"
    },
    {
       "name":"octahedron",
@@ -18708,8 +20052,32 @@
       "hex":"F520"
    },
    {
+      "name":"office-building-minus",
+      "hex":"FBA9"
+   },
+   {
+      "name":"office-building-minus-outline",
+      "hex":"FBAA"
+   },
+   {
       "name":"office-building-outline",
       "hex":"F51E"
+   },
+   {
+      "name":"office-building-plus",
+      "hex":"FBA7"
+   },
+   {
+      "name":"office-building-plus-outline",
+      "hex":"FBA8"
+   },
+   {
+      "name":"office-building-remove",
+      "hex":"FBAB"
+   },
+   {
+      "name":"office-building-remove-outline",
+      "hex":"FBAC"
    },
    {
       "name":"oil",
@@ -18840,6 +20208,10 @@
       "hex":"E3D2"
    },
    {
+      "name":"package-check",
+      "hex":"FB50"
+   },
+   {
       "name":"package-down",
       "hex":"E3D3"
    },
@@ -18854,6 +20226,10 @@
    {
       "name":"package-variant-closed",
       "hex":"E3D6"
+   },
+   {
+      "name":"package-variant-closed-check",
+      "hex":"FB51"
    },
    {
       "name":"package-variant-closed-minus",
@@ -19164,8 +20540,32 @@
       "hex":"E7E2"
    },
    {
+      "name":"passport-alert",
+      "hex":"FCB7"
+   },
+   {
       "name":"passport-biometric",
       "hex":"EDE0"
+   },
+   {
+      "name":"passport-cancel",
+      "hex":"FCB8"
+   },
+   {
+      "name":"passport-check",
+      "hex":"FCB9"
+   },
+   {
+      "name":"passport-minus",
+      "hex":"FCBA"
+   },
+   {
+      "name":"passport-plus",
+      "hex":"FCBB"
+   },
+   {
+      "name":"passport-remove",
+      "hex":"FCBC"
    },
    {
       "name":"pasta",
@@ -19182,6 +20582,14 @@
    {
       "name":"pause",
       "hex":"E3E3"
+   },
+   {
+      "name":"pause-box",
+      "hex":"E0BB"
+   },
+   {
+      "name":"pause-box-outline",
+      "hex":"FB79"
    },
    {
       "name":"pause-circle",
@@ -19336,6 +20744,10 @@
       "hex":"F352"
    },
    {
+      "name":"pencil-ruler-outline",
+      "hex":"FC10"
+   },
+   {
       "name":"penguin",
       "hex":"EEBF"
    },
@@ -19474,6 +20886,14 @@
    {
       "name":"phone-incoming",
       "hex":"E3F6"
+   },
+   {
+      "name":"phone-incoming-outgoing",
+      "hex":"FB3E"
+   },
+   {
+      "name":"phone-incoming-outgoing-outline",
+      "hex":"FB3F"
    },
    {
       "name":"phone-incoming-outline",
@@ -19688,6 +21108,10 @@
       "hex":"E401"
    },
    {
+      "name":"pill-multiple",
+      "hex":"FB4B"
+   },
+   {
       "name":"pill-off",
       "hex":"FA5B"
    },
@@ -19722,6 +21146,14 @@
    {
       "name":"pine-tree-fire",
       "hex":"F419"
+   },
+   {
+      "name":"pine-tree-variant",
+      "hex":"FC72"
+   },
+   {
+      "name":"pine-tree-variant-outline",
+      "hex":"FC73"
    },
    {
       "name":"pinterest",
@@ -19776,12 +21208,24 @@
       "hex":"E408"
    },
    {
+      "name":"plane-car",
+      "hex":"FAFE"
+   },
+   {
+      "name":"plane-train",
+      "hex":"FAFF"
+   },
+   {
       "name":"play",
       "hex":"E409"
    },
    {
       "name":"play-box",
       "hex":"F279"
+   },
+   {
+      "name":"play-box-edit-outline",
+      "hex":"FC39"
    },
    {
       "name":"play-box-lock",
@@ -19960,6 +21404,10 @@
       "hex":"F1EB"
    },
    {
+      "name":"pocket",
+      "hex":"FCBD"
+   },
+   {
       "name":"podcast",
       "hex":"E993"
    },
@@ -20108,6 +21556,14 @@
       "hex":"E6A4"
    },
    {
+      "name":"power-plug-battery",
+      "hex":"FC3A"
+   },
+   {
+      "name":"power-plug-battery-outline",
+      "hex":"FC3B"
+   },
+   {
       "name":"power-plug-off",
       "hex":"E6A5"
    },
@@ -20220,8 +21676,20 @@
       "hex":"F8B8"
    },
    {
+      "name":"printer-3d-nozzle-off",
+      "hex":"FB18"
+   },
+   {
+      "name":"printer-3d-nozzle-off-outline",
+      "hex":"FB19"
+   },
+   {
       "name":"printer-3d-nozzle-outline",
       "hex":"EE5B"
+   },
+   {
+      "name":"printer-3d-off",
+      "hex":"FB0D"
    },
    {
       "name":"printer-alert",
@@ -20250,6 +21718,146 @@
    {
       "name":"printer-pos",
       "hex":"F056"
+   },
+   {
+      "name":"printer-pos-alert",
+      "hex":"FBBB"
+   },
+   {
+      "name":"printer-pos-alert-outline",
+      "hex":"FBBC"
+   },
+   {
+      "name":"printer-pos-cancel",
+      "hex":"FBBD"
+   },
+   {
+      "name":"printer-pos-cancel-outline",
+      "hex":"FBBE"
+   },
+   {
+      "name":"printer-pos-check",
+      "hex":"FBBF"
+   },
+   {
+      "name":"printer-pos-check-outline",
+      "hex":"FBC0"
+   },
+   {
+      "name":"printer-pos-cog",
+      "hex":"FBC1"
+   },
+   {
+      "name":"printer-pos-cog-outline",
+      "hex":"FBC2"
+   },
+   {
+      "name":"printer-pos-edit",
+      "hex":"FBC3"
+   },
+   {
+      "name":"printer-pos-edit-outline",
+      "hex":"FBC4"
+   },
+   {
+      "name":"printer-pos-minus",
+      "hex":"FBC5"
+   },
+   {
+      "name":"printer-pos-minus-outline",
+      "hex":"FBC6"
+   },
+   {
+      "name":"printer-pos-network",
+      "hex":"FBC7"
+   },
+   {
+      "name":"printer-pos-network-outline",
+      "hex":"FBC8"
+   },
+   {
+      "name":"printer-pos-off",
+      "hex":"FBC9"
+   },
+   {
+      "name":"printer-pos-off-outline",
+      "hex":"FBCA"
+   },
+   {
+      "name":"printer-pos-outline",
+      "hex":"FBCB"
+   },
+   {
+      "name":"printer-pos-pause",
+      "hex":"FBCC"
+   },
+   {
+      "name":"printer-pos-pause-outline",
+      "hex":"FBCD"
+   },
+   {
+      "name":"printer-pos-play",
+      "hex":"FBCE"
+   },
+   {
+      "name":"printer-pos-play-outline",
+      "hex":"FBCF"
+   },
+   {
+      "name":"printer-pos-plus",
+      "hex":"FBD0"
+   },
+   {
+      "name":"printer-pos-plus-outline",
+      "hex":"FBD1"
+   },
+   {
+      "name":"printer-pos-refresh",
+      "hex":"FBD2"
+   },
+   {
+      "name":"printer-pos-refresh-outline",
+      "hex":"FBD3"
+   },
+   {
+      "name":"printer-pos-remove",
+      "hex":"FBD4"
+   },
+   {
+      "name":"printer-pos-remove-outline",
+      "hex":"FBD5"
+   },
+   {
+      "name":"printer-pos-star",
+      "hex":"FBD6"
+   },
+   {
+      "name":"printer-pos-star-outline",
+      "hex":"FBD7"
+   },
+   {
+      "name":"printer-pos-stop",
+      "hex":"FBD8"
+   },
+   {
+      "name":"printer-pos-stop-outline",
+      "hex":"FBD9"
+   },
+   {
+      "name":"printer-pos-sync",
+      "hex":"FBDA"
+   },
+   {
+      "name":"printer-pos-sync-outline",
+      "hex":"FBDB"
+   },
+   {
+      "name":"printer-pos-wrench",
+      "hex":"FBDC"
+   },
+   {
+      "name":"printer-pos-wrench-outline",
+      "hex":"FBDD"
    },
    {
       "name":"printer-search",
@@ -20296,6 +21904,10 @@
       "hex":"E996"
    },
    {
+      "name":"progress-helper",
+      "hex":"FBA1"
+   },
+   {
       "name":"progress-pencil",
       "hex":"F786"
    },
@@ -20306,6 +21918,14 @@
    {
       "name":"progress-star",
       "hex":"F787"
+   },
+   {
+      "name":"progress-star-four-points",
+      "hex":"FC3C"
+   },
+   {
+      "name":"progress-tag",
+      "hex":"FD0C"
    },
    {
       "name":"progress-upload",
@@ -20382,6 +22002,10 @@
    {
       "name":"pump",
       "hex":"F401"
+   },
+   {
+      "name":"pump-off",
+      "hex":"FB21"
    },
    {
       "name":"pumpkin",
@@ -20516,6 +22140,10 @@
       "hex":"EA0C"
    },
    {
+      "name":"queue-first-in-last-out",
+      "hex":"FCAE"
+   },
+   {
       "name":"quora",
       "hex":"ED28"
    },
@@ -20598,6 +22226,10 @@
    {
       "name":"radiobox-blank",
       "hex":"E43C"
+   },
+   {
+      "name":"radiobox-indeterminate-variant",
+      "hex":"FC5D"
    },
    {
       "name":"radiobox-marked",
@@ -20685,11 +22317,47 @@
    },
    {
       "name":"receipt",
-      "hex":"E448"
+      "hex":"E823"
+   },
+   {
+      "name":"receipt-clock",
+      "hex":"FC3D"
+   },
+   {
+      "name":"receipt-clock-outline",
+      "hex":"FC3E"
    },
    {
       "name":"receipt-outline",
-      "hex":"F9DB"
+      "hex":"E4F6"
+   },
+   {
+      "name":"receipt-send",
+      "hex":"FC3F"
+   },
+   {
+      "name":"receipt-send-outline",
+      "hex":"FC40"
+   },
+   {
+      "name":"receipt-text",
+      "hex":"E448"
+   },
+   {
+      "name":"receipt-text-arrow-left",
+      "hex":"FC41"
+   },
+   {
+      "name":"receipt-text-arrow-left-outline",
+      "hex":"FC42"
+   },
+   {
+      "name":"receipt-text-arrow-right",
+      "hex":"FC43"
+   },
+   {
+      "name":"receipt-text-arrow-right-outline",
+      "hex":"FC44"
    },
    {
       "name":"receipt-text-check",
@@ -20700,12 +22368,32 @@
       "hex":"FA63"
    },
    {
+      "name":"receipt-text-clock",
+      "hex":"FC45"
+   },
+   {
+      "name":"receipt-text-clock-outline",
+      "hex":"FC46"
+   },
+   {
+      "name":"receipt-text-edit",
+      "hex":"FC47"
+   },
+   {
+      "name":"receipt-text-edit-outline",
+      "hex":"FC48"
+   },
+   {
       "name":"receipt-text-minus",
       "hex":"FA64"
    },
    {
       "name":"receipt-text-minus-outline",
       "hex":"FA65"
+   },
+   {
+      "name":"receipt-text-outline",
+      "hex":"F9DB"
    },
    {
       "name":"receipt-text-plus",
@@ -20722,6 +22410,14 @@
    {
       "name":"receipt-text-remove-outline",
       "hex":"FA69"
+   },
+   {
+      "name":"receipt-text-send",
+      "hex":"FC49"
+   },
+   {
+      "name":"receipt-text-send-outline",
+      "hex":"FC4A"
    },
    {
       "name":"record",
@@ -20988,8 +22684,20 @@
       "hex":"EEC5"
    },
    {
+      "name":"rename",
+      "hex":"FC17"
+   },
+   {
       "name":"rename-box",
       "hex":"E454"
+   },
+   {
+      "name":"rename-box-outline",
+      "hex":"FC18"
+   },
+   {
+      "name":"rename-outline",
+      "hex":"FC19"
    },
    {
       "name":"reorder-horizontal",
@@ -21098,6 +22806,10 @@
    {
       "name":"rewind-30",
       "hex":"ED95"
+   },
+   {
+      "name":"rewind-45",
+      "hex":"FB12"
    },
    {
       "name":"rewind-5",
@@ -21256,8 +22968,24 @@
       "hex":"E70C"
    },
    {
+      "name":"robot-vacuum-alert",
+      "hex":"FB5C"
+   },
+   {
+      "name":"robot-vacuum-off",
+      "hex":"FC00"
+   },
+   {
       "name":"robot-vacuum-variant",
       "hex":"E907"
+   },
+   {
+      "name":"robot-vacuum-variant-alert",
+      "hex":"FB5D"
+   },
+   {
+      "name":"robot-vacuum-variant-off",
+      "hex":"FC01"
    },
    {
       "name":"rocket",
@@ -21408,6 +23136,10 @@
       "hex":"F086"
    },
    {
+      "name":"router-network-wireless",
+      "hex":"FC96"
+   },
+   {
       "name":"router-wireless",
       "hex":"E468"
    },
@@ -21478,6 +23210,10 @@
    {
       "name":"sack",
       "hex":"ED2D"
+   },
+   {
+      "name":"sack-outline",
+      "hex":"FC4B"
    },
    {
       "name":"sack-percent",
@@ -21808,6 +23544,14 @@
       "hex":"E485"
    },
    {
+      "name":"select-arrow-down",
+      "hex":"FB58"
+   },
+   {
+      "name":"select-arrow-up",
+      "hex":"FB57"
+   },
+   {
       "name":"select-color",
       "hex":"ED30"
    },
@@ -21944,6 +23688,22 @@
       "hex":"F164"
    },
    {
+      "name":"send-variant",
+      "hex":"FC4C"
+   },
+   {
+      "name":"send-variant-clock",
+      "hex":"FC7D"
+   },
+   {
+      "name":"send-variant-clock-outline",
+      "hex":"FC7E"
+   },
+   {
+      "name":"send-variant-outline",
+      "hex":"FC4D"
+   },
+   {
       "name":"serial-port",
       "hex":"E65B"
    },
@@ -21956,6 +23716,10 @@
       "hex":"E48B"
    },
    {
+      "name":"server-minus-outline",
+      "hex":"FC97"
+   },
+   {
       "name":"server-network",
       "hex":"E48C"
    },
@@ -21964,12 +23728,24 @@
       "hex":"E48D"
    },
    {
+      "name":"server-network-outline",
+      "hex":"FC98"
+   },
+   {
       "name":"server-off",
       "hex":"E48E"
    },
    {
+      "name":"server-outline",
+      "hex":"FC99"
+   },
+   {
       "name":"server-plus",
       "hex":"E48F"
+   },
+   {
+      "name":"server-plus-outline",
+      "hex":"FC9A"
    },
    {
       "name":"server-remove",
@@ -22058,6 +23834,10 @@
    {
       "name":"shape-plus",
       "hex":"E494"
+   },
+   {
+      "name":"shape-plus-outline",
+      "hex":"FC4E"
    },
    {
       "name":"shape-polygon-plus",
@@ -22468,6 +24248,14 @@
       "hex":"EFDC"
    },
    {
+      "name":"sign-language",
+      "hex":"FB4C"
+   },
+   {
+      "name":"sign-language-outline",
+      "hex":"FB4D"
+   },
+   {
       "name":"sign-pole",
       "hex":"F4F7"
    },
@@ -22478,6 +24266,10 @@
    {
       "name":"sign-text",
       "hex":"E781"
+   },
+   {
+      "name":"sign-yield",
+      "hex":"FBAE"
    },
    {
       "name":"signal",
@@ -22553,6 +24345,10 @@
    },
    {
       "name":"silo",
+      "hex":"FB9E"
+   },
+   {
+      "name":"silo-outline",
       "hex":"EB48"
    },
    {
@@ -23256,12 +25052,28 @@
       "hex":"E9A1"
    },
    {
+      "name":"speaker-message",
+      "hex":"FB10"
+   },
+   {
       "name":"speaker-multiple",
       "hex":"ED37"
    },
    {
       "name":"speaker-off",
       "hex":"E4C3"
+   },
+   {
+      "name":"speaker-pause",
+      "hex":"FB72"
+   },
+   {
+      "name":"speaker-play",
+      "hex":"FB71"
+   },
+   {
+      "name":"speaker-stop",
+      "hex":"FB73"
    },
    {
       "name":"speaker-wireless",
@@ -23298,6 +25110,10 @@
    {
       "name":"spider",
       "hex":"F1E9"
+   },
+   {
+      "name":"spider-outline",
+      "hex":"FC74"
    },
    {
       "name":"spider-thread",
@@ -23362,6 +25178,10 @@
    {
       "name":"square-circle",
       "hex":"F4FF"
+   },
+   {
+      "name":"square-circle-outline",
+      "hex":"FC4F"
    },
    {
       "name":"square-edit-outline",
@@ -23446,6 +25266,10 @@
    {
       "name":"stadium",
       "hex":"EFF8"
+   },
+   {
+      "name":"stadium-outline",
+      "hex":"FB02"
    },
    {
       "name":"stadium-variant",
@@ -23536,8 +25360,28 @@
       "hex":"EAE1"
    },
    {
+      "name":"star-four-points-box",
+      "hex":"FC50"
+   },
+   {
+      "name":"star-four-points-box-outline",
+      "hex":"FC51"
+   },
+   {
+      "name":"star-four-points-circle",
+      "hex":"FC52"
+   },
+   {
+      "name":"star-four-points-circle-outline",
+      "hex":"FC53"
+   },
+   {
       "name":"star-four-points-outline",
       "hex":"EAE2"
+   },
+   {
+      "name":"star-four-points-small",
+      "hex":"FC54"
    },
    {
       "name":"star-half",
@@ -23856,8 +25700,48 @@
       "hex":"E7C6"
    },
    {
+      "name":"storefront-check",
+      "hex":"FB7C"
+   },
+   {
+      "name":"storefront-check-outline",
+      "hex":"FB7D"
+   },
+   {
+      "name":"storefront-edit",
+      "hex":"FB7E"
+   },
+   {
+      "name":"storefront-edit-outline",
+      "hex":"FB7F"
+   },
+   {
+      "name":"storefront-minus",
+      "hex":"FB82"
+   },
+   {
+      "name":"storefront-minus-outline",
+      "hex":"FB83"
+   },
+   {
       "name":"storefront-outline",
       "hex":"F0C0"
+   },
+   {
+      "name":"storefront-plus",
+      "hex":"FB80"
+   },
+   {
+      "name":"storefront-plus-outline",
+      "hex":"FB81"
+   },
+   {
+      "name":"storefront-remove",
+      "hex":"FB84"
+   },
+   {
+      "name":"storefront-remove-outline",
+      "hex":"FB85"
    },
    {
       "name":"stove",
@@ -23918,6 +25802,14 @@
    {
       "name":"summit",
       "hex":"E785"
+   },
+   {
+      "name":"sun-angle",
+      "hex":"FB26"
+   },
+   {
+      "name":"sun-angle-outline",
+      "hex":"FB27"
    },
    {
       "name":"sun-clock",
@@ -24012,6 +25904,10 @@
       "hex":"EFE1"
    },
    {
+      "name":"swap-horizontal-hidden",
+      "hex":"FD0D"
+   },
+   {
       "name":"swap-horizontal-variant",
       "hex":"E8C0"
    },
@@ -24074,6 +25970,14 @@
    {
       "name":"symfony",
       "hex":"EAE5"
+   },
+   {
+      "name":"synagogue",
+      "hex":"FB03"
+   },
+   {
+      "name":"synagogue-outline",
+      "hex":"FB04"
    },
    {
       "name":"sync",
@@ -24200,6 +26104,10 @@
       "hex":"F3C2"
    },
    {
+      "name":"table-filter",
+      "hex":"FB8B"
+   },
+   {
       "name":"table-furniture",
       "hex":"E5BB"
    },
@@ -24272,6 +26180,10 @@
       "hex":"EA74"
    },
    {
+      "name":"table-question",
+      "hex":"FB20"
+   },
+   {
       "name":"table-refresh",
       "hex":"F39F"
    },
@@ -24326,10 +26238,6 @@
    {
       "name":"tablet",
       "hex":"E4F5"
-   },
-   {
-      "name":"tablet-android",
-      "hex":"E4F6"
    },
    {
       "name":"tablet-cellphone",
@@ -24388,6 +26296,14 @@
       "hex":"FA7A"
    },
    {
+      "name":"tag-edit",
+      "hex":"FC9B"
+   },
+   {
+      "name":"tag-edit-outline",
+      "hex":"FC9C"
+   },
+   {
       "name":"tag-faces",
       "hex":"E4F9"
    },
@@ -24398,6 +26314,10 @@
    {
       "name":"tag-heart-outline",
       "hex":"EBCE"
+   },
+   {
+      "name":"tag-hidden",
+      "hex":"FC75"
    },
    {
       "name":"tag-minus",
@@ -24580,6 +26500,14 @@
       "hex":"F10F"
    },
    {
+      "name":"television-speaker",
+      "hex":"FB1A"
+   },
+   {
+      "name":"television-speaker-off",
+      "hex":"FB1B"
+   },
+   {
       "name":"television-stop",
       "hex":"EF89"
    },
@@ -24596,12 +26524,32 @@
       "hex":"E505"
    },
    {
+      "name":"temple-buddhist",
+      "hex":"FB05"
+   },
+   {
+      "name":"temple-buddhist-outline",
+      "hex":"FB06"
+   },
+   {
+      "name":"temple-hindu",
+      "hex":"FB07"
+   },
+   {
+      "name":"temple-hindu-outline",
+      "hex":"FB08"
+   },
+   {
       "name":"tennis",
       "hex":"ED9F"
    },
    {
       "name":"tennis-ball",
       "hex":"E506"
+   },
+   {
+      "name":"tennis-ball-outline",
+      "hex":"FC5E"
    },
    {
       "name":"tent",
@@ -24724,14 +26672,6 @@
       "hex":"E9A8"
    },
    {
-      "name":"text-to-speech",
-      "hex":"E509"
-   },
-   {
-      "name":"text-to-speech-off",
-      "hex":"E50A"
-   },
-   {
       "name":"texture",
       "hex":"E50B"
    },
@@ -24754,6 +26694,10 @@
    {
       "name":"thermometer-alert",
       "hex":"EE00"
+   },
+   {
+      "name":"thermometer-auto",
+      "hex":"FB0E"
    },
    {
       "name":"thermometer-bluetooth",
@@ -24796,6 +26740,14 @@
       "hex":"EE04"
    },
    {
+      "name":"thermometer-probe",
+      "hex":"FB2A"
+   },
+   {
+      "name":"thermometer-probe-off",
+      "hex":"FB2B"
+   },
+   {
       "name":"thermometer-water",
       "hex":"FA7F"
    },
@@ -24804,8 +26756,20 @@
       "hex":"E392"
    },
    {
+      "name":"thermostat-auto",
+      "hex":"FB16"
+   },
+   {
       "name":"thermostat-box",
       "hex":"E890"
+   },
+   {
+      "name":"thermostat-box-auto",
+      "hex":"FB17"
+   },
+   {
+      "name":"thermostat-cog",
+      "hex":"FC7F"
    },
    {
       "name":"thought-bubble",
@@ -24912,14 +26876,6 @@
       "hex":"F1FB"
    },
    {
-      "name":"timeline-help",
-      "hex":"EF98"
-   },
-   {
-      "name":"timeline-help-outline",
-      "hex":"EF99"
-   },
-   {
       "name":"timeline-minus",
       "hex":"F533"
    },
@@ -24938,6 +26894,14 @@
    {
       "name":"timeline-plus-outline",
       "hex":"EF96"
+   },
+   {
+      "name":"timeline-question",
+      "hex":"EF98"
+   },
+   {
+      "name":"timeline-question-outline",
+      "hex":"EF99"
    },
    {
       "name":"timeline-remove",
@@ -25268,6 +27232,14 @@
       "hex":"E526"
    },
    {
+      "name":"tooltip-question",
+      "hex":"FBB9"
+   },
+   {
+      "name":"tooltip-question-outline",
+      "hex":"FBBA"
+   },
+   {
       "name":"tooltip-remove",
       "hex":"F55F"
    },
@@ -25314,6 +27286,10 @@
    {
       "name":"toslink",
       "hex":"F2B7"
+   },
+   {
+      "name":"touch-text-outline",
+      "hex":"FC5F"
    },
    {
       "name":"tournament",
@@ -25388,6 +27364,10 @@
       "hex":"E913"
    },
    {
+      "name":"track-light-off",
+      "hex":"FB00"
+   },
+   {
       "name":"trackpad",
       "hex":"E7F7"
    },
@@ -25424,8 +27404,80 @@
       "hex":"E52B"
    },
    {
+      "name":"train-bus",
+      "hex":"FCC6"
+   },
+   {
       "name":"train-car",
       "hex":"EBD7"
+   },
+   {
+      "name":"train-car-autorack",
+      "hex":"FB2C"
+   },
+   {
+      "name":"train-car-box",
+      "hex":"FB2D"
+   },
+   {
+      "name":"train-car-box-full",
+      "hex":"FB2E"
+   },
+   {
+      "name":"train-car-box-open",
+      "hex":"FB2F"
+   },
+   {
+      "name":"train-car-caboose",
+      "hex":"FB30"
+   },
+   {
+      "name":"train-car-centerbeam",
+      "hex":"FB31"
+   },
+   {
+      "name":"train-car-centerbeam-full",
+      "hex":"FB32"
+   },
+   {
+      "name":"train-car-container",
+      "hex":"FB33"
+   },
+   {
+      "name":"train-car-flatbed",
+      "hex":"FB34"
+   },
+   {
+      "name":"train-car-flatbed-car",
+      "hex":"FB35"
+   },
+   {
+      "name":"train-car-flatbed-tank",
+      "hex":"FB36"
+   },
+   {
+      "name":"train-car-gondola",
+      "hex":"FB37"
+   },
+   {
+      "name":"train-car-gondola-full",
+      "hex":"FB38"
+   },
+   {
+      "name":"train-car-hopper",
+      "hex":"FB39"
+   },
+   {
+      "name":"train-car-hopper-covered",
+      "hex":"FB3A"
+   },
+   {
+      "name":"train-car-hopper-full",
+      "hex":"FB3B"
+   },
+   {
+      "name":"train-car-intermodal",
+      "hex":"FB3C"
    },
    {
       "name":"train-car-passenger",
@@ -25442,6 +27494,10 @@
    {
       "name":"train-car-passenger-variant",
       "hex":"F735"
+   },
+   {
+      "name":"train-car-tank",
+      "hex":"FB3D"
    },
    {
       "name":"train-variant",
@@ -25524,6 +27580,10 @@
       "hex":"EE05"
    },
    {
+      "name":"translate-variant",
+      "hex":"FB98"
+   },
+   {
       "name":"transmission-tower",
       "hex":"ED3D"
    },
@@ -25584,6 +27644,10 @@
       "hex":"E725"
    },
    {
+      "name":"treasure-chest-outline",
+      "hex":"FC76"
+   },
+   {
       "name":"tree",
       "hex":"E530"
    },
@@ -25610,6 +27674,14 @@
    {
       "name":"triangle",
       "hex":"E535"
+   },
+   {
+      "name":"triangle-down",
+      "hex":"FC55"
+   },
+   {
+      "name":"triangle-down-outline",
+      "hex":"FC56"
    },
    {
       "name":"triangle-outline",
@@ -25706,6 +27778,14 @@
    {
       "name":"truck-minus-outline",
       "hex":"F9BC"
+   },
+   {
+      "name":"truck-off-road",
+      "hex":"FC9D"
+   },
+   {
+      "name":"truck-off-road-off",
+      "hex":"FC9E"
    },
    {
       "name":"truck-outline",
@@ -25884,6 +27964,10 @@
       "hex":"E54A"
    },
    {
+      "name":"underwear-outline",
+      "hex":"FD0E"
+   },
+   {
       "name":"undo",
       "hex":"E54B"
    },
@@ -25944,6 +28028,22 @@
       "hex":"E551"
    },
    {
+      "name":"upload-box",
+      "hex":"FD0F"
+   },
+   {
+      "name":"upload-box-outline",
+      "hex":"FD10"
+   },
+   {
+      "name":"upload-circle",
+      "hex":"FD11"
+   },
+   {
+      "name":"upload-circle-outline",
+      "hex":"FD12"
+   },
+   {
       "name":"upload-lock",
       "hex":"F372"
    },
@@ -25954,6 +28054,10 @@
    {
       "name":"upload-multiple",
       "hex":"E83C"
+   },
+   {
+      "name":"upload-multiple-outline",
+      "hex":"FD13"
    },
    {
       "name":"upload-network",
@@ -25978,6 +28082,10 @@
    {
       "name":"usb",
       "hex":"E552"
+   },
+   {
+      "name":"usb-c-port",
+      "hex":"FCBE"
    },
    {
       "name":"usb-flash-drive",
@@ -26097,6 +28205,22 @@
    },
    {
       "name":"vector-point",
+      "hex":"E1C3"
+   },
+   {
+      "name":"vector-point-edit",
+      "hex":"E9E7"
+   },
+   {
+      "name":"vector-point-minus",
+      "hex":"FB77"
+   },
+   {
+      "name":"vector-point-plus",
+      "hex":"FB78"
+   },
+   {
+      "name":"vector-point-select",
       "hex":"E55E"
    },
    {
@@ -26300,6 +28424,10 @@
       "hex":"E91A"
    },
    {
+      "name":"video-standard-definition",
+      "hex":"FC9F"
+   },
+   {
       "name":"video-switch",
       "hex":"E568"
    },
@@ -26410,6 +28538,10 @@
    {
       "name":"view-grid",
       "hex":"E56F"
+   },
+   {
+      "name":"view-grid-compact",
+      "hex":"FC60"
    },
    {
       "name":"view-grid-outline",
@@ -26540,6 +28672,10 @@
       "hex":"E9B3"
    },
    {
+      "name":"volume-equal",
+      "hex":"FB0F"
+   },
+   {
       "name":"volume-high",
       "hex":"E57D"
    },
@@ -26656,6 +28792,14 @@
       "hex":"E583"
    },
    {
+      "name":"wallet-bifold",
+      "hex":"FC57"
+   },
+   {
+      "name":"wallet-bifold-outline",
+      "hex":"FC58"
+   },
+   {
       "name":"wallet-giftcard",
       "hex":"E584"
    },
@@ -26762,6 +28906,10 @@
    {
       "name":"water-boiler-alert",
       "hex":"F1B2"
+   },
+   {
+      "name":"water-boiler-auto",
+      "hex":"FB97"
    },
    {
       "name":"water-boiler-off",
@@ -26880,6 +29028,18 @@
       "hex":"EF2D"
    },
    {
+      "name":"wave-arrow-down",
+      "hex":"FCAF"
+   },
+   {
+      "name":"wave-arrow-up",
+      "hex":"FCB0"
+   },
+   {
+      "name":"wave-undercurrent",
+      "hex":"FCBF"
+   },
+   {
       "name":"waveform",
       "hex":"F47C"
    },
@@ -26920,6 +29080,10 @@
       "hex":"F8F5"
    },
    {
+      "name":"weather-dust",
+      "hex":"FB59"
+   },
+   {
       "name":"weather-fog",
       "hex":"E590"
    },
@@ -26936,12 +29100,28 @@
       "hex":"E897"
    },
    {
+      "name":"weather-hurricane-outline",
+      "hex":"FC77"
+   },
+   {
       "name":"weather-lightning",
       "hex":"E592"
    },
    {
       "name":"weather-lightning-rainy",
       "hex":"E67D"
+   },
+   {
+      "name":"weather-moonset",
+      "hex":"FD14"
+   },
+   {
+      "name":"weather-moonset-down",
+      "hex":"FD15"
+   },
+   {
+      "name":"weather-moonset-up",
+      "hex":"FD16"
    },
    {
       "name":"weather-night",
@@ -27404,6 +29584,10 @@
       "hex":"F11C"
    },
    {
+      "name":"window-shutter-auto",
+      "hex":"FBA2"
+   },
+   {
       "name":"window-shutter-cog",
       "hex":"FA89"
    },
@@ -27452,8 +29636,28 @@
       "hex":"E5B6"
    },
    {
+      "name":"wrench-check",
+      "hex":"FB8E"
+   },
+   {
+      "name":"wrench-check-outline",
+      "hex":"FB8F"
+   },
+   {
       "name":"wrench-clock",
       "hex":"F9A2"
+   },
+   {
+      "name":"wrench-clock-outline",
+      "hex":"FB92"
+   },
+   {
+      "name":"wrench-cog",
+      "hex":"FB90"
+   },
+   {
+      "name":"wrench-cog-outline",
+      "hex":"FB91"
    },
    {
       "name":"wrench-outline",

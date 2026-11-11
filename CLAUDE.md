@@ -13,6 +13,11 @@ Talk to the user in Polish; code, comments and commits in English.
 - `nspanel-lovelace-ui/` – HA add-on ("app") `mqtt-manager` + web editor (upstream; HA OS/Supervised only).
 - `apps/nspanel-lovelace-ui/` – legacy AppDaemon backend (no longer updated by HA Marketplace).
 - `tasmota/` Berry driver, `HMI/` Nextion sources, `ioBroker/`, `nodered/` – other systems.
+- Icons/firmware (HMI/FIRMWARE.md): `HMI/code_gen/fonts/` (zi.py .zi reader/writer, build_fonts.py,
+  mdi.py pinned MDI + sha256) and `HMI/code_gen/icons/update_mdi.py` generate `HMI/fonts/generated/*.zi` and
+  `backend/libs/icon_mapping.py` from the same MDI release - never edit them by hand. `.HMI`/`.tft` change only
+  in Nextion Editor (Windows GUI, manual: HMI/BUILD.md; `hmi_info.py` reads font indexes and checks .tft). Weather pictures: `HMI/code_gen/weather/build_pictures.py` (Meteocons, Docker/cairosvg) -> `HMI/pictures/weather`, order = `backend/weather.py` PICTURES. HMI edits for firmware 55: HMI/BUILD-55.md. Integration: `firmware.py` (package), `http.py` (token URL for
+  Tasmota, plain HTTP + Range), `update.py` (Display firmware entity).
 
 ## Rules
 - Panel protocol and `panels.yaml` format must stay compatible with the add-on (same validator: `backend/config_manager.py`).

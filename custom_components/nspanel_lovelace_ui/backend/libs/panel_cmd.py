@@ -25,6 +25,10 @@ def entityUpd(msg_out_queue, topic, data):
 def weatherUpdate(msg_out_queue, topic, data):
     custom_send(msg_out_queue, topic, f"weatherUpdate~{data}")
 
+def weatherPictures(msg_out_queue, topic, data):
+    """Firmware 55+: colour weather picture IDs (main, forecast 1-4); empty = font icon."""
+    custom_send(msg_out_queue, topic, f"weatherPics~{data}")
+
 def screensaverColor(msg_out_queue, topic, data):
     custom_send(msg_out_queue, topic, f"color~{data}")
 

@@ -7,15 +7,17 @@ from datetime import datetime, timedelta
 import json
 import logging
 import queue
+import re
 import threading
 from typing import Any
 
 from homeassistant.components import mqtt
 from homeassistant.core import Event, HomeAssistant, callback
+from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.event import async_track_time_change, async_track_time_interval
 
 from .backend.libs import home_assistant as bridge
-from .const import ESPHOME_EVENT
+from .const import ESPHOME_EVENT, SIGNAL_PANEL_STATE
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,6 +36,28 @@ def panel_settings(settings: dict[str, Any], default_time_zone: str) -> dict[str
         panel.setdefault("dateFormat", settings.get("dateFormat", "full"))
         panels[name] = panel
     return panels
+
+
+_ENTITY_ID = re.compile(r"^[a-z0-9_]+\.[a-z0-9_]+$")
+# Not Home Assistant entities: panel-internal pseudo domains.
+_PSEUDO_DOMAINS = {"navigate", "iText", "delete", "service"}
+# Read by the backend without being configured (brightness schedules use sunrise/sunset).
+_ALWAYS_RELEVANT = {"sun.sun"}
+
+
+def referenced_entities(settings: Any) -> frozenset[str]:
+    """Every string in the configuration that looks like an entity ID."""
+    found: set[str] = set(_ALWAYS_RELEVANT)
+    pending = [settings]
+    while pending:
+        value = pending.pop()
+        if isinstance(value, dict):
+            pending.extend(value.values())
+        elif isinstance(value, list):
+            pending.extend(value)
+        elif isinstance(value, str) and _ENTITY_ID.match(value) and value.split(".", 1)[0] not in _PSEUDO_DOMAINS:
+            found.add(value)
+    return frozenset(found)
 
 
 class OutQueue:
@@ -104,10 +128,23 @@ class NSPanelRuntime:
         self._outbox: asyncio.Queue = asyncio.Queue()
         self._unsubs: list[Callable[[], None]] = []
         self._sender: asyncio.Task | None = None
+        # Reported by the display in "event,startup,<version>,<model>": name -> {version, model}.
+        self.panel_state: dict[str, dict[str, Any]] = {}
+        # Progress of a running display update (Berry driver): name -> {complete, error}.
+        self.panel_flash: dict[str, dict[str, Any]] = {}
+        # Local firmware package and how panels reach it (set by __init__ before async_start).
+        self.firmware: Any = None
+        self.firmware_base_url: str | None = None
+        self.http_state: Any = None
+
+    def firmware_url(self, filename: str) -> str | None:
+        if self.firmware_base_url is None or self.http_state is None:
+            return None
+        return self.firmware_base_url + self.http_state.path(filename)
 
     async def async_start(self) -> None:
         hass = self.hass
-        bridge.async_init(hass, self._on_ha_update)
+        bridge.async_init(hass, self._on_ha_update, referenced_entities(self.settings))
         out = OutQueue(hass, self._outbox)
         for name, panel in panel_settings(self.settings, hass.config.time_zone).items():
             self.workers[panel["panelRecvTopic"]] = PanelWorker(name, panel, out, self.use_ha_api)
@@ -176,14 +213,45 @@ class NSPanelRuntime:
         except ValueError:
             _LOGGER.debug("Ignoring non-JSON payload on %s: %s", msg.topic, payload)
             return
-        if isinstance(data, dict) and "CustomRecv" in data:
+        if isinstance(data, dict) and isinstance(data.get("CustomRecv"), str):
+            self._observe(worker, data["CustomRecv"])
             worker.inbox.put(("MQTT:", data["CustomRecv"]))
+        elif isinstance(data, dict) and isinstance(data.get("Flashing"), dict):
+            self._observe_flashing(worker, data["Flashing"])
 
     @callback
     def _on_esphome_event(self, event: Event) -> None:
         worker = self.workers.get(event.data.get("device_id"))
         if worker is not None and isinstance(event.data.get("CustomRecv"), str):
+            self._observe(worker, event.data["CustomRecv"])
             worker.inbox.put(("MQTT:", event.data["CustomRecv"]))
+
+    @callback
+    def _observe_flashing(self, worker: PanelWorker, flashing: dict[str, Any]) -> None:
+        """Berry driver: {"Flashing": {"complete": <percent>}} or {"Flashing": {"error": "..."}}."""
+        state = dict(self.panel_flash.get(worker.name, {}))
+        if isinstance(flashing.get("error"), str):
+            state["error"] = flashing["error"][:200]
+        complete = flashing.get("complete")
+        if type(complete) is int and 0 <= complete <= 100:
+            state["complete"] = complete
+        if state != self.panel_flash.get(worker.name):
+            self.panel_flash[worker.name] = state
+            async_dispatcher_send(self.hass, SIGNAL_PANEL_STATE, worker.name)
+
+    @callback
+    def _observe(self, worker: PanelWorker, message: str) -> None:
+        """Remember the display firmware version and model from the startup event."""
+        fields = message.split(",")
+        if len(fields) >= 4 and fields[0] == "event" and fields[1] == "startup":
+            try:
+                version = int(fields[2])
+            except ValueError:
+                return
+            state = {"version": version, "model": fields[3]}
+            if self.panel_state.get(worker.name) != state:
+                self.panel_state[worker.name] = state
+                async_dispatcher_send(self.hass, SIGNAL_PANEL_STATE, worker.name)
 
     @callback
     def _on_mqtt_connection(self, connected: bool) -> None:
@@ -203,6 +271,38 @@ class NSPanelRuntime:
                 worker.inbox.put(("TIME:", "second"))
 
     # --- outbound -----------------------------------------------------------------------
+
+    def worker_by_name(self, name: str) -> PanelWorker:
+        for worker in self.workers.values():
+            if worker.name == name:
+                return worker
+        raise KeyError(name)
+
+    def _command_topic(self, worker: PanelWorker, command: str) -> str:
+        prefix, separator, suffix = worker.settings["panelSendTopic"].rpartition("/")
+        if not separator or suffix != "CustomSend":
+            raise ValueError("panelSendTopic must end with /CustomSend to send Tasmota commands")
+        return f"{prefix}/{command}"
+
+    @callback
+    def async_flash_display(self, name: str, url: str) -> None:
+        """Tasmota: FlashNextion <url>; ESPHome: the api call with command 255 (as the add-on)."""
+        worker = self.worker_by_name(name)
+        self.panel_flash[name] = {}
+        if self.use_ha_api:
+            self._outbox.put_nowait((worker.settings["panelSendTopic"], url, 255))
+        else:
+            self._outbox.put_nowait((self._command_topic(worker, "FlashNextion"), url))
+        _LOGGER.info("Requested display firmware update of %s from %s", name, url)
+
+    @callback
+    def async_update_berry_driver(self, name: str, url: str) -> None:
+        """Tasmota: UpdateDriverVersion <url> (downloads autoexec.be and restarts)."""
+        if self.use_ha_api:
+            raise ValueError("the Berry driver exists only on Tasmota")
+        worker = self.worker_by_name(name)
+        self._outbox.put_nowait((self._command_topic(worker, "UpdateDriverVersion"), url))
+        _LOGGER.info("Requested Berry driver update of %s from %s", name, url)
 
     async def _async_send_loop(self) -> None:
         while True:

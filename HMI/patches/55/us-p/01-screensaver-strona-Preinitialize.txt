@@ -1,0 +1,38 @@
+tSend.txt="event,renderCurrentPage"
+//send calc crc
+btlen tSend.txt,sys0
+crcrest 1,0xffff // reset CRC
+crcputh 55 bb
+crcputs sys0,2
+crcputs tSend.txt,0
+//send cmd
+printh 55 bb
+prints sys0,2
+prints tSend.txt,0
+prints crcval,2
+recmod=1
+baud=115200
+vis tInstruction,0
+vis tTmp,0
+vis p0,0
+vis tNotifyHead,0
+vis tNotifyText,0
+//load gloabl time string from pageIcons
+//tTime.txt=vaTime.txt
+spstr pageIcons.vaTime.txt,tTime.txt,"?",0
+spstr pageIcons.vaTime.txt,tAMPM.txt,"?",1
+if(tAMPM.txt=="")
+{
+    vis tAMPM,0
+}
+tDate.txt=pageIcons.vaDate.txt
+dim=dimValue
+vis tSend,0
+//page open event
+// clear weather elements, to keep example content in HMI
+// firmware 55: weather pictures stay hidden until weatherPics
+vis pMain,0
+vis pF1,0
+vis pF2,0
+vis pF3,0
+vis pF4,0

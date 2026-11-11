@@ -1,0 +1,5 @@
+page pageIcons
+tTmp1.txt=""
+tTmp2.txt="שׁ"
+tTmp3.font=8
+tTmp3.txt="ﬖ"

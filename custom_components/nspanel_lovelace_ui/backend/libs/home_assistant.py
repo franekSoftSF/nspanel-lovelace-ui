@@ -46,6 +46,8 @@ sensor_display_precision: dict[str, int] = {}
 forecast_lock = threading.RLock()
 forecast_cache: dict[tuple[str, str], dict[str, Any]] = {}
 _unsubs: list[Callable[[], None]] = []
+# Entity IDs whose state changes reach the panels; None = all (add-on behaviour).
+relevant_entities: frozenset[str] | None = None
 
 
 class _StateView:
@@ -91,18 +93,25 @@ def _plain(value: Any) -> Any:
 # --- lifecycle (event loop) -------------------------------------------------------------
 
 @callback
-def async_init(hass_: HomeAssistant, on_update: Callable[[str], None]) -> None:
-    """Bind the bridge to Home Assistant and start listening for state changes."""
-    global hass, on_ha_update, ws_connected
+def async_init(hass_: HomeAssistant, on_update: Callable[[str], None],
+               entities: frozenset[str] | None = None) -> None:
+    """Bind the bridge to Home Assistant and start listening for state changes.
+
+    ``entities`` limits state_changed forwarding to the configured entities (issue #1465:
+    the add-on forwarded every state change of the whole installation to every panel).
+    Template results are tracked separately and always forwarded.
+    """
+    global hass, on_ha_update, ws_connected, relevant_entities
     async_shutdown()
     hass = hass_
     on_ha_update = on_update
     ws_connected = True
+    relevant_entities = entities
 
     @callback
     def _state_changed(event: Event) -> None:
         entity_id = event.data.get("entity_id")
-        if entity_id:
+        if entity_id and (relevant_entities is None or entity_id in relevant_entities):
             send_entity_update(entity_id)
 
     @callback
@@ -116,7 +125,7 @@ def async_init(hass_: HomeAssistant, on_update: Callable[[str], None]) -> None:
 
 @callback
 def async_shutdown() -> None:
-    global hass, on_ha_update, ws_connected
+    global hass, on_ha_update, ws_connected, relevant_entities
     while _unsubs:
         _unsubs.pop()()
     with request_lock:
@@ -131,6 +140,7 @@ def async_shutdown() -> None:
     hass = None
     on_ha_update = None
     ws_connected = False
+    relevant_entities = None
 
 
 @callback

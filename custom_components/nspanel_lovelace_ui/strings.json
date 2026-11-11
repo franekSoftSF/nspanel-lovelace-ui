@@ -6,11 +6,13 @@
         "description": "Panels and cards are configured in a YAML file in the Home Assistant configuration folder (same format as the add-on's panels.yaml). To migrate, enter your AppDaemon apps.yaml (or an add-on panels.yaml) as the import file; it is converted into the configuration file, which must not exist yet.\n\n{error}",
         "data": {
           "config_file": "Configuration file",
-          "import_file": "Import from (optional)"
+          "import_file": "Import from (optional)",
+          "disable_appdaemon": "Disable the imported AppDaemon apps"
         },
         "data_description": {
           "config_file": "Path relative to the configuration folder, e.g. nspanel_lovelace_ui/panels.yaml.",
-          "import_file": "Path relative to the configuration folder, e.g. appdaemon/apps/apps.yaml."
+          "import_file": "Path relative to the configuration folder, e.g. appdaemon/apps/apps.yaml.",
+          "disable_appdaemon": "Adds disable: true to the imported apps in apps.yaml after the setup (a copy is kept as apps.yaml.nspanel-backup), so the old backend stops driving the panels."
         }
       },
       "reconfigure": {
@@ -18,11 +20,13 @@
         "description": "Change the configuration file or import another one.\n\n{error}",
         "data": {
           "config_file": "Configuration file",
-          "import_file": "Import from (optional)"
+          "import_file": "Import from (optional)",
+          "disable_appdaemon": "Disable the imported AppDaemon apps"
         },
         "data_description": {
           "config_file": "Path relative to the configuration folder, e.g. nspanel_lovelace_ui/panels.yaml.",
-          "import_file": "Path relative to the configuration folder, e.g. appdaemon/apps/apps.yaml."
+          "import_file": "Path relative to the configuration folder, e.g. appdaemon/apps/apps.yaml.",
+          "disable_appdaemon": "Adds disable: true to the imported apps in apps.yaml after the setup (a copy is kept as apps.yaml.nspanel-backup), so the old backend stops driving the panels."
         }
       }
     },
@@ -44,12 +48,66 @@
     },
     "mqtt_not_ready": {
       "message": "MQTT is not connected yet."
+    },
+    "no_firmware_package": {
+      "message": "No display firmware package in nspanel_lovelace_ui/firmware (see the documentation)."
+    },
+    "panel_not_reported": {
+      "message": "The panel has not reported its display version and model yet. Wait until it starts."
+    },
+    "no_firmware_for_model": {
+      "message": "The firmware package has no .tft for the display model {model}."
+    },
+    "no_http_url": {
+      "message": "No plain HTTP address of Home Assistant that the panel can download from. Set firmware_base_url in panels.yaml, e.g. http://192.168.1.10:8123."
+    },
+    "no_berry_driver": {
+      "message": "The firmware package contains no Berry driver."
+    },
+    "unknown_panel": {
+      "message": "Unknown panel: {panel}"
+    },
+    "not_loaded": {
+      "message": "NSPanel Lovelace UI is not loaded."
+    },
+    "flash_timeout": {
+      "message": "The display did not restart with the new firmware within {minutes} minutes. Check the Tasmota console (FlashNextion)."
+    },
+    "flash_failed": {
+      "message": "The display update failed: {error}. Check the Tasmota console; the display keeps its old firmware or waits for a new FlashNextion."
     }
   },
   "services": {
     "reload": {
       "name": "Reload",
       "description": "Re-reads the panel configuration file and restarts all panels."
+    },
+    "update_berry_driver": {
+      "name": "Update Berry driver",
+      "description": "Sends the Berry driver (autoexec.be) from the local firmware package to the Tasmota panels; they restart afterwards.",
+      "fields": {
+        "panel": {
+          "name": "Panel",
+          "description": "Panel name from panels.yaml. Empty: all panels."
+        }
+      }
+    }
+  },
+  "issues": {
+    "config_warnings": {
+      "title": "Warnings in the NSPanel configuration",
+      "description": "{file} was loaded, but contains problems that should be fixed:\n\n{warnings}\n\nFix the file and call the action nspanel_lovelace_ui.reload."
+    },
+    "firmware_invalid": {
+      "title": "Invalid NSPanel display firmware package",
+      "description": "The package in {folder} was ignored: {error}\n\nCreate it again with scripts/make_firmware_package.py or remove the folder, then reload the integration."
+    }
+  },
+  "entity": {
+    "update": {
+      "display_firmware": {
+        "name": "Display firmware"
+      }
     }
   }
 }
