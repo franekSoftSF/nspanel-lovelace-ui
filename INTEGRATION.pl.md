@@ -68,8 +68,33 @@ powiadomienie – przejrzyj je.
 
 ### Zmiana konfiguracji
 
-Edytuj `panels.yaml`, a potem wywołaj akcję `nspanel_lovelace_ui.reload` (albo przeładuj integrację).
-Inny plik: menu integracji → *Skonfiguruj ponownie*.
+Użyj **edytora kart** (niżej) albo edytuj `panels.yaml` i wywołaj akcję `nspanel_lovelace_ui.reload`
+(albo przeładuj integrację). Inny plik: menu integracji → *Skonfiguruj ponownie*.
+
+## Edytor kart
+
+Menu boczne → **NSPanel** (tylko administratorzy). Edytor pracuje bezpośrednio na pliku, który czyta
+integracja (`nspanel_lovelace_ui/panels.yaml` albo plik wybrany przy konfiguracji) – otwiera się też,
+gdy plik jest błędny, żeby można go było w nim poprawić.
+
+- **Panele i sekcje:** karty, ukryte karty, wygaszacz, ustawienia panelu, opcje globalne i cały plik jako
+  YAML. Formularze dla każdego typu karty, który integracja potrafi pokazać: encje, siatka, kod QR,
+  przepływ energii, odtwarzacz, termostat, alarm i odblokowanie (PIN).
+- **Karty:** dodawanie (wybór typu), duplikowanie, usuwanie (z potwierdzeniem), zmiana kolejności
+  przeciąganiem albo strzałkami (klawiatura: Alt+↑ / Alt+↓). Encje karty tak samo; pola encji podpowiadają
+  encje z Home Assistant, pola ikon – ikony z czcionki panelu (MDI 7), z podglądem.
+- **Walidacja w trakcie pisania**, według tych samych reguł, których integracja używa przy wczytywaniu
+  pliku: błędy pojawiają się przy polu (i na liście *Problemy* z odnośnikiem do pola) i blokują zapis;
+  encja, której nie ma w Home Assistant albo jest innego typu, to tylko ostrzeżenie.
+- **Zapisz** (Ctrl+S): ponownie sprawdzane na serwerze, zapis atomowy; poprzedni plik zostaje jako
+  `panels.yaml.bak` i w `.nspanel-backups/` (ostatnie 5). Jeśli plik zmienił się na dysku po wczytaniu go
+  przez edytor, wybierasz: nadpisać albo wczytać plik i porzucić swoje zmiany. Komentarze z pliku nie
+  są zachowywane (edytor uprzedza, gdy plik je ma).
+- **Przeładuj panele:** przeładowuje integrację z zapisanym plikiem, bez restartu Home Assistant. Przy
+  niezapisanych zmianach najpierw pyta (zapisz i przeładuj / przeładuj bez zapisu); wyjście ze strony z
+  niezapisanymi zmianami też wymaga potwierdzenia.
+- **Cofnij / ponów** (Ctrl+Z / Ctrl+Y), **wczytaj z pliku**, prosty podgląd karty.
+- Po angielsku i po polsku (według języka Home Assistant), motyw jasny i ciemny, układ na telefon.
 
 ## Encje i powiadomienia
 
@@ -133,6 +158,13 @@ wgrywać go encją aktualizacji **Firmware ekranu** każdego panelu. Budowa firm
 wydanie i instalacja pakietu: [HMI/FIRMWARE.pl.md](HMI/FIRMWARE.pl.md).
 
 ## Historia zmian
+
+### 5.2.5
+- **Edytor kart** w menu bocznym (administratorzy): formularze dla każdego typu karty, walidacja na
+  żywo przy polu, Zapisz (atomowo, kopie zapasowe, wykrywanie konfliktu) i Przeładuj panele; patrz
+  *Edytor kart*.
+- Jeden schemat dla wczytywania i edycji (`backend/config_schema.py`): integracja i edytor stosują te
+  same reguły; timeFormat/dateFormat/locale na najwyższym poziomie działa teraz też dla paneli.
 
 ### 5.2.4
 - **Obudź ekran** działa jak dotknięcie wygaszacza (panel pokazuje swoją kartę z normalną jasnością);

@@ -34,6 +34,8 @@ own **display firmware 55** with Material Design Icons 7 and colour weather pict
   release from GitHub (SHA-256 checked), updates the Tasmota Berry driver (action
   `nspanel_lovelace_ui.update_berry_driver`) and flashes the display from an update entity with progress
   – no cable, no manual `FlashNextion`.
+- **Card editor** in the Home Assistant sidebar: forms for every card type, validation at the field while
+  you type, Save (with backups) and Reload panels – no YAML needed. See [INTEGRATION.md](INTEGRATION.md#card-editor).
 - **Entities and notifications**: `notify.send_message` to the panel (screensaver text or a notification
   page, buzzer), a wake-up button, the current page and a card selector – see [INTEGRATION.md](INTEGRATION.md).
 - **Fixes for issues of the original project** (table below) and for problems found while migrating a

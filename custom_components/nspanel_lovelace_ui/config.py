@@ -84,26 +84,8 @@ def load_config(path: Path) -> tuple[dict[str, Any], list[str]]:
     except OSError as err:
         raise ConfigError(f"Cannot read {path}: {err}") from err
     data, warnings = _parse_lenient(text)
+    # One schema for loading and for the card editor (backend/config_schema.py).
     config = validate(data)
-    if type(config.get("firmware_download", True)) is not bool:
-        raise ConfigError("firmware_download must be true or false")
-    for name, panel in config["nspanels"].items():
-        font_id = panel.get("largeIconFontId", 7 if panel.get("model", "eu") == "us-p" else 8)
-        if type(font_id) is not int or not 0 <= font_id <= 9:
-            raise ConfigError(f"{name}.largeIconFontId must be a font ID from 0 to 9 (the HMI reads one digit)")
-        if panel.get("weatherIcons", "color") not in ("color", "font"):
-            raise ConfigError(f"{name}.weatherIcons must be color or font")
-        base = panel.get("weatherPictureBase")
-        if base is not None and (type(base) is not int or not 0 <= base <= 1000):
-            raise ConfigError(f"{name}.weatherPictureBase must be the picture ID of 00-main-clear-day")
-        if "timeTemplate" in panel and not (isinstance(panel["timeTemplate"], str) and panel["timeTemplate"].strip()):
-            raise ConfigError(f"{name}.timeTemplate must be a template text")
-        if config.get("use_ha_api"):
-            continue
-        for key in ("panelRecvTopic", "panelSendTopic"):
-            topic = panel[key]
-            if any(char in topic for char in "+#") or "\x00" in topic:
-                raise ConfigError(f"{key} must be a plain MQTT topic without wildcards: {topic}")
     return config, warnings
 
 

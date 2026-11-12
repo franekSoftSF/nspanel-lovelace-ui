@@ -68,8 +68,33 @@ notification – review them.
 
 ### Changing the configuration
 
-Edit `panels.yaml`, then call the action `nspanel_lovelace_ui.reload` (or reload the integration).
-To use another file: integration menu → *Reconfigure*.
+Use the **card editor** (below), or edit `panels.yaml` and call the action `nspanel_lovelace_ui.reload`
+(or reload the integration). To use another file: integration menu → *Reconfigure*.
+
+## Card editor
+
+Sidebar → **NSPanel** (administrators only). The editor works directly on the file the integration
+reads (`nspanel_lovelace_ui/panels.yaml`, or the file chosen in the setup) – it also opens when that file
+is broken, so you can fix it there.
+
+- **Panels and sections:** cards, hidden cards, screensaver, panel settings, global options and the whole
+  file as YAML. Forms for every card type the integration can show: entities, grid, QR code, power
+  flow, media player, thermostat, alarm and unlock (PIN).
+- **Cards:** add (choose the type), duplicate, delete (with a confirmation), reorder by dragging or with
+  the arrow buttons (keyboard: Alt+↑ / Alt+↓). Entities of a card the same way; entity fields suggest
+  your Home Assistant entities, icon fields the icons the panel font contains (MDI 7), with a preview.
+- **Validation while you type**, from the same rules the integration uses when it loads the file:
+  errors appear at the field (and in the *Problems* list with a link to the field) and block saving;
+  an entity that does not exist in Home Assistant, or of an unexpected type, is only a warning.
+- **Save** (Ctrl+S): checked again on the server, written atomically; the previous file is kept as
+  `panels.yaml.bak` and in `.nspanel-backups/` (last 5). If the file changed on disk after the editor
+  loaded it, you choose: overwrite, or load the file and drop your changes. Comments in the file are not
+  kept (the editor tells you when the file has some).
+- **Reload panels:** reloads the integration with the saved file, without restarting Home Assistant.
+  With unsaved changes it asks first (save and reload / reload without saving); leaving the page with
+  unsaved changes asks too.
+- **Undo / redo** (Ctrl+Z / Ctrl+Y), **load from file**, a simple preview of the card.
+- English and Polish (the Home Assistant language), light and dark theme, phone layout.
 
 ## Entities and notifications
 
@@ -133,6 +158,12 @@ and flash it with the **Display firmware** update entity of each panel. Building
 MDI 7 icon fonts, publishing it and installing the package: [HMI/FIRMWARE.md](HMI/FIRMWARE.md).
 
 ## Changelog
+
+### 5.2.5
+- **Card editor** in the sidebar (administrators): forms for every card type, live validation at the
+  field, Save (atomic, backups, conflict check) and Reload panels; see *Card editor*.
+- One schema for loading and editing (`backend/config_schema.py`): the integration and the editor use
+  the same rules; a timeFormat/dateFormat/locale at the top level now also counts for the panels.
 
 ### 5.2.4
 - **Wake up screen** works like a touch on the screensaver (the panel shows its card at normal

@@ -8,11 +8,8 @@ import tempfile
 import threading
 
 import yaml
-from .libs.brightness import validate_brightness
-from .firmware import firmware_settings
+from .config_schema import CARD_TYPES, collect_issues  # noqa: F401 - CARD_TYPES re-exported
 
-CARD_TYPES = ["cardEntities", "cardGrid", "cardQR", "cardPower", "cardMedia",
-              "cardThermo", "cardAlarm", "cardUnlock"]
 MAX_BYTES = 1024 * 1024
 
 
@@ -72,60 +69,10 @@ def parse_yaml(text):
 
 
 def validate(config):
-    if not isinstance(config, dict) or not isinstance(config.get("nspanels"), dict):
-        raise ConfigError("Expected a mapping under nspanels.")
-    if "use_ha_api" in config and type(config["use_ha_api"]) is not bool:
-        raise ConfigError("use_ha_api must be true or false.")
-    topics = set()
-    for name, panel in config["nspanels"].items():
-        if not isinstance(name, str) or not name.strip() or not isinstance(panel, dict):
-            raise ConfigError("Each panel needs a name and an object configuration.")
-        try:
-            firmware_settings(panel)
-        except ValueError as exc:
-            raise ConfigError(f"{name}: {exc}") from exc
-        for field in ("panelRecvTopic", "panelSendTopic"):
-            if not isinstance(panel.get(field), str) or not panel[field].strip():
-                raise ConfigError(f"{name}.{field} is required.")
-        if panel["panelRecvTopic"] in topics:
-            raise ConfigError(f"{name}: receive topic is already used by another panel.")
-        topics.add(panel["panelRecvTopic"])
-        for field in ("locale", "timeFormat", "dateFormat"):
-            if not isinstance(panel.get(field, config.get(field) if field == "locale" else None), str):
-                raise ConfigError(f"{name}.{field} must be text.")
-        if panel.get("model", "eu") not in ("eu", "us-p", "us-l"):
-            raise ConfigError(f"{name}.model must be eu, us-p or us-l.")
-        if type(panel.get("sleepTimeout", 20)) is not int or panel.get("sleepTimeout", 20) < 0:
-            raise ConfigError(f"{name}.sleepTimeout must be a non-negative integer.")
-        for field in ("sleepBrightness", "screenBrightness"):
-            value = panel.get(field, 20)
-            try:
-                validate_brightness(value)
-            except ValueError as exc:
-                raise ConfigError(f"{name}.{field}: {exc}") from exc
-        if not isinstance(panel.get("screensaver"), dict):
-            raise ConfigError(f"{name}.screensaver must be an object.")
-        cards = []
-        for field in ("cards", "hiddenCards"):
-            items = panel.get(field, config.get(field, []) if field == "hiddenCards" else None)
-            if not isinstance(items, list):
-                raise ConfigError(f"{name}.{field} must be a list.")
-            if field == "cards" and not items:
-                raise ConfigError(f"{name}: add at least one card before saving.")
-            for card in items:
-                if not isinstance(card, dict) or card.get("type") not in CARD_TYPES:
-                    raise ConfigError(f"{name}.{field}: unsupported or missing card type.")
-                if card["type"] in ("cardMedia", "cardThermo", "cardAlarm") and not card.get("entity"):
-                    raise ConfigError(f"{name}.{field}: {card['type']} requires an entity.")
-            cards.extend(items)
-        for card in cards + [panel["screensaver"]]:
-            if "entity" in card and not isinstance(card["entity"], str):
-                raise ConfigError(f"{name}: main entity must be a string.")
-            if not isinstance(card.get("entities", []), list):
-                raise ConfigError(f"{name}: entities must be a list.")
-            for entity in card.get("entities", []):
-                if not isinstance(entity, dict) or not isinstance(entity.get("entity"), str):
-                    raise ConfigError(f"{name}: every entity requires an entity string.")
+    """Raise ConfigError with the first error of the shared schema (backend/config_schema.py)."""
+    errors = [issue for issue in collect_issues(config) if issue.severity == "error"]
+    if errors:
+        raise ConfigError(errors[0].text())
     return config
 
 

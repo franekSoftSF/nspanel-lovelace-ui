@@ -34,6 +34,9 @@ Material Design Icons 7 i kolorowymi obrazkami pogody.
   swojego wydania (sprawdzany SHA-256), aktualizuje sterownik Berry w Tasmocie (akcja
   `nspanel_lovelace_ui.update_berry_driver`) i wgrywa firmware ekranu z encji aktualizacji z postępem –
   bez kabla i bez ręcznego `FlashNextion`.
+- **Edytor kart** w menu bocznym Home Assistant: formularze dla każdego typu karty, walidacja przy polu
+  w trakcie pisania, Zapisz (z kopiami zapasowymi) i Przeładuj panele – bez YAML. Patrz
+  [INTEGRATION.pl.md](INTEGRATION.pl.md#edytor-kart).
 - **Encje i powiadomienia**: `notify.send_message` na panel (tekst na wygaszaczu albo strona powiadomienia,
   buzzer), przycisk budzenia ekranu, aktualna strona i wybór karty – patrz [INTEGRATION.pl.md](INTEGRATION.pl.md).
 - **Poprawki zgłoszeń z oryginalnego projektu** (tabela niżej) i problemów znalezionych przy migracji

@@ -3,14 +3,17 @@
   "name": "NSPanel Lovelace UI (by Szymi)",
   "after_dependencies": [
     "esphome",
-    "mqtt"
+    "frontend",
+    "mqtt",
+    "panel_custom"
   ],
   "codeowners": [
     "@franekSoftSF"
   ],
   "config_flow": true,
   "dependencies": [
-    "http"
+    "http",
+    "websocket_api"
   ],
   "documentation": "https://github.com/franekSoftSF/nspanel-lovelace-ui/blob/main/INTEGRATION.md",
   "integration_type": "hub",
@@ -23,5 +26,5 @@
     "babel>=2.14.0"
   ],
   "single_config_entry": true,
-  "version": "5.2.4"
+  "version": "5.2.5"
 }
