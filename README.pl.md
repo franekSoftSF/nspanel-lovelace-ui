@@ -37,11 +37,13 @@ Material Design Icons 7 i kolorowymi obrazkami pogody.
 - **Edytor kart** w menu bocznym Home Assistant: formularze dla każdego typu karty, walidacja przy polu
   w trakcie pisania, Zapisz (z kopiami zapasowymi) i Przeładuj panele – bez YAML. Patrz
   [INTEGRATION.pl.md](INTEGRATION.pl.md#edytor-kart).
+- **Wykresy**: słupkowy (`cardChart`) i liniowy (`cardLChart`) z historii Home Assistant – oryginalny
+  projekt miał tylko szkic. Patrz [INTEGRATION.pl.md](INTEGRATION.pl.md#wykresy).
 - **Encje i powiadomienia**: `notify.send_message` na panel (tekst na wygaszaczu albo strona powiadomienia,
-  buzzer), przycisk budzenia ekranu, aktualna strona i wybór karty – patrz [INTEGRATION.pl.md](INTEGRATION.pl.md).
+  buzzer), akcje usypiania i budzenia ekranu do automatyzacji (np. ekran gaśnie po uzbrojeniu alarmu), aktualna strona i wybór karty – patrz [INTEGRATION.pl.md](INTEGRATION.pl.md).
 - **Poprawki zgłoszeń z oryginalnego projektu** (tabela niżej) i problemów znalezionych przy migracji
   prawdziwego panelu.
-- Testy z `pytest-homeassistant-custom-component` (173 testy), dokumentacja po angielsku i po polsku.
+- Testy z `pytest-homeassistant-custom-component` (200 testów), dokumentacja po angielsku i po polsku.
 
 ## Firmware ekranu: tylko model EU
 

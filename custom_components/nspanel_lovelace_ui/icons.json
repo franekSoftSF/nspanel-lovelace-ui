@@ -1,0 +1,20 @@
+{
+  "entity": {
+    "switch": {
+      "screen": {
+        "default": "mdi:tablet-dashboard",
+        "state": {
+          "off": "mdi:power-sleep"
+        }
+      }
+    }
+  },
+  "services": {
+    "sleep_screen": {
+      "service": "mdi:power-sleep"
+    },
+    "wake_screen": {
+      "service": "mdi:gesture-tap"
+    }
+  }
+}

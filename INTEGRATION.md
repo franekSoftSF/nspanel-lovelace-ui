@@ -79,7 +79,7 @@ is broken, so you can fix it there.
 
 - **Panels and sections:** cards, hidden cards, screensaver, panel settings, global options and the whole
   file as YAML. Forms for every card type the integration can show: entities, grid, QR code, power
-  flow, media player, thermostat, alarm and unlock (PIN).
+  flow, media player, thermostat, alarm, unlock (PIN), bar chart and line chart.
 - **Cards:** add (choose the type), duplicate, delete (with a confirmation), reorder by dragging or with
   the arrow buttons (keyboard: Alt+↑ / Alt+↓). Entities of a card the same way; entity fields suggest
   your Home Assistant entities.
@@ -135,6 +135,30 @@ is broken, so you can fix it there.
 - The integration does not log the password: debug messages and diagnostics hide it. Home Assistant's
   own MQTT debug log (`homeassistant.components.mqtt`) prints every payload, the code included.
 
+## Charts
+
+```yaml
+- type: cardChart          # bars; cardLChart: a line
+  title: Power
+  entity: sensor.house_power
+  hours: 24                # time shown (1-744)
+  bars: 12                 # cardChart: 2-48 bars; cardLChart: points (2-200, default 48)
+  aggregate: mean          # mean | max | min | last | change (growth of an energy counter)
+  color: [255, 152, 0]
+  yAxisLabel: W            # default: the unit of the entity
+```
+
+- The data comes from the Home Assistant **recorder** (history), so the entity must be recorded.
+- The chart is drawn when its page opens, not on every state change.
+- Limits of the display firmware:
+  - The panel shows y values with one decimal.
+  - Bars cannot be negative (they start at 0).
+  - The highest bar must stay small, so bigger values are divided by 10, 100, … and the y label
+    shows the factor (e.g. `W ×100`: 16 on the axis = 1600 W).
+  - A bar chart command has at most 275 characters. If the bars do not fit, the oldest ones are left out.
+- This is the first version of the charts in this fork: the original project had only an unfinished
+  draft (`cardChart` with fixed values). Check them on your panel and report what looks wrong.
+
 ## Entities and notifications
 
 Each panel is a device with these entities:
@@ -143,6 +167,7 @@ Each panel is a device with these entities:
 |---|---|
 | **Notification** (`notify`) | `notify.send_message`: on the screensaver the text replaces the weather until a touch; on a card it opens a notification page |
 | **Wake up screen** (`button`) | like a touch on the screensaver |
+| **Screen awake** (`switch`) | on: a card is shown; off: the screensaver. Turning it off switches the screen off (brightness 0) until a touch |
 | **Page** (`sensor`) | `screensaver` or the title of the card on the screen (attributes `card_type`, `card_key`) |
 | **Card** (`select`) | shows a card, e.g. a camera card when the doorbell rings; the back button returns to the previous card |
 | **Display firmware** (`update`) | display firmware update with progress |
@@ -159,6 +184,26 @@ data:
   timeout: 60             # notification page only, seconds; 0 = until closed
   buzzer: true            # Tasmota: Buzzer 2,2,2
 ```
+
+Sleep and wake the screen from automations, e.g. the screen goes dark when the alarm is armed:
+
+```yaml
+triggers:
+  - trigger: state
+    entity_id: alarm_control_panel.satel_all
+    to: armed_away
+actions:
+  - action: nspanel_lovelace_ui.sleep_screen
+    data:
+      panel: nspanel-1    # optional, empty = all panels
+      brightness: 0       # screensaver brightness while asleep; 0 = screen off
+```
+
+- `nspanel_lovelace_ui.sleep_screen` shows the screensaver at that brightness. It stays until someone
+  touches the panel (the touch wakes it as usual) or `nspanel_lovelace_ui.wake_screen` runs; then the
+  normal brightness settings apply again.
+- `nspanel_lovelace_ui.wake_screen` works like a touch on the screensaver, also with `doubleTapToUnlock`.
+- The **Screen awake** switch does the same and its state can trigger automations.
 
 Diagnostics for a bug report: Settings → Devices & services → NSPanel Lovelace UI → ⋮ → *Download diagnostics*.
 
@@ -197,6 +242,27 @@ and flash it with the **Display firmware** update entity of each panel. Building
 MDI 7 icon fonts, publishing it and installing the package: [HMI/FIRMWARE.md](HMI/FIRMWARE.md).
 
 ## Changelog
+
+### 5.2.8
+- **Every card and popup checked against the display code**, field by field (tests per view). Fixed:
+  - fan speed slider (it called a non-existent action; now `fan.set_percentage`);
+  - closing a popup on a card other than the first one returned to the first card;
+  - timer popup: no longer fails for unavailable timers, keeps hours (1:30:00 shows 90:00), Cancel
+    and Finish when paused, no extra refresh threads (one countdown per second while it is open);
+  - media card: shuffle (`shuffle_set`) and the on/off and shuffle buttons appear for the right
+    players; a missing player no longer stops the card; `~` in titles;
+  - alarm card: arm buttons that are no longer valid disappear after arming; the open sensors
+    button shows the list of open sensors;
+  - thermostat card: switching from a two set point mode to one no longer keeps both controls;
+  - power card: an item hidden by a state filter no longer moves the others;
+  - unlock card: the PIN is compared as text ("0123" is not "123");
+  - covers without set position get no position slider; empty mode buttons and option lists with
+    `?` or `~` no longer select a wrong option; long lists are cut to what the display holds.
+- **Charts:** `cardChart` (bars) and `cardLChart` (line) from the recorder history, with time labels,
+  the scaling the display needs, and forms in the card editor; see *Charts*.
+- Actions **`sleep_screen`** (screensaver at a brightness, 0 = screen off, until a touch or wake) and
+  **`wake_screen`**, and the **Screen awake** switch per panel – for automations such as an armed
+  alarm switching the screens off.
 
 ### 5.2.7
 - **QR code missing on the panel** (Wi-Fi with the default `show: ssid`, or a `cardQR` with one entity):

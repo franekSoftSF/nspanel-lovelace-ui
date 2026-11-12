@@ -134,6 +134,30 @@
           "description": "Sygnał dźwiękowy (Tasmota Buzzer 2,2,2)."
         }
       }
+    },
+    "sleep_screen": {
+      "name": "Uśpij ekran",
+      "description": "Pokazuje wygaszacz z podaną jasnością (0 = ekran wyłączony), dopóki ktoś nie dotknie panelu albo nie zostanie wywołana akcja Obudź ekran. Przykład: wyłącz ekran po uzbrojeniu alarmu.",
+      "fields": {
+        "panel": {
+          "name": "Panel",
+          "description": "Nazwa panelu z panels.yaml. Puste: wszystkie panele."
+        },
+        "brightness": {
+          "name": "Jasność",
+          "description": "Jasność wygaszacza podczas uśpienia; 0 wyłącza ekran."
+        }
+      }
+    },
+    "wake_screen": {
+      "name": "Obudź ekran",
+      "description": "Jak dotknięcie wygaszacza: panel pokazuje swoją kartę z normalną jasnością i kończy uśpienie.",
+      "fields": {
+        "panel": {
+          "name": "Panel",
+          "description": "Nazwa panelu z panels.yaml. Puste: wszystkie panele."
+        }
+      }
     }
   },
   "issues": {
@@ -174,6 +198,11 @@
     "sensor": {
       "page": {
         "name": "Strona"
+      }
+    },
+    "switch": {
+      "screen": {
+        "name": "Ekran wybudzony"
       }
     }
   },

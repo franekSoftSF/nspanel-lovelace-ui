@@ -5,7 +5,8 @@
     "esphome",
     "frontend",
     "mqtt",
-    "panel_custom"
+    "panel_custom",
+    "recorder"
   ],
   "codeowners": [
     "@franekSoftSF"
@@ -27,5 +28,5 @@
     "segno>=1.6.0"
   ],
   "single_config_entry": true,
-  "version": "5.2.7"
+  "version": "5.2.8"
 }

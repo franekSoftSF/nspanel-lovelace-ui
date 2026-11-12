@@ -79,7 +79,7 @@ gdy plik jest błędny, żeby można go było w nim poprawić.
 
 - **Panele i sekcje:** karty, ukryte karty, wygaszacz, ustawienia panelu, opcje globalne i cały plik jako
   YAML. Formularze dla każdego typu karty, który integracja potrafi pokazać: encje, siatka, kod QR,
-  przepływ energii, odtwarzacz, termostat, alarm i odblokowanie (PIN).
+  przepływ energii, odtwarzacz, termostat, alarm, odblokowanie (PIN), wykres słupkowy i wykres liniowy.
 - **Karty:** dodawanie (wybór typu), duplikowanie, usuwanie (z potwierdzeniem), zmiana kolejności
   przeciąganiem albo strzałkami (klawiatura: Alt+↑ / Alt+↓). Encje karty tak samo; pola encji podpowiadają
   encje z Home Assistant.
@@ -133,6 +133,30 @@ gdy plik jest błędny, żeby można go było w nim poprawić.
 - Integracja nie zapisuje hasła w logach: komunikaty debug i diagnostyka je ukrywają. Log debug samego
   MQTT w Home Assistant (`homeassistant.components.mqtt`) wypisuje każdą wiadomość, razem z kodem.
 
+## Wykresy
+
+```yaml
+- type: cardChart          # słupki; cardLChart: linia
+  title: Moc
+  entity: sensor.moc_domu
+  hours: 24                # pokazywany okres (1-744 h)
+  bars: 12                 # cardChart: 2-48 słupków; cardLChart: points (2-200, domyślnie 48)
+  aggregate: mean          # mean | max | min | last | change (przyrost licznika energii)
+  color: [255, 152, 0]
+  yAxisLabel: W            # domyślnie: jednostka encji
+```
+
+- Dane pochodzą z **rejestratora (recorder)** Home Assistant, więc encja musi być zapisywana w historii.
+- Wykres rysuje się po otwarciu jego strony, nie przy każdej zmianie stanu.
+- Ograniczenia firmware ekranu:
+  - Panel pokazuje wartości osi Y z jednym miejscem po przecinku.
+  - Słupki nie mogą być ujemne (zaczynają się od 0).
+  - Najwyższy słupek musi być mały, więc większe wartości są dzielone przez 10, 100, … a opis osi Y
+    pokazuje mnożnik (np. `W ×100`: 16 na osi = 1600 W).
+  - Polecenie wykresu słupkowego ma najwyżej 275 znaków. Jeśli słupki się nie mieszczą, najstarsze są pomijane.
+- To pierwsza wersja wykresów w tym forku: oryginalny projekt miał tylko niedokończony szkic
+  (`cardChart` ze stałymi wartościami). Sprawdź je na swoim panelu i zgłoś, co wygląda źle.
+
 ## Encje i powiadomienia
 
 Każdy panel to urządzenie z encjami:
@@ -141,6 +165,7 @@ Każdy panel to urządzenie z encjami:
 |---|---|
 | **Powiadomienie** (`notify`) | `notify.send_message`: na wygaszaczu tekst zastępuje pogodę do dotknięcia; na karcie otwiera stronę powiadomienia |
 | **Obudź ekran** (`button`) | jak dotknięcie wygaszacza |
+| **Ekran wybudzony** (`switch`) | włączony: widać kartę; wyłączony: wygaszacz. Wyłączenie gasi ekran (jasność 0) do dotknięcia |
 | **Strona** (`sensor`) | `screensaver` albo tytuł karty na ekranie (atrybuty `card_type`, `card_key`) |
 | **Karta** (`select`) | pokazuje kartę, np. kamerę po dzwonku; przycisk wstecz wraca do poprzedniej karty |
 | **Firmware ekranu** (`update`) | aktualizacja firmware ekranu z postępem |
@@ -157,6 +182,26 @@ data:
   timeout: 60             # tylko strona powiadomienia, sekundy; 0 = do zamknięcia
   buzzer: true            # Tasmota: Buzzer 2,2,2
 ```
+
+Usypianie i budzenie ekranu w automatyzacjach, np. ekran gaśnie po uzbrojeniu alarmu:
+
+```yaml
+triggers:
+  - trigger: state
+    entity_id: alarm_control_panel.satel_wszystkie
+    to: armed_away
+actions:
+  - action: nspanel_lovelace_ui.sleep_screen
+    data:
+      panel: nspanel-1    # opcjonalnie, puste = wszystkie panele
+      brightness: 0       # jasność wygaszacza podczas uśpienia; 0 = ekran wyłączony
+```
+
+- `nspanel_lovelace_ui.sleep_screen` pokazuje wygaszacz z tą jasnością. Zostaje tak, dopóki ktoś nie
+  dotknie panelu (dotknięcie budzi go jak zwykle) albo nie zostanie wywołana
+  `nspanel_lovelace_ui.wake_screen`; potem znowu obowiązują zwykłe ustawienia jasności.
+- `nspanel_lovelace_ui.wake_screen` działa jak dotknięcie wygaszacza, także przy `doubleTapToUnlock`.
+- Przełącznik **Ekran wybudzony** robi to samo, a jego stan może wyzwalać automatyzacje.
 
 Diagnostyka do zgłoszenia błędu: Ustawienia → Urządzenia i usługi → NSPanel Lovelace UI → ⋮ → *Pobierz diagnostykę*.
 
@@ -195,6 +240,28 @@ wgrywać go encją aktualizacji **Firmware ekranu** każdego panelu. Budowa firm
 wydanie i instalacja pakietu: [HMI/FIRMWARE.pl.md](HMI/FIRMWARE.pl.md).
 
 ## Historia zmian
+
+### 5.2.8
+- **Każda karta i każde okno sprawdzone z kodem ekranu**, pole po polu (testy dla każdego widoku).
+  Poprawione:
+  - suwak prędkości wentylatora (wołał nieistniejącą akcję; teraz `fan.set_percentage`);
+  - zamknięcie okna na karcie innej niż pierwsza wracało do pierwszej karty;
+  - okno timera: nie wywraca się dla niedostępnego timera, nie gubi godzin (1:30:00 to 90:00), przy
+    pauzie ma Anuluj i Zakończ, bez dodatkowych wątków (odliczanie co sekundę, gdy okno jest otwarte);
+  - karta odtwarzacza: losowa kolejność (`shuffle_set`), przyciski wł./wył. i losowania dla właściwych
+    odtwarzaczy; brak odtwarzacza nie zatrzymuje karty; `~` w tytułach;
+  - karta alarmu: nieaktualne przyciski uzbrajania znikają po uzbrojeniu; przycisk otwartych czujników
+    pokazuje ich listę;
+  - karta termostatu: przejście z trybu z dwiema nastawami na jedną nie zostawia obu suwaków;
+  - karta energii: element ukryty filtrem stanu nie przesuwa pozostałych;
+  - karta PIN: kod porównywany jako tekst („0123” to nie „123”);
+  - rolety bez ustawiania pozycji nie dostają suwaka; puste przyciski trybów i listy z `?` albo `~` nie
+    wybierają złej opcji; długie listy są przycinane do tego, co mieści ekran.
+- **Wykresy:** `cardChart` (słupki) i `cardLChart` (linia) z historii rejestratora, z opisami czasu,
+  skalowaniem wymaganym przez ekran i formularzami w edytorze kart; patrz *Wykresy*.
+- Akcje **`sleep_screen`** (wygaszacz z daną jasnością, 0 = ekran wyłączony, do dotknięcia albo
+  wybudzenia) i **`wake_screen`** oraz przełącznik **Ekran wybudzony** dla każdego panelu – do
+  automatyzacji, np. uzbrojony alarm gasi ekrany.
 
 ### 5.2.7
 - **Brak kodu QR na panelu** (Wi-Fi z domyślnym `show: ssid` albo `cardQR` z jedną encją): firmware

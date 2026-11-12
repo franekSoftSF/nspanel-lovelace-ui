@@ -15,6 +15,8 @@ from . import ha_control
 from .firmware import FirmwareUpdater
 
 NOTIFY_ID = "nspanelNotify"  # internal name of the integration's notification page
+# Popups the display opens itself over a card (their close button sends buttonPress2,<page>,bExit).
+DETAIL_POPUPS = ("popupLight", "popupShutter", "popupFan", "popupThermo", "popupInSel", "popupTimer")
 
 def _tz(name):
     try:
@@ -36,6 +38,8 @@ class LovelaceUIPanel:
         # Integration: called with the new card after every page switch (current card sensor).
         self.on_page_change = None
         self._last_dim_command = None
+        # Integration: screensaver brightness set by the sleep_screen action, until a touch or wake_screen.
+        self.forced_sleep = None
         self._active_detail = None
         self._last_detail_payload = None
         self.name = name_panel
@@ -128,13 +132,20 @@ class LovelaceUIPanel:
         return any(isinstance(self.settings.get(key), list) for key in ("sleepBrightness", "screenBrightness"))
 
     def on_time_tick(self, kind):
-        """Called by the runtime: "minute" (second 0), "hour" (minute 0) or "second" (schedules)."""
+        """Called by the runtime: "minute" (second 0), "hour" (minute 0) or "second" (brightness
+        schedules, and while a timer popup is open)."""
         if kind == "minute":
             self.update_time()
         elif kind == "hour":
             self.update_date()
-        if kind == "second" or (kind == "minute" and self.has_brightness_schedule):
+        if kind in ("second", "minute") and self.has_brightness_schedule:
             self.dimmode(only_if_changed=True)
+        if kind == "second" and self.timer_popup_open:
+            self._render_detail()  # the countdown (sent only when it changed)
+
+    @property
+    def timer_popup_open(self):
+        return self._active_detail is not None and self._active_detail[0] in ("popupTimer", "timer")
 
     def additional_text(self, key):
         # AppDaemon treats these settings as templates, so the "ha:" prefix is optional.
@@ -222,6 +233,7 @@ class LovelaceUIPanel:
         if (switchPages or force) and self.current_card is self.screensaver:
             self.screensaver.invalidate()
         if switchPages:
+            self.current_card._layout = None  # the page starts clean (HACard.send_update)
             libs.panel_cmd.page_type(self.msg_out_queue, self.sendTopic, self.current_card.type)
             if self.on_page_change:
                 self.on_page_change(self.current_card)
@@ -242,6 +254,32 @@ class LovelaceUIPanel:
             self.msg_out_queue, self.sendTopic,
             f"{NOTIFY_ID}~{title}~65535~~~~~{message}~65535~{int(timeout)}")
 
+    def sleep_screen(self, brightness=0):
+        """Integration action: show the screensaver at this brightness (0 = dark) until woken.
+
+        The HMI applies the sleep brightness on the screensaver page (dimmode there sets
+        dim=dimValue), so the value goes out first and then the page switches.
+        """
+        if self.updater.active or self.screensaver is None:
+            return
+        self.forced_sleep = max(0, min(100, int(brightness)))
+        self.dimmode()
+        if self.current_card is not self.screensaver:
+            if self.current_card is not None:
+                self.privious_cards.append(self.current_card)
+            self.current_card = self.screensaver
+            self.render_current_page(switchPages=True)
+
+    def wake_screen(self):
+        """Integration action: like a touch on the screensaver (also with doubleTapToUnlock)."""
+        if self.updater.active:
+            return
+        if self.current_card is self.screensaver:
+            self.customrecv_event_callback("event,buttonPress2,screensaver,bExit,2")
+        if self.forced_sleep is not None:  # on a card already (or the screensaver is disabled)
+            self.forced_sleep = None
+            self.dimmode()
+
     def dimmode(self, only_if_changed=False):
         if self.updater.active:
             return
@@ -254,6 +292,8 @@ class LovelaceUIPanel:
             self.settings.get("sleepOverride"),
             timezone=self.settings.get("timeZone", "Europe/Berlin"),
         )
+        if self.forced_sleep is not None:
+            dimValue = self.forced_sleep
 
         backgroundColor = self.settings.get("defaultBackgroundColor", "ha-dark")
         if backgroundColor == "ha-dark":
@@ -345,6 +385,12 @@ class LovelaceUIPanel:
                     "value": value,
                 }
                 if btype == "bExit":
+                    if entity_id in DETAIL_POPUPS:
+                        # Closing a popup the display opened over the card: show that card again
+                        # (like AppDaemon; the cards history is for the screensaver and notifications).
+                        self._active_detail = None
+                        self.render_current_page(switchPages=True)
+                        return
                     if entity_id in ["screensaver", "screensaver2"] and self.settings.get("screensaver").get("doubleTapToUnlock") and value == "1":
                         return
 
@@ -358,6 +404,10 @@ class LovelaceUIPanel:
 
                     self.current_card = self.privious_cards.pop()
                     self.render_current_page(switchPages=True)
+                    if self.forced_sleep is not None and entity_id.startswith("screensaver"):
+                        # A touch ends a sleep_screen; the card page keeps full brightness.
+                        self.forced_sleep = None
+                        self.dimmode()
                     return
 
                 # replace iid with real entity id
@@ -394,10 +444,23 @@ class LovelaceUIPanel:
                                 )
                     case 'cardUnlock-unlock':
                         card_iid = entity_id.split(".")[1]
-                        if int(self.current_card.config.get("pin")) == int(value):
+                        # Compare as text: "0123" is not "123", and an empty code is just wrong.
+                        if str(self.current_card.config.get("pin")) == str(value or "").strip() \
+                                and self.searchCard(card_iid) is not None:
                             self.privious_cards.append(self.current_card)
                             self.current_card = self.searchCard(card_iid)
                             self.render_current_page(switchPages=True)
+                    case 'opnSensorNotify':
+                        # cardAlarm: the button shown when the alarm entity reports open_sensors.
+                        data = libs.home_assistant.get_entity_data(entity_id) or {}
+                        sensors = (data.get("attributes") or {}).get("open_sensors") or []
+                        names = []
+                        for sensor in sensors if isinstance(sensors, (list, dict)) else []:
+                            info = libs.home_assistant.get_entity_data(sensor) or {}
+                            names.append(str((info.get("attributes") or {}).get("friendly_name", sensor)))
+                        title = str((data.get("attributes") or {}).get("friendly_name", entity_id))
+                        self.show_notification(title.replace("~", "-"),
+                                               "\r\n".join(f"- {name}" for name in names).replace("~", "-"))
                     case 'mode-light':
                         ha_control.handle_buttons(
                             entity_id,

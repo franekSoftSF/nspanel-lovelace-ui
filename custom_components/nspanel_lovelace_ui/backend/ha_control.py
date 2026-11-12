@@ -88,6 +88,15 @@ def calculate_dim_values(sleepTracking, sleepTrackingZones, sleepBrightness, scr
     else:
         return max(0, min(100, dimmode)), max(0, min(100, dimValueNormal))
 
+def _pick(options, value):
+    """options[value] for a list index sent by the display; None for an empty or invalid button."""
+    try:
+        index = int(value)
+    except (TypeError, ValueError):
+        return None
+    return options[index] if isinstance(options, list) and 0 <= index < len(options) else None
+
+
 def handle_buttons(entity_id, btype, value, entity_config=None, action_context=None):
     action_context = action_context or {}
     match btype:
@@ -97,8 +106,12 @@ def handle_buttons(entity_id, btype, value, entity_config=None, action_context=N
             on_off(entity_id, value, action_context=action_context)
         case 'number-set':
             if entity_id.startswith('fan'):
-                attr = libs.home_assistant.get_entity_data(entity_id).get('attributes', [])
-                value = float(value) * float(attr.get('percentage_step', 0))
+                # Fan speed slider: steps of percentage_step (fan.set_percentage; fans have no set_value).
+                attr = (libs.home_assistant.get_entity_data(entity_id) or {}).get('attributes') or {}
+                percentage = round(float(value) * float(attr.get('percentage_step') or 0))
+                call_ha_service(entity_id, "set_percentage", service_data={"percentage": max(0, min(100, percentage))},
+                                action_context=action_context)
+                return
             service_data = {
                 "value": int(value)
             }
@@ -145,11 +158,9 @@ def handle_buttons(entity_id, btype, value, entity_config=None, action_context=N
             else:
                 call_ha_service(entity_id, "turn_off", action_context=action_context)
         case 'media-shuffle':
-            suffle = libs.home_assistant.get_entity_data(entity_id).get('attributes', []).get('shuffle')
-            service_data = {
-                "shuffle": not suffle
-            }
-            call_ha_service(entity_id, "set_value", service_data=service_data, action_context=action_context)
+            shuffle = ((libs.home_assistant.get_entity_data(entity_id) or {}).get('attributes') or {}).get('shuffle')
+            call_ha_service(entity_id, "shuffle_set", service_data={"shuffle": not bool(shuffle)},
+                            action_context=action_context)
         case 'volumeSlider':
             pos = int(value)
             # HA wants to have this value between 0 and 1 as float
@@ -166,7 +177,7 @@ def handle_buttons(entity_id, btype, value, entity_config=None, action_context=N
         # for light detail page
         case 'brightnessSlider':
             # scale 0-100 to ha brightness range
-            brightness = int(scale(int(value), (0, 100), (0,255)))
+            brightness = round(scale(int(value), (0, 100), (0,255)))
             service_data = {
                 "brightness": brightness
             }
@@ -199,32 +210,32 @@ def handle_buttons(entity_id, btype, value, entity_config=None, action_context=N
             }
             if btype in mapping:
                 modes = attr.get(mapping[btype], [])
-                if modes:
-                    mode = modes[int(value)]
+                mode = _pick(modes, value)
+                if mode is not None:
                     service_data = {
                         mapping[btype][:-1]: mode
                     }
                     call_ha_service(entity_id, f"set_{mapping[btype][:-1]}", service_data=service_data, action_context=action_context)
         case 'mode-input_select' | 'mode-select':
             options = libs.home_assistant.get_entity_data(entity_id).get('attributes', []).get("options", [])
-            if options:
-                option = options[int(value)]
+            option = _pick(options, value)
+            if option is not None:
                 service_data = {
                     "option": option
                 }
                 call_ha_service(entity_id, "select_option", service_data=service_data, action_context=action_context)
         case 'mode-media_player':
             options = libs.home_assistant.get_entity_data(entity_id).get('attributes', []).get("source_list", [])
-            if options:
-                option = options[int(value)]
+            option = _pick(options, value)
+            if option is not None:
                 service_data = {
                     "source": option
                 }
                 call_ha_service(entity_id, "select_source", service_data=service_data, action_context=action_context)
         case 'mode-light':
             options = entity_config.get("effectList", libs.home_assistant.get_entity_data(entity_id).get('attributes', []).get("effect_list", []))
-            if options:
-                option = options[int(value)]
+            option = _pick(options, value)
+            if option is not None:
                 service_data = {
                     "effect": option
                 }

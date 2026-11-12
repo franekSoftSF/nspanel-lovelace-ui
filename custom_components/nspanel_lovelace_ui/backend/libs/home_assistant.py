@@ -230,6 +230,34 @@ def call_service(entity_name: str | None, domain: str, service: str, service_dat
     return True
 
 
+def get_history(entity_id: str, start: datetime, end: datetime, timeout: float = 10) -> list[tuple[datetime, Any]]:
+    """(time, state) of an entity from the recorder; blocks the calling worker thread (charts).
+
+    Includes the state at start (the recorder adds it). Empty without a recorder or on timeout.
+    """
+    if hass is None or _in_loop() or "recorder" not in hass.config.components:
+        return []
+    from homeassistant.components.recorder import get_instance, history  # noqa: PLC0415
+
+    def _query() -> list[tuple[datetime, Any]]:
+        states = history.state_changes_during_period(
+            hass, start, end, entity_id, no_attributes=True, include_start_time_state=True)
+        return [(state.last_changed, state.state) for state in states.get(entity_id, [])]
+
+    async def _run() -> list[tuple[datetime, Any]]:
+        return await get_instance(hass).async_add_executor_job(_query)
+
+    future = asyncio.run_coroutine_threadsafe(_run(), hass.loop)
+    try:
+        return future.result(timeout)
+    except FutureTimeout:
+        future.cancel()
+        _LOGGER.warning("Timed out reading the history of %s", entity_id)
+    except Exception as err:  # noqa: BLE001 - no history means an empty chart
+        _LOGGER.warning("Cannot read the history of %s: %s", entity_id, err)
+    return []
+
+
 def send_msg_to_panel(service: str, service_data: dict) -> bool:
     """ESPHome firmware variant (use_ha_api): esphome.<device>_nspanelui_api_call."""
     return call_service(None, "esphome", service, service_data)
