@@ -493,17 +493,17 @@ class QRCard(HACard):
     def _wifi_rows(self, ssid, password):
         show = self.wifi.get("show", "ssid")
         if show == "none" or self.entities:
-            return ""
+            return []
         names = WIFI_ROW_NAMES.get(str(self.locale)[:2], WIFI_ROW_NAMES["en"])
         color = rgb_dec565([68, 115, 158])
         clean = lambda text: str(text).replace("~", "-")  # noqa: E731 - ~ separates the fields
-        rows = f"~text~iText.wifi_ssid~{get_icon_char('mdi:wifi')}~{color}~{names[0]}~{clean(ssid)}"
+        rows = [f"~text~iText.wifi_ssid~{get_icon_char('mdi:wifi')}~{color}~{names[0]}~{clean(ssid)}"]
         if show == "ssid_password" and password:
-            rows += f"~text~iText.wifi_password~{get_icon_char('mdi:key-variant')}~{color}~{names[1]}~{clean(password)}"
+            rows.append(f"~text~iText.wifi_password~{get_icon_char('mdi:key-variant')}~{color}~{names[1]}~{clean(password)}")
         return rows
 
     def render(self):
-        rows = ""
+        rows = []
         if self.wifi:
             ssid = str(self.wifi.get("ssid", ""))
             security = self.wifi.get("security", "WPA")
@@ -515,9 +515,15 @@ class QRCard(HACard):
             if qrcode.startswith("ha:"):
                 resolved = libs.home_assistant.get_template(qrcode, self.iid)
                 qrcode = "" if resolved is None else str(resolved)
-        result = f"{self.title}~{self.gen_nav()}~{qrcode}{rows}"
-        for e in self.entities:
-            result += e.render()
+        if len(qrcode.encode("utf-8")) > wifi_qr.QR_MAX_BYTES:
+            logging.warning("cardQR %r: the code has %d bytes, the panel keeps only %d - shorten it",
+                            self.title, len(qrcode.encode("utf-8")), wifi_qr.QR_MAX_BYTES)
+        rows += [row for row in (e.render() for e in self.entities) if row]
+        # The panel draws the code with no rows (centred) or with two rows; with exactly one row it
+        # draws nothing (HMI cardQR), so a blank second row keeps the code visible.
+        if len(rows) == 1:
+            rows.append("~text~iText.qr_blank~~0~~")
+        result = f"{self.title}~{self.gen_nav()}~{qrcode}{''.join(rows[:2])}"
         libs.panel_cmd.entityUpd(self.panel.msg_out_queue, self.panel.sendTopic, result)
 
 class PowerCard(HACard):

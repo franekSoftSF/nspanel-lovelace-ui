@@ -246,6 +246,8 @@ MESSAGES = {
                                "Sieć otwarta nie ma hasła; zostanie pominięte."),
     "wifi_tilde": L("The character ~ cannot be sent to the panel.", "Znaku ~ nie da się wysłać do panelu."),
     "wifi_qr_ignored": L("Ignored: the code is built from wifi.", "Pomijane: kod powstaje z wifi."),
+    "qr_too_long": L("The panel shows codes up to {max} bytes; this one has {length}.",
+                     "Panel pokazuje kody do {max} bajtów; ten ma {length}."),
     "secret_missing": L("{name} is not in secrets.yaml.", "Brak {name} w secrets.yaml."),
     "icon_unknown": L("{icon} is not in the panel icon font (MDI 7.4.47); the panel shows alert-circle-outline.",
                       "Ikony {icon} nie ma w foncie panelu (MDI 7.4.47); panel pokaże alert-circle-outline."),
@@ -553,8 +555,11 @@ def _qr(check: _Checker, path: list, card: dict) -> None:
     """cardQR: a qrCode or a wifi network (WIFI_FIELDS)."""
     wifi = card.get("wifi")
     if wifi is None:
-        if card.get("qrCode") in (None, ""):
+        code = card.get("qrCode")
+        if code in (None, ""):
             check.add([*path, "qrCode"], "required")
+        elif not str(code).startswith("ha:") and len(str(code).encode("utf-8")) > wifi_qr.QR_MAX_BYTES:
+            check.add([*path, "qrCode"], "qr_too_long", "warning", length=len(str(code).encode("utf-8")), max=wifi_qr.QR_MAX_BYTES)
         return
     path = [*path, "wifi"]
     if not isinstance(wifi, dict):
@@ -572,6 +577,14 @@ def _qr(check: _Checker, path: list, card: dict) -> None:
             check.add([*path, "ssid"], "wifi_tilde")
     security = wifi.get("security", "WPA")
     sources = [key for key in wifi_qr.PASSWORD_SOURCES if wifi.get(key) not in (None, "")]
+    # The panel keeps 80 bytes of the code: check what is known here (a plain password, else none).
+    plain = wifi.get("password") if isinstance(wifi.get("password"), (str, int, float)) else ""
+    plain = "" if isinstance(plain, bool) or str(plain).startswith("ha:") else str(plain)
+    if isinstance(ssid, str) and security in wifi_qr.SECURITY:
+        length = len(wifi_qr.build(ssid, security, plain, wifi.get("hidden") is True).encode("utf-8"))
+        if length > wifi_qr.QR_MAX_BYTES:
+            check.add([*path, "password" if plain and security != "nopass" else "ssid"], "qr_too_long", "warning",
+                      length=length, max=wifi_qr.QR_MAX_BYTES)
     if security == "nopass":
         for key in sources:
             check.add([*path, key], "wifi_password_ignored", "warning")

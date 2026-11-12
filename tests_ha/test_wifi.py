@@ -173,6 +173,52 @@ async def test_panel_gets_the_code_and_the_network(hass: HomeAssistant, mqtt_moc
     await hass.async_block_till_done()
 
 
+def _row_types(update: str) -> list[str]:
+    """Types of the two rows after the code (fields 15 and 21 of the HMI cardQR command)."""
+    fields = update.split("~")
+    return [fields[i] if len(fields) > i else "" for i in (15, 21)]
+
+
+@pytest.mark.parametrize(("card", "rows", "code"), [
+    # One row: the HMI draws the code only with 0 or 2 rows, so a blank second row is added.
+    ({"wifi": {"ssid": "Dom", "password": "haslo1234"}}, ["text", "text"], "WIFI:T:WPA;S:Dom;P:haslo1234;;"),
+    ({"qrCode": "https://example.com", "entities": [{"entity": "iText.Hello"}]}, ["text", "text"],
+     "https://example.com"),
+    # No rows: the code is drawn in the middle.
+    ({"wifi": {"ssid": "Dom", "password": "haslo1234", "show": "none"}}, ["", ""], "WIFI:T:WPA;S:Dom;P:haslo1234;;"),
+    # More than two rows: the panel has two places.
+    ({"qrCode": "x", "entities": [{"entity": f"iText.e{i}"} for i in range(3)]}, ["text", "text"], "x"),
+])
+async def test_panel_draws_the_code_with_any_number_of_rows(hass: HomeAssistant, mqtt_mock, panels_file: Path,
+                                                            card, rows, code) -> None:
+    config = yaml.safe_load(panels_file.read_text(encoding="utf-8"))
+    config["nspanels"]["living_room"]["cards"] = [{"type": "cardQR", "title": "Kod", **card}]
+    panels_file.write_text(yaml.safe_dump(config, allow_unicode=True), encoding="utf-8")
+    entry = MockConfigEntry(domain=DOMAIN, data={CONF_CONFIG_FILE: DEFAULT_CONFIG_FILE})
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    for message in ("event,startup,55,eu", "event,buttonPress2,screensaver,bExit,1"):
+        async_fire_mqtt_message(hass, RECV, json.dumps({"CustomRecv": message}))
+    await wait_for(hass, lambda: "pageType~cardQR" in published(mqtt_mock))
+    async_fire_mqtt_message(hass, RECV, json.dumps({"CustomRecv": "event,renderCurrentPage"}))
+    await wait_for(hass, lambda: any(p.startswith("entityUpd~Kod") for p in published(mqtt_mock)))
+    update = next(p for p in published(mqtt_mock) if p.startswith("entityUpd~Kod"))
+    assert update.split("~")[14] == code and _row_types(update) == rows
+    assert len(update.split("~")) <= 27  # never more than the two rows the HMI reads
+    await hass.config_entries.async_unload(entry.entry_id)
+    await hass.async_block_till_done()
+
+
+def test_codes_longer_than_the_panel_keeps_are_warnings() -> None:
+    long_text = _issues(_qr(qrCode="https://example.com/" + "a" * 70))
+    assert (("qrCode",), "qr_too_long", "warning") in long_text
+    long_wifi = _issues(_qr(wifi={"ssid": "S" * 32, "password": "p" * 40}))
+    assert (("wifi", "password"), "qr_too_long", "warning") in long_wifi
+    assert not any(code == "qr_too_long" for _, code, _ in _issues(_qr(wifi={"ssid": "Dom", "password": "haslo1234"})))
+    assert len(wifi.build("S" * 32, "WPA", "p" * 30).encode()) <= wifi.QR_MAX_BYTES  # 32 + 30 still fits
+
+
 # --- editor -------------------------------------------------------------------------------------
 
 async def test_editor_wifi_helper(hass: HomeAssistant, mqtt_mock, panels_file: Path, hass_ws_client) -> None:
