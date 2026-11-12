@@ -36,7 +36,7 @@ def O(value: str, en: str, pl: str) -> dict[str, Any]:  # noqa: N802
 
 
 CARD_TYPES = ["cardEntities", "cardGrid", "cardQR", "cardPower", "cardMedia", "cardThermo", "cardAlarm",
-              "cardUnlock"]
+              "cardUnlock", "cardChart", "cardLChart"]
 SCREENSAVER_TYPES = ["screensaver", "screensaver2", "screensaver3"]
 FONTS = ["small", "medium", "medium-icon", "large", "large-icon"]
 PSEUDO_PREFIXES = ("navigate.", "iText.", "service.")
@@ -138,6 +138,35 @@ CARDS: dict[str, dict[str, Any]] = {
                    "fields": COMMON_CARD_FIELDS + [
                        F("pin", "string", L("PIN", "PIN"), required=True, pattern=r"^\d{1,8}$"),
                        F("destination", "navigate", L("Opens card", "Otwiera kartę"), required=True)] + NAV_FIELDS,
+                   "items": False},
+    "cardChart": {"label": L("Bar chart", "Wykres słupkowy"), "icon": "mdi:chart-bar",
+                  "fields": COMMON_CARD_FIELDS + [
+                      F("entity", "entity", L("Entity (numeric)", "Encja (liczbowa)"), required=True,
+                        domains=["sensor", "number", "input_number", "counter"],
+                        help=L("History from the recorder", "Historia z rejestratora (recorder)")),
+                      F("hours", "int", L("Hours shown", "Ile godzin"), default=24, min=1, max=744),
+                      F("bars", "int", L("Bars", "Liczba słupków"), default=12, min=2, max=48),
+                      F("aggregate", "select", L("Value of a bar", "Wartość słupka"), default="mean",
+                        options=[O("mean", "Average", "Średnia"), O("max", "Maximum", "Maksimum"),
+                                 O("min", "Minimum", "Minimum"), O("last", "Last", "Ostatnia"),
+                                 O("change", "Increase (energy counters)", "Przyrost (liczniki energii)")]),
+                      F("color", "color", L("Colour", "Kolor")),
+                      F("yAxisLabel", "string", L("Y axis label", "Opis osi Y"),
+                        help=L("Default: the unit of the entity", "Domyślnie: jednostka encji"))] + NAV_FIELDS,
+                  "items": False},
+    "cardLChart": {"label": L("Line chart", "Wykres liniowy"), "icon": "mdi:chart-line",
+                   "fields": COMMON_CARD_FIELDS + [
+                       F("entity", "entity", L("Entity (numeric)", "Encja (liczbowa)"), required=True,
+                         domains=["sensor", "number", "input_number", "counter"],
+                         help=L("History from the recorder", "Historia z rejestratora (recorder)")),
+                       F("hours", "int", L("Hours shown", "Ile godzin"), default=24, min=1, max=744),
+                       F("points", "int", L("Points", "Liczba punktów"), default=48, min=2, max=200),
+                       F("aggregate", "select", L("Value of a point", "Wartość punktu"), default="mean",
+                         options=[O("mean", "Average", "Średnia"), O("max", "Maximum", "Maksimum"),
+                                  O("min", "Minimum", "Minimum"), O("last", "Last", "Ostatnia")]),
+                       F("color", "color", L("Colour", "Kolor")),
+                       F("yAxisLabel", "string", L("Y axis label", "Opis osi Y"),
+                         help=L("Default: the unit of the entity", "Domyślnie: jednostka encji"))] + NAV_FIELDS,
                    "items": False},
 }
 

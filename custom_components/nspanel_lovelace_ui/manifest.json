@@ -5,7 +5,8 @@
     "esphome",
     "frontend",
     "mqtt",
-    "panel_custom"
+    "panel_custom",
+    "recorder"
   ],
   "codeowners": [
     "@franekSoftSF"

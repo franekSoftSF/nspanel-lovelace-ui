@@ -79,7 +79,7 @@ gdy plik jest błędny, żeby można go było w nim poprawić.
 
 - **Panele i sekcje:** karty, ukryte karty, wygaszacz, ustawienia panelu, opcje globalne i cały plik jako
   YAML. Formularze dla każdego typu karty, który integracja potrafi pokazać: encje, siatka, kod QR,
-  przepływ energii, odtwarzacz, termostat, alarm i odblokowanie (PIN).
+  przepływ energii, odtwarzacz, termostat, alarm, odblokowanie (PIN), wykres słupkowy i wykres liniowy.
 - **Karty:** dodawanie (wybór typu), duplikowanie, usuwanie (z potwierdzeniem), zmiana kolejności
   przeciąganiem albo strzałkami (klawiatura: Alt+↑ / Alt+↓). Encje karty tak samo; pola encji podpowiadają
   encje z Home Assistant.
@@ -132,6 +132,30 @@ gdy plik jest błędny, żeby można go było w nim poprawić.
 - Panel mieści najwyżej 80 bajtów kodu: przy 32-znakowej nazwie sieci zostaje około 30 znaków na hasło.
 - Integracja nie zapisuje hasła w logach: komunikaty debug i diagnostyka je ukrywają. Log debug samego
   MQTT w Home Assistant (`homeassistant.components.mqtt`) wypisuje każdą wiadomość, razem z kodem.
+
+## Wykresy
+
+```yaml
+- type: cardChart          # słupki; cardLChart: linia
+  title: Moc
+  entity: sensor.moc_domu
+  hours: 24                # pokazywany okres (1-744 h)
+  bars: 12                 # cardChart: 2-48 słupków; cardLChart: points (2-200, domyślnie 48)
+  aggregate: mean          # mean | max | min | last | change (przyrost licznika energii)
+  color: [255, 152, 0]
+  yAxisLabel: W            # domyślnie: jednostka encji
+```
+
+- Dane pochodzą z **rejestratora (recorder)** Home Assistant, więc encja musi być zapisywana w historii.
+- Wykres rysuje się po otwarciu jego strony, nie przy każdej zmianie stanu.
+- Ograniczenia firmware ekranu:
+  - Panel pokazuje wartości osi Y z jednym miejscem po przecinku.
+  - Słupki nie mogą być ujemne (zaczynają się od 0).
+  - Najwyższy słupek musi być mały, więc większe wartości są dzielone przez 10, 100, … a opis osi Y
+    pokazuje mnożnik (np. `W ×100`: 16 na osi = 1600 W).
+  - Polecenie wykresu słupkowego ma najwyżej 275 znaków. Jeśli słupki się nie mieszczą, najstarsze są pomijane.
+- To pierwsza wersja wykresów w tym forku: oryginalny projekt miał tylko niedokończony szkic
+  (`cardChart` ze stałymi wartościami). Sprawdź je na swoim panelu i zgłoś, co wygląda źle.
 
 ## Encje i powiadomienia
 
@@ -218,6 +242,8 @@ wydanie i instalacja pakietu: [HMI/FIRMWARE.pl.md](HMI/FIRMWARE.pl.md).
 ## Historia zmian
 
 ### 5.2.8
+- **Wykresy:** `cardChart` (słupki) i `cardLChart` (linia) z historii rejestratora, z opisami czasu,
+  skalowaniem wymaganym przez ekran i formularzami w edytorze kart; patrz *Wykresy*.
 - Akcje **`sleep_screen`** (wygaszacz z daną jasnością, 0 = ekran wyłączony, do dotknięcia albo
   wybudzenia) i **`wake_screen`** oraz przełącznik **Ekran wybudzony** dla każdego panelu – do
   automatyzacji, np. uzbrojony alarm gasi ekrany.

@@ -9,6 +9,8 @@ from .libs.localization import get_translation
 from . import panel_cards
 from . import weather
 from . import wifi as wifi_qr
+from . import charts
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import logging
 import babel.dates
 from .libs.icon_mapping import get_icon_char
@@ -526,6 +528,57 @@ class QRCard(HACard):
         result = f"{self.title}~{self.gen_nav()}~{qrcode}{''.join(rows[:2])}"
         libs.panel_cmd.entityUpd(self.panel.msg_out_queue, self.panel.sendTopic, result)
 
+class ChartCard(HACard):
+    """cardChart (bars) and cardLChart (line) from the recorder history of one numeric entity.
+
+    The chart is drawn when its page opens (the display redraws the whole chart on every update),
+    not on every state change of the entity.
+    """
+
+    def get_entities(self):
+        return [e.entity_id for e in self.navigation_entities()] + [self.iid]
+
+    def _span(self):
+        hours = self.config.get("hours", 24)
+        return datetime.timedelta(hours=hours if isinstance(hours, int) and 1 <= hours <= 24 * 31 else 24)
+
+    def render(self):
+        entity_id = self.config.get("entity", "")
+        data = libs.home_assistant.get_entity_data(entity_id) or {}
+        attributes = data.get("attributes") or {}
+        title = self.title or attributes.get("friendly_name", entity_id)
+        prefix = f"{title}~{self.gen_nav()}~"
+        colour = rgb_dec565(self.config.get("color") or [3, 169, 244])
+        y_label = str(self.config.get("yAxisLabel", attributes.get("unit_of_measurement", "")))
+        span = self._span()
+        end = datetime.datetime.now(datetime.timezone.utc)
+        start = end - span
+        points = [(when, value) for when, state in libs.home_assistant.get_history(entity_id, start, end)
+                  if (value := charts.to_float(state)) is not None]
+        try:
+            zone = ZoneInfo(self.panel.settings.get("timeZone", ""))
+        except (ZoneInfoNotFoundError, ValueError, TypeError, AttributeError):
+            zone = None
+        line = self.type == "cardLChart"
+        count = self.config.get("points" if line else "bars", 48 if line else 12)
+        count = count if isinstance(count, int) and 2 <= count <= 200 else (48 if line else 12)
+        aggregate = self.config.get("aggregate", "mean")
+        values = charts.buckets(points, start, end, count, aggregate if aggregate in charts.AGGREGATES else "mean")
+        step = span / count
+        local = lambda moment: moment.astimezone(zone) if zone else moment.astimezone()  # noqa: E731
+        if line:
+            minutes = int(span.total_seconds() // 60)
+            series = [(int((step * (i + 0.5)).total_seconds() // 60), v) for i, v in enumerate(values) if v is not None]
+            ticks = [(int((span / 4 * i).total_seconds() // 60), charts.time_label(local(start + span / 4 * i), span))
+                     for i in range(5) if (span / 4 * i).total_seconds() // 60 <= minutes]
+            body = charts.line_payload(series, ticks, y_label, colour, charts.LINE_COMMAND - 10 - len(prefix))
+        else:
+            every = charts.label_every(count)
+            labels = [charts.time_label(local(start + step * i), span) if i % every == 0 else "" for i in range(count)]
+            body = charts.bar_payload(values, labels, y_label, colour, charts.BAR_COMMAND - 10 - len(prefix))
+        libs.panel_cmd.entityUpd(self.panel.msg_out_queue, self.panel.sendTopic, prefix + body)
+
+
 class PowerCard(HACard):
     def __init__(self, locale, config, panel):
         super().__init__(locale, config, panel)
@@ -898,6 +951,8 @@ def card_factory(locale, settings, panel):
             card = AlarmCard(locale, settings, panel)
         case 'cardUnlock':
             card = UnlockCard(locale, settings, panel)
+        case 'cardChart' | 'cardLChart':
+            card = ChartCard(locale, settings, panel)
         case _:
             logging.error("card type %s not implemented", settings["type"])
             return "NotImplemented", None

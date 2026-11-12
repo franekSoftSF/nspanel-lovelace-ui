@@ -79,7 +79,7 @@ is broken, so you can fix it there.
 
 - **Panels and sections:** cards, hidden cards, screensaver, panel settings, global options and the whole
   file as YAML. Forms for every card type the integration can show: entities, grid, QR code, power
-  flow, media player, thermostat, alarm and unlock (PIN).
+  flow, media player, thermostat, alarm, unlock (PIN), bar chart and line chart.
 - **Cards:** add (choose the type), duplicate, delete (with a confirmation), reorder by dragging or with
   the arrow buttons (keyboard: Alt+↑ / Alt+↓). Entities of a card the same way; entity fields suggest
   your Home Assistant entities.
@@ -134,6 +134,30 @@ is broken, so you can fix it there.
   characters for the password.
 - The integration does not log the password: debug messages and diagnostics hide it. Home Assistant's
   own MQTT debug log (`homeassistant.components.mqtt`) prints every payload, the code included.
+
+## Charts
+
+```yaml
+- type: cardChart          # bars; cardLChart: a line
+  title: Power
+  entity: sensor.house_power
+  hours: 24                # time shown (1-744)
+  bars: 12                 # cardChart: 2-48 bars; cardLChart: points (2-200, default 48)
+  aggregate: mean          # mean | max | min | last | change (growth of an energy counter)
+  color: [255, 152, 0]
+  yAxisLabel: W            # default: the unit of the entity
+```
+
+- The data comes from the Home Assistant **recorder** (history), so the entity must be recorded.
+- The chart is drawn when its page opens, not on every state change.
+- Limits of the display firmware:
+  - The panel shows y values with one decimal.
+  - Bars cannot be negative (they start at 0).
+  - The highest bar must stay small, so bigger values are divided by 10, 100, … and the y label
+    shows the factor (e.g. `W ×100`: 16 on the axis = 1600 W).
+  - A bar chart command has at most 275 characters. If the bars do not fit, the oldest ones are left out.
+- This is the first version of the charts in this fork: the original project had only an unfinished
+  draft (`cardChart` with fixed values). Check them on your panel and report what looks wrong.
 
 ## Entities and notifications
 
@@ -220,6 +244,8 @@ MDI 7 icon fonts, publishing it and installing the package: [HMI/FIRMWARE.md](HM
 ## Changelog
 
 ### 5.2.8
+- **Charts:** `cardChart` (bars) and `cardLChart` (line) from the recorder history, with time labels,
+  the scaling the display needs, and forms in the card editor; see *Charts*.
 - Actions **`sleep_screen`** (screensaver at a brightness, 0 = screen off, until a touch or wake) and
   **`wake_screen`**, and the **Screen awake** switch per panel – for automations such as an armed
   alarm switching the screens off.
