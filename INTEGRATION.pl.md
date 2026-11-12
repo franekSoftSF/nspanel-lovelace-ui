@@ -242,6 +242,21 @@ wydanie i instalacja pakietu: [HMI/FIRMWARE.pl.md](HMI/FIRMWARE.pl.md).
 ## Historia zmian
 
 ### 5.2.8
+- **Każda karta i każde okno sprawdzone z kodem ekranu**, pole po polu (testy dla każdego widoku).
+  Poprawione:
+  - suwak prędkości wentylatora (wołał nieistniejącą akcję; teraz `fan.set_percentage`);
+  - zamknięcie okna na karcie innej niż pierwsza wracało do pierwszej karty;
+  - okno timera: nie wywraca się dla niedostępnego timera, nie gubi godzin (1:30:00 to 90:00), przy
+    pauzie ma Anuluj i Zakończ, bez dodatkowych wątków (odliczanie co sekundę, gdy okno jest otwarte);
+  - karta odtwarzacza: losowa kolejność (`shuffle_set`), przyciski wł./wył. i losowania dla właściwych
+    odtwarzaczy; brak odtwarzacza nie zatrzymuje karty; `~` w tytułach;
+  - karta alarmu: nieaktualne przyciski uzbrajania znikają po uzbrojeniu; przycisk otwartych czujników
+    pokazuje ich listę;
+  - karta termostatu: przejście z trybu z dwiema nastawami na jedną nie zostawia obu suwaków;
+  - karta energii: element ukryty filtrem stanu nie przesuwa pozostałych;
+  - karta PIN: kod porównywany jako tekst („0123” to nie „123”);
+  - rolety bez ustawiania pozycji nie dostają suwaka; puste przyciski trybów i listy z `?` albo `~` nie
+    wybierają złej opcji; długie listy są przycinane do tego, co mieści ekran.
 - **Wykresy:** `cardChart` (słupki) i `cardLChart` (linia) z historii rejestratora, z opisami czasu,
   skalowaniem wymaganym przez ekran i formularzami w edytorze kart; patrz *Wykresy*.
 - Akcje **`sleep_screen`** (wygaszacz z daną jasnością, 0 = ekran wyłączony, do dotknięcia albo

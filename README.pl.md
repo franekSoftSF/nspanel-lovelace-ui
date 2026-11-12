@@ -43,7 +43,7 @@ Material Design Icons 7 i kolorowymi obrazkami pogody.
   buzzer), akcje usypiania i budzenia ekranu do automatyzacji (np. ekran gaśnie po uzbrojeniu alarmu), aktualna strona i wybór karty – patrz [INTEGRATION.pl.md](INTEGRATION.pl.md).
 - **Poprawki zgłoszeń z oryginalnego projektu** (tabela niżej) i problemów znalezionych przy migracji
   prawdziwego panelu.
-- Testy z `pytest-homeassistant-custom-component` (185 testów), dokumentacja po angielsku i po polsku.
+- Testy z `pytest-homeassistant-custom-component` (200 testów), dokumentacja po angielsku i po polsku.
 
 ## Firmware ekranu: tylko model EU
 

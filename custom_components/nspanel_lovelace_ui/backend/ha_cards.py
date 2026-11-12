@@ -382,6 +382,18 @@ class HACard(panel_cards.Card):
     def navigation_entities(self):
         return [item for item in (self._nav_item(1), self._nav_item(2)) if item]
 
+    def send_update(self, result, layout=None):
+        """entityUpd; if the layout changed while the page is shown, open the page again first.
+
+        Some pages only ever show elements on an update and hide them when the page opens
+        (cardAlarm arm buttons, the cardThermo dual set point), so a smaller layout needs a fresh page.
+        """
+        previous = getattr(self, "_layout", None)
+        self._layout = layout
+        if layout is not None and previous is not None and previous != layout and self.panel.current_card is self:
+            libs.panel_cmd.page_type(self.panel.msg_out_queue, self.panel.sendTopic, self.type)
+        libs.panel_cmd.entityUpd(self.panel.msg_out_queue, self.panel.sendTopic, result)
+
     def navigation_up_icon(self):
         if not self.hidden:
             return None
@@ -586,7 +598,8 @@ class PowerCard(HACard):
     def render(self):
         result = f"{self.title}~{self.gen_nav()}"
         for e in self.entities:
-            result += e.render()
+            # A hidden item (state filters) still takes its 6 fields, or the next items would shift.
+            result += e.render() or "~delete~~~~~"
             speed_input = e.config.get("speed", 0)
             if isinstance(speed_input, str) and (speed_input.startswith("ha:") or "{{" in speed_input or "{%" in speed_input):
                 speed_input = libs.home_assistant.get_template(speed_input, e.entity_id)
@@ -606,24 +619,26 @@ class MediaCard(HACard):
     def render(self):
         main_entity = self.entities[0]
         media_icon = main_entity.render()
+        attributes = main_entity.attributes if isinstance(main_entity.attributes, dict) else {}  # [] if missing
         if not self.title:
-            self.title = main_entity.attributes.get("friendly_name", "unknown")
-        title = main_entity.attributes.get("media_title", "")
-        author = main_entity.attributes.get("media_artist", "")
-        volume = int(main_entity.attributes.get("volume_level", 0)*100)
+            self.title = attributes.get("friendly_name", main_entity.entity_id)
+        clean = lambda text: str(text or "").replace("~", "-")  # noqa: E731 - ~ separates the fields
+        title = clean(attributes.get("media_title"))
+        author = clean(attributes.get("media_artist"))
+        volume = int((attributes.get("volume_level") or 0) * 100)
         iconplaypause = get_icon_char("pause") if main_entity.state == "playing" else get_icon_char("play")
         onoffbutton = "disable"
         shuffleBtn = "disable"
 
-        bits = main_entity.attributes.get("supported_features")
-        if bits & 0b10000000:
+        bits = attributes.get("supported_features") or 0
+        if bits & (128 | 256):  # MediaPlayerEntityFeature.TURN_ON | TURN_OFF
             if main_entity.state == "off":
                 onoffbutton = 1374
             else:
                 onoffbutton = rgb_dec565([255,152,0])
 
-        if bits & 0b100000000000000:
-            shuffle = main_entity.attributes.get("shuffle", "")
+        if bits & 32768:  # MediaPlayerEntityFeature.SHUFFLE_SET
+            shuffle = attributes.get("shuffle", "")
             if shuffle == False:
                 shuffleBtn = get_icon_char('shuffle-disabled')
             elif shuffle == True:
@@ -655,11 +670,12 @@ class ClimateCard(HACard):
         main_entity.render()
         if not self.title:
             self.title = main_entity.attributes.get("friendly_name", "unknown")
-        current_temp = main_entity.attributes.get("current_temperature", "")
+        current_temp = main_entity.attributes.get("current_temperature")
+        current_temp = "" if current_temp is None else current_temp
         dest_temp    = main_entity.attributes.get("temperature", None)
         dest_temp2   = ""
         if dest_temp is None:
-            dest_temp    = main_entity.attributes.get("target_temp_high", 0)
+            dest_temp    = main_entity.attributes.get("target_temp_high") or 0
             dest_temp2   = main_entity.attributes.get("target_temp_low", None)
             if dest_temp2 != None and dest_temp2 != "null":
                 dest_temp2   = int(dest_temp2*10)
@@ -733,7 +749,7 @@ class ClimateCard(HACard):
             detailPage = "0"
 
         result = f"{self.title}~{self.gen_nav()}~iid.{main_entity.iid}~{current_temp} {temperature_unit}~{dest_temp}~{state_value}~{min_temp}~{max_temp}~{step_temp}{icon_res}~{currently_translation}~{state_translation}~{action_translation}~{temperature_unit_icon}~{dest_temp2}~{detailPage}"
-        libs.panel_cmd.entityUpd(self.panel.msg_out_queue, self.panel.sendTopic, result)
+        self.send_update(result, layout=dest_temp2 != "")  # dual set point only shows, never hides
 
 class AlarmCard(HACard):
     def __init__(self, locale, config, panel):
@@ -805,7 +821,8 @@ class AlarmCard(HACard):
         if len(supported_modes) < 4:
             arm_buttons += "~"*((4-len(supported_modes))*2)
         result = f"{self.title}~{self.gen_nav()}~{main_entity.entity_id}{arm_buttons}~{icon}~{color}~{numpad}~{flashing}~{add_btn}"
-        libs.panel_cmd.entityUpd(self.panel.msg_out_queue, self.panel.sendTopic, result)
+        # Arm buttons and the open sensors button only show on an update, never hide.
+        self.send_update(result, layout=(len(supported_modes), bool(add_btn)))
 
 
 class UnlockCard(HACard):
@@ -958,6 +975,35 @@ def card_factory(locale, settings, panel):
             return "NotImplemented", None
     return card.iid, card
 
+def option_list(options, limit):
+    """Options for the display's "?"-separated lists: no "?" or "~" inside an option (it would split the
+    list or the command), and only as many as fit into the display variable (indexes stay the same)."""
+    out, size = [], 0
+    for option in options or []:
+        text = str(option).replace("?", "").replace("~", "-")
+        if size + len(text.encode("utf-8")) + (1 if out else 0) > limit:
+            break
+        size += len(text.encode("utf-8")) + (1 if out else 0)
+        out.append(text)
+    return "?".join(out)
+
+
+def _clock(seconds):
+    """Minutes and seconds for the timer popup; hours count as minutes (1:30:00 -> 90:00)."""
+    seconds = max(0, int(round(seconds)))
+    return seconds // 60, seconds % 60
+
+
+def _duration_seconds(text):
+    try:
+        parts = [float(part) for part in str(text).split(":")]
+    except ValueError:
+        return 0
+    while len(parts) < 3:
+        parts.insert(0, 0.0)
+    return parts[-3] * 3600 + parts[-2] * 60 + parts[-1]
+
+
 def detail_open(locale, detail_type, ha_entity_id, entity_id, msg_out_queue, sendTopic=None, options_list=None):
     data = libs.home_assistant.get_entity_data(ha_entity_id)
     if data:
@@ -996,7 +1042,9 @@ def detail_open(locale, detail_type, ha_entity_id, entity_id, msg_out_queue, sen
             iconTiltRightStatus = "disable"
             tilt_pos = "disable"
 
-            bits = attributes.get("supported_features")
+            bits = attributes.get("supported_features") or 0
+            # The position slider only for covers that can go to a position (SUPPORT_SET_POSITION).
+            slider = pos if bits & 0b00000100 else "disable"
 
             # position supported
             if bits & 0b00001111:
@@ -1009,7 +1057,6 @@ def detail_open(locale, detail_type, ha_entity_id, entity_id, msg_out_queue, sen
                 if ( pos != 0 and not (state == "closed" and pos == "disable") ):
                     icon_down_status = "enable"
                 icon_down = ha_icons.get_action_icon(etype=entityType, action="close", device_class=device_class)
-            #if bits & 0b00000100: # SUPPORT_SET_POSITION
             if bits & 0b00001000: # SUPPORT_STOP
                 icon_stop = ha_icons.get_action_icon(etype=entityType, action="stop", device_class=device_class)
                 icon_stop_status = "enable"
@@ -1027,13 +1074,15 @@ def detail_open(locale, detail_type, ha_entity_id, entity_id, msg_out_queue, sen
                 iconTiltStop = get_icon_char('stop')
                 iconTiltStopStatus = "enable"
             if bits & 0b10000000: # SUPPORT_SET_TILT_POSITION
-                tilt_pos = attributes.get("current_tilt_position", 0)
+                tilt_pos = attributes.get("current_tilt_position")
+                if tilt_pos is None:
+                    tilt_pos = "disable"
                 if(tilt_pos == 0):
                     iconTiltRightStatus = "disable"
                 if(tilt_pos == 100):
                     iconTiltLeftStatus  = "disable"
 
-            return f'{entity_id}~{pos}~{pos_translation}: {pos_status}~{pos_translation}~{icon_id}~{icon_up}~{icon_stop}~{icon_down}~{icon_up_status}~{icon_stop_status}~{icon_down_status}~{textTilt}~{iconTiltLeft}~{iconTiltStop}~{iconTiltRight}~{iconTiltLeftStatus}~{iconTiltStopStatus}~{iconTiltRightStatus}~{tilt_pos}'
+            return f'{entity_id}~{slider}~{pos_translation}: {pos_status}~{pos_translation}~{icon_id}~{icon_up}~{icon_stop}~{icon_down}~{icon_up_status}~{icon_stop_status}~{icon_down_status}~{textTilt}~{iconTiltLeft}~{iconTiltStop}~{iconTiltRight}~{iconTiltLeftStatus}~{iconTiltStopStatus}~{iconTiltRightStatus}~{tilt_pos}'
 
         case 'popupLight' | 'light':
             switch_val = 1 if state == "on" else 0
@@ -1048,7 +1097,7 @@ def detail_open(locale, detail_type, ha_entity_id, entity_id, msg_out_queue, sen
             if state == "on":
                 if "brightness" in attributes and attributes.get("brightness"):
                     # scale 0-255 brightness from ha to 0-100
-                    brightness = int(scale(attributes.get("brightness"),(0,255),(0,100)))
+                    brightness = round(scale(attributes.get("brightness"),(0,255),(0,100)))
                 else:
                     brightness = "disable"
                 if "color_temp" in (attributes.get("supported_color_modes") or []):
@@ -1060,7 +1109,7 @@ def detail_open(locale, detail_type, ha_entity_id, entity_id, msg_out_queue, sen
                     color = "enable"
                 else:
                     color = "disable"
-                if "effect_list" in attributes:
+                if attributes.get("effect_list"):
                     effect_supported = "enable"
             color_translation      = "Color"
             brightness_translation = get_translation(locale, "frontend.ui.card.light.brightness")
@@ -1078,16 +1127,12 @@ def detail_open(locale, detail_type, ha_entity_id, entity_id, msg_out_queue, sen
                 if speed is None:
                     speed = 0
                 speed = round(speed/percentage_step)
-                speedMax = int(100/percentage_step)
+                speedMax = round(100/percentage_step)
 
             speed_translation = get_translation(locale, "frontend.ui.card.fan.speed")
 
-            preset_mode = attributes.get("preset_mode", "")
-            preset_modes = attributes.get("preset_modes", [])
-            if preset_modes is not None:
-                preset_modes = "?".join(attributes.get("preset_modes", []))
-            else:
-                preset_modes = ""
+            preset_mode = attributes.get("preset_mode") or ""
+            preset_modes = option_list(attributes.get("preset_modes"), 380)
 
             return f'{entity_id}~~{icon_color}~{switch_val}~{speed}~{speedMax}~{speed_translation}~{preset_mode}~{preset_modes}'
         case 'popupThermo' | 'climate':
@@ -1097,17 +1142,18 @@ def detail_open(locale, detail_type, ha_entity_id, entity_id, msg_out_queue, sen
             modes_out = ""
             for mode in ["preset_modes", "swing_modes", "fan_modes"]:
                 heading = get_translation(locale, f"frontend.ui.card.climate.{mode[:-1]}")
-                cur_mode = attributes.get(mode[:-1], "")
+                cur_mode = attributes.get(mode[:-1]) or ""
                 modes = attributes.get(mode, [])
                 if modes is not None:
                     if mode == "preset_modes":
                         translated_modes = []
                         for elem in modes:
                             translated_modes.append(get_translation(locale, f"frontend.state_attributes.climate.preset_mode.{elem}"))
-                        cur_mode = get_translation(locale, f"frontend.state_attributes.climate.preset_mode.{cur_mode}")
-                        modes_res = "?".join(translated_modes)
+                        if cur_mode:
+                            cur_mode = get_translation(locale, f"frontend.state_attributes.climate.preset_mode.{cur_mode}")
+                        modes_res = option_list(translated_modes, 120)
                     else:
-                        modes_res = "?".join(modes)
+                        modes_res = option_list(modes, 120)  # three lists share the 500 characters
                     if modes:
                         modes_out += f"{heading}~{mode}~{cur_mode}~{modes_res}~"
 
@@ -1132,51 +1178,40 @@ def detail_open(locale, detail_type, ha_entity_id, entity_id, msg_out_queue, sen
             elif hatype == "media_player":
                 state = attributes.get("source", "")
                 options = attributes.get("source_list", [])
-            options = "?".join(options)
+            state = "" if state is None else str(state).replace("~", "-")
+            options = option_list(options, 850)
             return f"{entity_id}~~{icon_color}~{hatype}~{state}~{options}~"
 
 
         case 'popupTimer' | 'timer':
+            # Refreshed every second by the panel while it is active (LovelaceUIPanel.on_time_tick).
             icon_color = ha_colors.get_entity_color("timer", state, attributes)
+            action1 = action2 = action3 = label1 = label2 = label3 = ""
+            editable = 0
             if state in ["idle", "paused"]:
-                editable = 1
-                if state == "paused":
-                    time_remaining = attributes.get("remaining")
-                else:
-                    time_remaining = attributes.get("duration")
-                min_remaining = time_remaining.split(":")[1]
-                sec_remaining = time_remaining.split(":")[2]
-                action1 = ""
+                editable = 1 if state == "idle" else 0
+                remaining = attributes.get("remaining") if state == "paused" else attributes.get("duration")
+                minutes, seconds = _clock(_duration_seconds(remaining))
                 action2 = "start"
-                action3 = ""
-                label1  = ""
-                label2  = get_translation(locale, "frontend.ui.card.timer.actions.start")
-                label3  = ""
-            else: #active
-                editable = 0
-
-                #update timer in a second
-                def update_time():
-                    time.sleep(1)
-                    out = detail_open(locale, detail_type, ha_entity_id, entity_id, msg_out_queue, sendTopic=sendTopic)
-                    libs.panel_cmd.entityUpdateDetail(msg_out_queue, sendTopic, out)
-                tt = threading.Thread(target=update_time, args=())
-                tt.daemon = True
-                tt.start()
-
-                finishes_at = datetime.datetime.fromisoformat(attributes.get("finishes_at"))
-                delta = finishes_at - datetime.datetime.now(datetime.timezone.utc)
-                hours, remainder = divmod(delta.total_seconds(), 3600)
-                minutes, seconds = divmod(remainder, 60)
-                min_remaining = int(minutes)
-                sec_remaining = int(seconds)
-                action1 = "pause"
-                action2 = "cancel"
-                action3 = "finish"
-                label1  = get_translation(locale, "frontend.ui.card.timer.actions.pause")
-                label2  = get_translation(locale, "frontend.ui.card.timer.actions.cancel")
-                label3  = get_translation(locale, "frontend.ui.card.timer.actions.finish")
-            return f'{entity_id}~~{icon_color}~{entity_id}~{min_remaining}~{sec_remaining}~{editable}~{action1}~{action2}~{action3}~{label1}~{label2}~{label3}'
+                label2 = get_translation(locale, "frontend.ui.card.timer.actions.start")
+                if state == "paused":
+                    action1, action3 = "cancel", "finish"
+                    label1 = get_translation(locale, "frontend.ui.card.timer.actions.cancel")
+                    label3 = get_translation(locale, "frontend.ui.card.timer.actions.finish")
+            elif state == "active" and attributes.get("finishes_at"):
+                try:
+                    finishes_at = datetime.datetime.fromisoformat(attributes["finishes_at"])
+                    left = (finishes_at - datetime.datetime.now(datetime.timezone.utc)).total_seconds()
+                except (TypeError, ValueError):
+                    left = _duration_seconds(attributes.get("remaining"))
+                minutes, seconds = _clock(left)
+                action1, action2, action3 = "pause", "cancel", "finish"
+                label1 = get_translation(locale, "frontend.ui.card.timer.actions.pause")
+                label2 = get_translation(locale, "frontend.ui.card.timer.actions.cancel")
+                label3 = get_translation(locale, "frontend.ui.card.timer.actions.finish")
+            else:  # unavailable, unknown: show 0:00 without buttons
+                minutes, seconds = 0, 0
+            return f'{entity_id}~~{icon_color}~{entity_id}~{minutes}~{seconds}~{editable}~{action1}~{action2}~{action3}~{label1}~{label2}~{label3}'
         case _:
             logging.error("popup type %s not implemented", detail_type)
             return "NotImplemented", None

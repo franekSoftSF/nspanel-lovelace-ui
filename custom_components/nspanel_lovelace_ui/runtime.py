@@ -183,8 +183,8 @@ class NSPanelRuntime:
             self._unsubs.append(mqtt.async_subscribe_connection_status(hass, self._on_mqtt_connection))
 
         self._unsubs.append(async_track_time_change(hass, self._on_minute, second=0))
-        if any(self._has_schedule(worker.settings) for worker in self.workers.values()):
-            self._unsubs.append(async_track_time_interval(hass, self._on_second, timedelta(seconds=1)))
+        # Brightness schedules and the countdown of an open timer popup.
+        self._unsubs.append(async_track_time_interval(hass, self._on_second, timedelta(seconds=1)))
 
         for worker in self.workers.values():
             worker.start()
@@ -292,7 +292,8 @@ class NSPanelRuntime:
     @callback
     def _on_second(self, now: datetime) -> None:  # noqa: ARG002
         for worker in self.workers.values():
-            if self._has_schedule(worker.settings):
+            panel = worker.panel
+            if self._has_schedule(worker.settings) or (panel is not None and panel.timer_popup_open):
                 worker.inbox.put(("TIME:", "second"))
 
     # --- outbound -----------------------------------------------------------------------

@@ -244,6 +244,20 @@ MDI 7 icon fonts, publishing it and installing the package: [HMI/FIRMWARE.md](HM
 ## Changelog
 
 ### 5.2.8
+- **Every card and popup checked against the display code**, field by field (tests per view). Fixed:
+  - fan speed slider (it called a non-existent action; now `fan.set_percentage`);
+  - closing a popup on a card other than the first one returned to the first card;
+  - timer popup: no longer fails for unavailable timers, keeps hours (1:30:00 shows 90:00), Cancel
+    and Finish when paused, no extra refresh threads (one countdown per second while it is open);
+  - media card: shuffle (`shuffle_set`) and the on/off and shuffle buttons appear for the right
+    players; a missing player no longer stops the card; `~` in titles;
+  - alarm card: arm buttons that are no longer valid disappear after arming; the open sensors
+    button shows the list of open sensors;
+  - thermostat card: switching from a two set point mode to one no longer keeps both controls;
+  - power card: an item hidden by a state filter no longer moves the others;
+  - unlock card: the PIN is compared as text ("0123" is not "123");
+  - covers without set position get no position slider; empty mode buttons and option lists with
+    `?` or `~` no longer select a wrong option; long lists are cut to what the display holds.
 - **Charts:** `cardChart` (bars) and `cardLChart` (line) from the recorder history, with time labels,
   the scaling the display needs, and forms in the card editor; see *Charts*.
 - Actions **`sleep_screen`** (screensaver at a brightness, 0 = screen off, until a touch or wake) and
