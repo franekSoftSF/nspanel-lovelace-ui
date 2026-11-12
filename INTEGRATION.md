@@ -130,6 +130,8 @@ is broken, so you can fix it there.
   `show: ssid_password` also shows it as text.
 - When the card has no `entities`, the panel shows the network name (and with `ssid_password` the
   password) next to the code.
+- The panel keeps at most 80 bytes of the code: a 32-character network name leaves about 30
+  characters for the password.
 - The integration does not log the password: debug messages and diagnostics hide it. Home Assistant's
   own MQTT debug log (`homeassistant.components.mqtt`) prints every payload, the code included.
 
@@ -195,6 +197,12 @@ and flash it with the **Display firmware** update entity of each panel. Building
 MDI 7 icon fonts, publishing it and installing the package: [HMI/FIRMWARE.md](HMI/FIRMWARE.md).
 
 ## Changelog
+
+### 5.2.7
+- **QR code missing on the panel** (Wi-Fi with the default `show: ssid`, or a `cardQR` with one entity):
+  the display firmware draws the code only with no rows or with two rows, so the integration now adds a
+  blank second row. Only the first two rows are sent (the card has two places).
+- Codes longer than the 80 bytes the panel keeps are a warning in the editor and in the log.
 
 ### 5.2.6
 - **Card editor – icon picker:** a gallery of the panel's icons (search by name and alias, Polish

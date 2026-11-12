@@ -14,6 +14,7 @@ SECURITY = ("WPA", "WEP", "nopass")
 SHOW = ("none", "ssid", "ssid_password")
 PASSWORD_SOURCES = ("password", "passwordEntity", "passwordSecret")
 SSID_MAX_BYTES = 32
+QR_MAX_BYTES = 80  # HMI cardQR keeps the code in vaQR (Max. Text Size 80)
 
 _SPECIAL = re.compile(r'([\\;,:"])')
 _FIELD = re.compile(r'([A-Z]+):((?:\\.|[^;\\])*);')

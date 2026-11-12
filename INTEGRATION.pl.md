@@ -129,6 +129,7 @@ gdy plik jest błędny, żeby można go było w nim poprawić.
 - Każdy przy panelu może zeskanować kod, więc panel zawsze pokazuje hasło w kodzie. `show: ssid_password`
   pokazuje je też jako tekst.
 - Gdy karta nie ma `entities`, panel pokazuje obok kodu nazwę sieci (a przy `ssid_password` także hasło).
+- Panel mieści najwyżej 80 bajtów kodu: przy 32-znakowej nazwie sieci zostaje około 30 znaków na hasło.
 - Integracja nie zapisuje hasła w logach: komunikaty debug i diagnostyka je ukrywają. Log debug samego
   MQTT w Home Assistant (`homeassistant.components.mqtt`) wypisuje każdą wiadomość, razem z kodem.
 
@@ -194,6 +195,12 @@ wgrywać go encją aktualizacji **Firmware ekranu** każdego panelu. Budowa firm
 wydanie i instalacja pakietu: [HMI/FIRMWARE.pl.md](HMI/FIRMWARE.pl.md).
 
 ## Historia zmian
+
+### 5.2.7
+- **Brak kodu QR na panelu** (Wi-Fi z domyślnym `show: ssid` albo `cardQR` z jedną encją): firmware
+  ekranu rysuje kod tylko bez wierszy albo z dwoma wierszami, więc integracja dodaje teraz pusty drugi
+  wiersz. Wysyłane są tylko dwa pierwsze wiersze (karta ma dwa miejsca).
+- Kody dłuższe niż 80 bajtów, które mieści panel, dają ostrzeżenie w edytorze i w logu.
 
 ### 5.2.6
 - **Edytor kart – wybór ikon:** galeria ikon panelu (wyszukiwanie po nazwie i aliasie, polskie słowa,
