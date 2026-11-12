@@ -23,7 +23,7 @@ from homeassistant.helpers.network import NoURLAvailableError, get_url
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.loader import async_get_integration
 
-from . import download
+from . import download, editor
 from .config import ConfigError, load_config, resolve_path
 from .const import (
     ATTR_PANEL,
@@ -164,6 +164,11 @@ def _apply_package(settings: dict[str, Any], package: FirmwarePackage, runtime: 
 
 async def async_setup_entry(hass: HomeAssistant, entry: NSPanelConfigEntry) -> bool:
     """Load panels.yaml and start one worker per panel."""
+    # The card editor comes first: it must work while the configuration is broken, to fix it.
+    await editor.async_setup_editor(hass)
+    if not hass.data.get(f"{DOMAIN}_panel") and "frontend" in hass.config.components:
+        hass.data[f"{DOMAIN}_panel"] = True
+        await editor.async_register_panel(hass)
     try:
         path = resolve_path(hass.config.config_dir, entry.data[CONF_CONFIG_FILE])
         settings, warnings = await hass.async_add_executor_job(load_config, path)
@@ -253,3 +258,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: NSPanelConfigEntry) -> 
         entry.runtime_data.http_state.package = None
         await entry.runtime_data.async_stop()
     return unloaded
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: NSPanelConfigEntry) -> None:  # noqa: ARG001
+    """The integration is deleted: the card editor leaves the sidebar."""
+    editor.async_remove_panel(hass)
+    hass.data.pop(f"{DOMAIN}_panel", None)
