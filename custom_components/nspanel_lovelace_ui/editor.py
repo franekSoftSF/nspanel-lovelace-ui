@@ -20,9 +20,12 @@ import yaml
 from homeassistant.components import frontend, panel_custom, websocket_api
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.exceptions import TemplateError
+from homeassistant.helpers.template import Template
 
 from . import editor_schema
-from .config import ConfigError, _parse_lenient, resolve_path
+from .backend import wifi as wifi_qr
+from .config import ConfigError, _parse_lenient, read_secrets, resolve_path
 from .const import CONF_CONFIG_FILE, DOMAIN
 
 PANEL_URL = "nspanel-lovelace-ui"
@@ -108,7 +111,8 @@ async def async_setup_editor(hass: HomeAssistant) -> None:
     hass.data[DATA_EDITOR] = True
     await hass.http.async_register_static_paths(
         [StaticPathConfig(STATIC_URL, str(FRONTEND_DIR), cache_headers=False)])
-    for command in (ws_load, ws_schema, ws_icons, ws_default_icons, ws_validate, ws_save, ws_reload, ws_yaml):
+    for command in (ws_load, ws_schema, ws_icons, ws_default_icons, ws_validate, ws_save, ws_reload, ws_yaml,
+                    ws_wifi):
         websocket_api.async_register_command(hass, command)
 
 
@@ -148,6 +152,19 @@ def _entity_ids(hass: HomeAssistant) -> set[str]:
     return set(hass.states.async_entity_ids())
 
 
+async def _secrets(hass: HomeAssistant) -> dict[str, Any]:
+    """secrets.yaml values; only their names leave the server (and a Wi-Fi QR preview for admins)."""
+    try:
+        path = _path(hass)
+    except (editor_schema.EditorError, ConfigError):
+        return {}
+    return await hass.async_add_executor_job(read_secrets, path, hass.config.config_dir)
+
+
+async def _issues(hass: HomeAssistant, config: Any) -> list:
+    return editor_schema.collect_issues(config, _entity_ids(hass), set(await _secrets(hass)))
+
+
 def _send_error(connection, msg_id: int, err: Exception) -> None:
     code = getattr(err, "code", "error")
     connection.send_error(msg_id, code, str(err))
@@ -166,8 +183,9 @@ async def ws_load(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
     data["path"] = _entry(hass).data[CONF_CONFIG_FILE]
     issues = []
     if data["config"] is not None:
-        issues = editor_schema.collect_issues(data["config"], _entity_ids(hass))
+        issues = await _issues(hass, data["config"])
     data["issues"] = [issue.as_dict() for issue in issues]
+    data["secrets"] = sorted(await _secrets(hass))  # names only
     connection.send_result(msg["id"], data)
 
 
@@ -200,9 +218,9 @@ def ws_default_icons(hass: HomeAssistant, connection, msg: dict[str, Any]) -> No
 @websocket_api.require_admin
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/editor/validate",
                                   vol.Required("config"): dict})
-@callback
-def ws_validate(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
-    issues = editor_schema.collect_issues(msg["config"], _entity_ids(hass))
+@websocket_api.async_response
+async def ws_validate(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    issues = await _issues(hass, msg["config"])
     connection.send_result(msg["id"], {"issues": [issue.as_dict() for issue in issues]})
 
 
@@ -238,7 +256,7 @@ async def ws_save(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
     except (editor_schema.EditorError, ConfigError) as err:
         _send_error(connection, msg["id"], err)
         return
-    issues = editor_schema.collect_issues(msg["config"], _entity_ids(hass))
+    issues = await _issues(hass, msg["config"])
     if any(issue.severity == "error" for issue in issues):
         connection.send_result(msg["id"], {"saved": False, "reason": "invalid",
                                            "issues": [issue.as_dict() for issue in issues]})
@@ -255,6 +273,61 @@ async def ws_save(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
     connection.send_result(msg["id"], {"saved": True, "revision": revision, "yaml": text,
                                        "issues": [issue.as_dict() for issue in issues],
                                        "backup": f"{entry.data[CONF_CONFIG_FILE]}.bak"})
+
+
+def _qr_svg(text: str) -> str:
+    import segno  # noqa: PLC0415 - only the editor preview needs it
+
+    return segno.make(text, error="m").svg_inline(scale=5, border=2, dark="#000", light="#fff")
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/editor/wifi",
+                                  vol.Optional("parse"): str, vol.Optional("wifi"): dict,
+                                  vol.Optional("text"): str})
+@websocket_api.async_response
+async def ws_wifi(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """QR card helper of the editor.
+
+    parse: WIFI: text -> wifi fields; text: plain qrCode -> QR preview (SVG);
+    wifi: fields -> QR preview with the real password, from the same source the panel uses (text,
+    template, entity or secret). Only the picture goes back, never the password, and nothing is logged.
+    """
+    if "parse" in msg:
+        connection.send_result(msg["id"], {"wifi": wifi_qr.parse(msg["parse"])})
+        return
+    if "text" in msg:
+        try:
+            svg = await hass.async_add_executor_job(_qr_svg, msg["text"][:2000])
+        except Exception:  # noqa: BLE001
+            svg = None
+        connection.send_result(msg["id"], {"svg": svg})
+        return
+    wifi = msg.get("wifi") or {}
+    security = wifi.get("security", "WPA")
+    password, source = "", None
+    if security != "nopass":
+        if wifi.get("password") not in (None, ""):
+            password, source = str(wifi["password"]), "password"
+            if password.startswith("ha:"):
+                try:
+                    password = str(Template(password[3:], hass).async_render(parse_result=False))
+                except TemplateError:
+                    password = ""
+        elif wifi.get("passwordEntity"):
+            state = hass.states.get(str(wifi["passwordEntity"]))
+            source = "passwordEntity"
+            password = state.state if state and state.state not in ("unknown", "unavailable") else ""
+        elif wifi.get("passwordSecret"):
+            source = "passwordSecret"
+            password = str((await _secrets(hass)).get(str(wifi["passwordSecret"]), ""))
+    text = wifi_qr.build(str(wifi.get("ssid", "")), security, password, wifi.get("hidden") is True)
+    try:
+        svg = await hass.async_add_executor_job(_qr_svg, text)
+    except Exception:  # noqa: BLE001 - e.g. segno missing or text too long
+        svg = None
+    connection.send_result(msg["id"], {"svg": svg, "source": source, "password": bool(password),
+                                       "length": len(text)})
 
 
 @websocket_api.require_admin

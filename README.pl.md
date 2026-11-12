@@ -41,7 +41,7 @@ Material Design Icons 7 i kolorowymi obrazkami pogody.
   buzzer), przycisk budzenia ekranu, aktualna strona i wybór karty – patrz [INTEGRATION.pl.md](INTEGRATION.pl.md).
 - **Poprawki zgłoszeń z oryginalnego projektu** (tabela niżej) i problemów znalezionych przy migracji
   prawdziwego panelu.
-- Testy z `pytest-homeassistant-custom-component` (146 testów), dokumentacja po angielsku i po polsku.
+- Testy z `pytest-homeassistant-custom-component` (168 testów), dokumentacja po angielsku i po polsku.
 
 ## Firmware ekranu: tylko model EU
 

@@ -23,7 +23,8 @@
     "custom_components.nspanel_lovelace_ui"
   ],
   "requirements": [
-    "babel>=2.14.0"
+    "babel>=2.14.0",
+    "segno>=1.6.0"
   ],
   "single_config_entry": true,
   "version": "5.2.6"

@@ -75,7 +75,7 @@ def _parse_lenient(text: str) -> tuple[dict[str, Any], list[str]]:
     return data, loader.duplicates
 
 
-def load_config(path: Path) -> tuple[dict[str, Any], list[str]]:
+def load_config(path: Path, config_dir: str | Path | None = None) -> tuple[dict[str, Any], list[str]]:
     """Parse and validate panels.yaml; returns the config and non-fatal warnings."""
     try:
         text = path.read_text(encoding="utf-8")
@@ -86,7 +86,58 @@ def load_config(path: Path) -> tuple[dict[str, Any], list[str]]:
     data, warnings = _parse_lenient(text)
     # One schema for loading and for the card editor (backend/config_schema.py).
     config = validate(data)
+    warnings += resolve_wifi_secrets(config, path, config_dir)
     return config, warnings
+
+
+def _secret_folders(path: Path, config_dir: str | Path | None) -> list[Path]:
+    """Where secrets.yaml may be, nearest first: next to panels.yaml, then the HA config folder."""
+    folders = [path.parent, Path(config_dir) if config_dir else path.parent.parent]
+    return list(dict.fromkeys(folders))
+
+
+def read_secrets(path: Path, config_dir: str | Path | None = None) -> dict[str, Any]:
+    """Blocking: secrets.yaml values (the nearest file wins). Never log the result."""
+    secrets: dict[str, Any] = {}
+    for folder in reversed(_secret_folders(path, config_dir)):
+        file = folder / "secrets.yaml"
+        if not file.is_file():
+            continue
+        try:
+            data = yaml.safe_load(file.read_text(encoding="utf-8"))
+        except (OSError, yaml.YAMLError):
+            continue  # Home Assistant reports a broken secrets.yaml itself
+        if isinstance(data, dict):
+            secrets.update({str(key): value for key, value in data.items()})
+    return secrets
+
+
+def wifi_settings(config: dict[str, Any]):
+    """The wifi: mappings of all cardQR cards (cards and hiddenCards, also top-level hiddenCards)."""
+    panels = config.get("nspanels") or {}
+    lists = [config.get("hiddenCards")] + [panel.get(key) for panel in panels.values() if isinstance(panel, dict)
+                                           for key in ("cards", "hiddenCards")]
+    for cards in lists:
+        for card in cards if isinstance(cards, list) else []:
+            if isinstance(card, dict) and card.get("type") == "cardQR" and isinstance(card.get("wifi"), dict):
+                yield card["wifi"]
+
+
+def resolve_wifi_secrets(config: dict[str, Any], path: Path, config_dir: str | Path | None = None) -> list[str]:
+    """Put wifi.passwordSecret values from secrets.yaml into wifi.password (in memory only)."""
+    wanted = [wifi for wifi in wifi_settings(config) if isinstance(wifi.get("passwordSecret"), str)
+              and wifi["passwordSecret"]]
+    if not wanted:
+        return []
+    secrets = read_secrets(path, config_dir)
+    warnings = []
+    for wifi in wanted:
+        name = wifi["passwordSecret"]
+        if name in secrets:
+            wifi["password"] = str(secrets[name])
+        else:
+            warnings.append(f"wifi.passwordSecret: {name} is not in secrets.yaml")
+    return warnings
 
 
 APPS_FOLDERS = ("appdaemon/apps", "apps")

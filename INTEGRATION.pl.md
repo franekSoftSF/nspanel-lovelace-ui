@@ -90,6 +90,11 @@ gdy plik jest błędny, żeby można go było w nim poprawić.
   **ikonę domyślną** (przerywana ramka, „Domyślna: …”), którą integracja dobiera według domeny, stanu i
   klasy urządzenia; *Użyj domyślnej* czyści pole. Nazwa, której nie ma w czcionce, daje ostrzeżenie
   (panel pokazałby `alert-circle-outline`).
+- **Karta QR – Wi-Fi:** przełącz *Zawartość kodu* między *Tekst / URL* a *Wi-Fi*. Dla Wi-Fi podaj nazwę
+  sieci, zabezpieczenia (WPA/WPA2/WPA3, WEP albo brak), hasło i *Sieć ukryta*; edytor tworzy
+  standardowy kod `WIFI:T:WPA;S:…;P:…;;` (ze znakami `\ ; , : "` poprzedzonymi `\`) i pokazuje go obok
+  formularza, więc można go zeskanować telefonem przed zapisem. Karta z gotowym kodem `WIFI:` proponuje
+  *Edytuj jako pola Wi-Fi* (import z AppDaemon zamienia go sam). Patrz *Kod QR Wi-Fi* niżej.
 - **Walidacja w trakcie pisania**, według tych samych reguł, których integracja używa przy wczytywaniu
   pliku: błędy pojawiają się przy polu (i na liście *Problemy* z odnośnikiem do pola) i blokują zapis;
   encja, której nie ma w Home Assistant albo jest innego typu, to tylko ostrzeżenie.
@@ -102,6 +107,30 @@ gdy plik jest błędny, żeby można go było w nim poprawić.
   niezapisanymi zmianami też wymaga potwierdzenia.
 - **Cofnij / ponów** (Ctrl+Z / Ctrl+Y), **wczytaj z pliku**, prosty podgląd karty.
 - Po angielsku i po polsku (według języka Home Assistant), motyw jasny i ciemny, układ na telefon.
+
+## Kod QR Wi-Fi
+
+```yaml
+- type: cardQR
+  title: Wi-Fi dla gości
+  wifi:
+    ssid: Goscie                 # wymagane, najwyżej 32 bajty
+    security: WPA                # WPA (WPA/WPA2/WPA3), WEP albo nopass
+    passwordSecret: wifi_goscie  # zalecane: z <config>/secrets.yaml
+    # password: jawny tekst (8-63 znaki dla WPA) albo szablon "ha: {{ … }}"
+    # passwordEntity: input_text.wifi_goscie
+    hidden: false
+    show: ssid                   # ssid | ssid_password | none: wiersze obok kodu
+```
+
+- Używaj jednego źródła hasła. Przy `passwordSecret` albo `passwordEntity` hasło nie trafia do
+  `panels.yaml`: integracja czyta je przy wczytywaniu z `secrets.yaml` (obok `panels.yaml` albo w folderze
+  konfiguracji Home Assistant) albo ze stanu encji.
+- Każdy przy panelu może zeskanować kod, więc panel zawsze pokazuje hasło w kodzie. `show: ssid_password`
+  pokazuje je też jako tekst.
+- Gdy karta nie ma `entities`, panel pokazuje obok kodu nazwę sieci (a przy `ssid_password` także hasło).
+- Integracja nie zapisuje hasła w logach: komunikaty debug i diagnostyka je ukrywają. Log debug samego
+  MQTT w Home Assistant (`homeassistant.components.mqtt`) wypisuje każdą wiadomość, razem z kodem.
 
 ## Encje i powiadomienia
 
@@ -173,6 +202,10 @@ wydanie i instalacja pakietu: [HMI/FIRMWARE.pl.md](HMI/FIRMWARE.pl.md).
   Zastępuje nieczytelny obrazek obok nazwy.
 - Nieznane nazwy ikon (których nie ma w czcionce panelu) dają ostrzeżenie przy polu zamiast cichego
   `alert-circle-outline` na panelu.
+- **Kody QR Wi-Fi:** `cardQR` z `wifi:` (SSID, zabezpieczenia, hasło jako tekst, szablon, z encji albo z
+  `secrets.yaml`, sieć ukryta, wiersze z siecią na panelu); walidacja długości SSID i hasła; podgląd do
+  zeskanowania w edytorze; rozpoznawanie gotowego kodu `WIFI:` (edytor i import). Hasła Wi-Fi są
+  ukryte w logu debug i w diagnostyce. Nowe wymaganie `segno` (podgląd).
 
 ### 5.2.5
 - **Edytor kart** w menu bocznym (administratorzy): formularze dla każdego typu karty, walidacja na

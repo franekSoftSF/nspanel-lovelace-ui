@@ -40,7 +40,7 @@ own **display firmware 55** with Material Design Icons 7 and colour weather pict
   page, buzzer), a wake-up button, the current page and a card selector – see [INTEGRATION.md](INTEGRATION.md).
 - **Fixes for issues of the original project** (table below) and for problems found while migrating a
   real panel.
-- Tests with `pytest-homeassistant-custom-component` (146 tests), documentation in English and Polish.
+- Tests with `pytest-homeassistant-custom-component` (168 tests), documentation in English and Polish.
 
 ## Display firmware: EU model only
 

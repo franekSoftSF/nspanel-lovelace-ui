@@ -1,8 +1,11 @@
 import logging
 
+from ..wifi import redact
+
+
 def custom_send(msg_out_queue, topic, msg):
     msg_out_queue.put((topic, msg))
-    logging.debug("Sent Message to NsPanel (%s): %s", topic, msg)
+    logging.debug("Sent Message to NsPanel (%s): %s", topic, redact(msg))  # no Wi-Fi passwords in the log
 
 
 def page_type(msg_out_queue, topic, target_page):

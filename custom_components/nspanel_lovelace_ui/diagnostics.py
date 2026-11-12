@@ -10,9 +10,10 @@ from homeassistant.loader import async_get_integration
 from . import NSPanelConfigEntry
 from .const import DOMAIN
 
-# Credentials the add-on format allowed in panels.yaml, plus personal entity names in sleep settings.
+# Credentials the add-on format allowed in panels.yaml, personal entity names in sleep settings, and
+# QR contents / Wi-Fi networks (a qrCode may hold a WIFI: string with the password).
 TO_REDACT = {"mqtt_password", "mqtt_username", "home_assistant_token", "password", "token", "pin",
-             "sleepTracking", "firmware_base_url"}
+             "sleepTracking", "firmware_base_url", "qrCode", "ssid"}
 
 
 async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: NSPanelConfigEntry) -> dict[str, Any]:

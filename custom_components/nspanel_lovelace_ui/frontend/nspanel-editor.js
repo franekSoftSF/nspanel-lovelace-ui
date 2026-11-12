@@ -40,6 +40,15 @@ const UI = {
     iconMore: "Show {n} more", iconNone: "No icons found.", iconCount: "{n} icons", iconRecentEmpty: "No recently used icons yet.",
     iconAliases: "also: {aliases}", iconFont: "Only icons the panel can show (MDI {version}).", iconDeprecated: "deprecated in MDI",
     iconTemplate: "template or text – no icon preview",
+    qrContent: "Code content", qrText: "Text / URL", qrWifiDetected: "This code is a Wi-Fi network.",
+    qrUseWifi: "Edit as Wi-Fi fields", qrPreviewLabel: "QR code preview", qrScan: "Scan with your phone to check the code.",
+    qrTemplate: "Templates (ha: …) are rendered on the panel only.", qrEmpty: "Enter the content of the code.",
+    qrNoPreview: "No preview available.", qrNoPassword: "No password yet: phones cannot join this network with the code.",
+    wifiSource: "Password from", srcText: "Typed here", srcEntity: "An entity (input_text, text, sensor)",
+    srcSecret: "secrets.yaml (recommended)",
+    wifiPlainWarning: "The password is stored as plain text in panels.yaml and anyone can read it from the code on the panel. To keep it out of the file, take it from secrets.yaml or an entity.",
+    wifiPanelWarning: "The password is not stored in panels.yaml, but anyone can read it from the code on the panel.",
+    showPassword: "Show password", hidePassword: "Hide password", wifiNetwork: "Network", wifiPassword: "Password",
   },
   pl: {
     title: "Karty NSPanel", save: "Zapisz", reload: "Przeładuj panele", undo: "Cofnij", redo: "Ponów",
@@ -74,6 +83,15 @@ const UI = {
     iconMore: "Pokaż jeszcze {n}", iconNone: "Nie znaleziono ikon.", iconCount: "Ikony: {n}", iconRecentEmpty: "Brak ostatnio używanych ikon.",
     iconAliases: "też: {aliases}", iconFont: "Tylko ikony, które panel umie pokazać (MDI {version}).", iconDeprecated: "wycofana w MDI",
     iconTemplate: "szablon albo tekst – bez podglądu ikony",
+    qrContent: "Zawartość kodu", qrText: "Tekst / URL", qrWifiDetected: "Ten kod to sieć Wi-Fi.",
+    qrUseWifi: "Edytuj jako pola Wi-Fi", qrPreviewLabel: "Podgląd kodu QR", qrScan: "Zeskanuj telefonem, żeby sprawdzić kod.",
+    qrTemplate: "Szablony (ha: …) są wyliczane dopiero na panelu.", qrEmpty: "Wpisz zawartość kodu.",
+    qrNoPreview: "Podgląd niedostępny.", qrNoPassword: "Brak hasła: telefon nie połączy się z siecią przez ten kod.",
+    wifiSource: "Hasło z", srcText: "Wpisane tutaj", srcEntity: "Encji (input_text, text, sensor)",
+    srcSecret: "secrets.yaml (zalecane)",
+    wifiPlainWarning: "Hasło zapisuje się jawnym tekstem w panels.yaml i każdy może je odczytać z kodu na panelu. Żeby nie trzymać go w pliku, pobierz je z secrets.yaml albo z encji.",
+    wifiPanelWarning: "Hasła nie ma w panels.yaml, ale każdy może je odczytać z kodu na panelu.",
+    showPassword: "Pokaż hasło", hidePassword: "Ukryj hasło", wifiNetwork: "Sieć", wifiPassword: "Hasło",
   },
 };
 
@@ -204,6 +222,7 @@ class NSPanelCardEditor extends HTMLElement {
     this._updateStatus();
     this._scheduleValidate();
     if (render) this._render();
+    else this._updateQr();
   }
 
   // --- data ------------------------------------------------------------------------------------
@@ -530,10 +549,85 @@ class NSPanelCardEditor extends HTMLElement {
       <select id="card-type" data-action="card-type" data-path='${esc(JSON.stringify([...base, "type"]))}'>${spec ? "" : `<option selected>${esc(card.type)}</option>`}${typeOptions}</select>
       <div class="issues" data-issue-for="${esc(pathKey([...base, "type"]))}" data-input="card-type"></div></div>`;
     if (!spec) return html;
-    html += this._formHtml(spec.fields, base, card, null, card.type);
+    const qr = card.type === "cardQR";
+    const fields = qr ? spec.fields.filter((f) => !["qrCode", "wifi"].includes(f.key)) : spec.fields;
+    html += this._formHtml(fields, base, card, null, card.type);
+    if (qr) html += this._qrHtml(base, card, spec);
     if (spec.items) html += this._itemsHtml([...base, "entities"], card.entities || [], card.type);
     html += `<section class="preview" aria-label="${esc(this.t("preview"))}"><h3>${esc(this.t("preview"))}</h3>${this._previewHtml(card)}</section>`;
     return html;
+  }
+
+  // QR card: text/URL or a Wi-Fi network (wifi: …), with a scannable preview ----------------------
+  _qrHtml(base, card, spec) {
+    const mode = card.wifi !== undefined ? "wifi" : "text";
+    const baseAttr = esc(JSON.stringify(base));
+    const radio = (value, label, icon) => `<label class="seg"><input type="radio" name="qr-mode" value="${value}" data-action="qr-mode" data-base='${baseAttr}' ${mode === value ? "checked" : ""}><ha-icon icon="${icon}"></ha-icon><span>${esc(label)}</span></label>`;
+    let body;
+    if (mode === "text") {
+      const field = spec.fields.find((f) => f.key === "qrCode");
+      const detected = typeof card.qrCode === "string" && card.qrCode.startsWith("WIFI:");
+      body = this._fieldHtml({ ...field, required: true }, [...base, "qrCode"], card.qrCode, null, "cardQR")
+        + (detected ? `<p class="note"><ha-icon icon="mdi:wifi"></ha-icon><span>${esc(this.t("qrWifiDetected"))}</span>
+            <button class="link" data-action="qr-mode" data-value="wifi" data-base='${baseAttr}'>${esc(this.t("qrUseWifi"))}</button></p>` : "");
+    } else {
+      body = this._wifiHtml([...base, "wifi"], card.wifi && typeof card.wifi === "object" ? card.wifi : {});
+    }
+    return `<fieldset class="qr-box"><legend>${esc(this.t("qrContent"))}</legend>
+        <div class="segmented" role="radiogroup" aria-label="${esc(this.t("qrContent"))}">${radio("text", this.t("qrText"), "mdi:link-variant")}${radio("wifi", "Wi-Fi", "mdi:wifi")}</div>
+        <div class="qr-layout"><div class="qr-form">${body}</div>
+          <figure class="qr-preview"><div class="qr-live qr-scan" role="img" aria-label="${esc(this.t("qrPreviewLabel"))}"><ha-icon icon="mdi:qrcode"></ha-icon></div>
+          <figcaption id="qr-caption">${esc(this.t("qrScan"))}</figcaption></figure></div>
+        <div class="issues" data-issue-for="${esc(pathKey([...base, "wifi"]))}"></div></fieldset>`;
+  }
+
+  _wifiSourceOf(path, wifi) {
+    for (const key of ["passwordEntity", "passwordSecret", "password"]) if (wifi[key] !== undefined) return key;
+    return this._wifiSources?.get(pathKey(path)) || "password";
+  }
+
+  _wifiHtml(path, wifi) {
+    const f = Object.fromEntries(this._schema.wifi.map((field) => [field.key, field]));
+    const at = (key) => [...path, key];
+    let html = `<div class="grid">${this._fieldHtml(f.ssid, at("ssid"), wifi.ssid)}${this._fieldHtml(f.security, at("security"), wifi.security)}</div>`;
+    if ((wifi.security || "WPA") !== "nopass") {
+      const source = this._wifiSourceOf(path, wifi);
+      const option = (value, label) => `<option value="${value}" ${source === value ? "selected" : ""}>${esc(label)}</option>`;
+      const input = source === "passwordEntity" ? this._fieldHtml(f.passwordEntity, at("passwordEntity"), wifi.passwordEntity)
+        : source === "passwordSecret" ? this._fieldHtml({ ...f.passwordSecret, kind: "secret" }, at("passwordSecret"), wifi.passwordSecret)
+          : this._fieldHtml({ ...f.password, kind: "password" }, at("password"), wifi.password);
+      html += `<div class="grid"><div class="field"><label for="wifi-source">${esc(this.t("wifiSource"))}</label>
+          <select id="wifi-source" data-action="wifi-source" data-path='${esc(JSON.stringify(path))}'>${option("password", this.t("srcText"))}${option("passwordEntity", this.t("srcEntity"))}${option("passwordSecret", this.t("srcSecret"))}</select></div>
+          ${input}</div>
+        <p class="note warning"><ha-icon icon="mdi:shield-alert-outline"></ha-icon><span>${esc(this.t(source === "password" ? "wifiPlainWarning" : "wifiPanelWarning"))}</span></p>`;
+    }
+    html += `<div class="grid">${this._fieldHtml(f.hidden, at("hidden"), wifi.hidden)}${this._fieldHtml(f.show, at("show"), wifi.show)}</div>`;
+    return html;
+  }
+
+  /** Scannable QR preview from the server (the same text the panel gets, password from its source). */
+  _updateQr() {
+    clearTimeout(this._qrTimer);
+    this._qrTimer = setTimeout(async () => {
+      const targets = [...this.shadowRoot.querySelectorAll(".qr-live")];
+      if (!targets.length || !this._config) return;
+      const card = (this._panelConf?.[this._section] || [])[this._cardIndex];
+      if (!card || card.type !== "cardQR") return;
+      const caption = this.shadowRoot.getElementById("qr-caption");
+      const wifi = card.wifi && typeof card.wifi === "object" ? card.wifi : null;
+      const text = typeof card.qrCode === "string" ? card.qrCode : card.qrCode == null ? "" : String(card.qrCode);
+      let note = "qrScan";
+      let result = null;
+      try {
+        if (wifi) result = await this.ws("wifi", { wifi });
+        else if (text && !text.startsWith("ha:")) result = await this.ws("wifi", { text });
+        else note = text ? "qrTemplate" : "qrEmpty";
+      } catch (err) { note = "qrNoPreview"; }
+      if (result && !result.svg) note = "qrNoPreview";
+      if (result && wifi && (wifi.security || "WPA") !== "nopass" && !result.password) note = "qrNoPassword";
+      targets.forEach((el) => { el.innerHTML = result?.svg || '<ha-icon icon="mdi:qrcode"></ha-icon>'; el.classList.toggle("empty-qr", !result?.svg); });
+      if (caption) { caption.textContent = this.t(note); caption.classList.toggle("warn", note !== "qrScan"); }
+    }, 300);
   }
 
   _itemsHtml(path, items, context) {
@@ -652,6 +746,16 @@ class NSPanelCardEditor extends HTMLElement {
           <span class="combo"><input type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="${id}-list" autocomplete="off" spellcheck="false" value="${esc(text)}" placeholder="${esc(def ? this.t("defaultIcon", { icon: def }) : "mdi:…")}" ${data} data-icons="1" data-entity="${esc(entity)}">
           <ul class="suggest" id="${id}-list" role="listbox" hidden></ul></span></span>`;
       }
+      case "password": {
+        const label = this.t("showPassword");
+        return `<span class="pw-input"><input type="password" autocomplete="new-password" spellcheck="false" value="${esc(value ?? "")}" ${data}>
+          <button type="button" class="icon small" data-action="pw-toggle" aria-pressed="false" aria-label="${esc(label)}" title="${esc(label)}"><ha-icon icon="mdi:eye-outline"></ha-icon></button></span>`;
+      }
+      case "secret": {
+        const names = this._file?.secrets || [];
+        return `<input type="text" list="nsp-secrets" autocomplete="off" spellcheck="false" value="${esc(value ?? "")}" placeholder="wifi_password" ${data}>
+          <datalist id="nsp-secrets">${names.map((n) => `<option value="${esc(n)}"></option>`).join("")}</datalist>`;
+      }
       case "color": {
         const hex = this._toHex(value);
         const text = Array.isArray(value) ? `[${value.join(", ")}]` : value && typeof value === "object" ? JSON.stringify(value) : value ?? "";
@@ -719,7 +823,14 @@ class NSPanelCardEditor extends HTMLElement {
       return `<div class="p-row"><span class="p-icon"><ha-icon icon="${esc(icon)}" ${own ? `data-own-icon="${esc(own)}"` : `data-default-icon-for="${esc(entity)}"`}></ha-icon></span><span class="p-name">${esc(typeof name === "string" ? name : "")}</span><span class="p-state">${esc(state ? state.state : "")}</span></div>`;
     }).join("");
     const main = card.entity ? this._hass.states[card.entity] : null;
-    const body = card.type === "cardQR" ? `<div class="p-qr"><ha-icon icon="mdi:qrcode"></ha-icon></div>${rows}`
+    // Wi-Fi: the panel shows the network (and the password, if chosen) when the card has no entities.
+    const wifi = card.type === "cardQR" && card.wifi && typeof card.wifi === "object" ? card.wifi : null;
+    const show = wifi ? wifi.show || "ssid" : "none";
+    const wifiRows = wifi && show !== "none" && !(Array.isArray(card.entities) && card.entities.length)
+      ? `<div class="p-row"><span class="p-icon"><ha-icon icon="mdi:wifi"></ha-icon></span><span class="p-name">${esc(this.t("wifiNetwork"))}</span><span class="p-state">${esc(wifi.ssid ?? "")}</span></div>`
+        + (show === "ssid_password" && (wifi.security || "WPA") !== "nopass" ? `<div class="p-row"><span class="p-icon"><ha-icon icon="mdi:key-variant"></ha-icon></span><span class="p-name">${esc(this.t("wifiPassword"))}</span><span class="p-state">••••••••</span></div>` : "")
+      : "";
+    const body = card.type === "cardQR" ? `<div class="p-qr-card"><div class="p-qr qr-live"><ha-icon icon="mdi:qrcode"></ha-icon></div><div class="p-qr-rows">${wifiRows}${rows}</div></div>`
       : main ? `<div class="p-big">${esc(main.attributes.friendly_name || card.entity)}<small>${esc(main.state)}</small></div>${rows}`
         : rows;
     return `<div class="screen ${card.type === "cardGrid" ? "grid-screen" : ""}" aria-hidden="true"><div class="p-title">${esc(card.title || "")}</div><div class="p-body">${body}</div></div>`;
@@ -1067,7 +1178,7 @@ class NSPanelCardEditor extends HTMLElement {
         if (option) this._setIconValue(el, option.dataset.name);
       });
     });
-    if (this._config) { this._fillDatalists(); this._loadDefaultIcons(); }
+    if (this._config) { this._fillDatalists(); this._loadDefaultIcons(); this._updateQr(); }
     // Icon names of the panel font: unknown icons show what the panel shows (alert-circle-outline).
     if (root.querySelector("input[data-icons]")) {
       this._iconData().then(() => {
@@ -1232,6 +1343,46 @@ class NSPanelCardEditor extends HTMLElement {
         break;
       }
       case "pick-icon": await this._openIconPicker(this.shadowRoot.getElementById(el.dataset.target)); break;
+      case "qr-mode": {
+        const card = this._get(JSON.parse(el.dataset.base));
+        const value = el.dataset.value || el.value;
+        if (!card || (value === "wifi") === (card.wifi !== undefined)) return;
+        this._snapshot();
+        if (value === "wifi") {
+          let parsed = null;  // a ready WIFI: code fills the fields
+          if (typeof card.qrCode === "string" && card.qrCode.startsWith("WIFI:")) {
+            try { parsed = (await this.ws("wifi", { parse: card.qrCode })).wifi; } catch (err) { /* start empty */ }
+          }
+          card.wifi = { ...(parsed || { ssid: "", security: "WPA" }), show: Array.isArray(card.entities) && card.entities.length ? "none" : "ssid" };
+          delete card.qrCode;
+        } else {
+          delete card.wifi;
+          card.qrCode = "";
+        }
+        this._changed({ render: true });
+        break;
+      }
+      case "wifi-source": {
+        const path = JSON.parse(el.dataset.path);
+        const wifi = this._get(path);
+        if (!wifi) return;
+        this._snapshot();
+        for (const key of ["password", "passwordEntity", "passwordSecret"]) delete wifi[key];
+        if (!this._wifiSources) this._wifiSources = new Map();
+        this._wifiSources.set(pathKey(path), el.value);
+        this._changed({ render: true });
+        break;
+      }
+      case "pw-toggle": {
+        const input = el.parentElement.querySelector("input");
+        const show = input.type === "password";
+        input.type = show ? "text" : "password";
+        const label = this.t(show ? "hidePassword" : "showPassword");
+        el.setAttribute("aria-pressed", String(show));
+        el.setAttribute("aria-label", label); el.title = label;
+        el.querySelector("ha-icon").setAttribute("icon", show ? "mdi:eye-off-outline" : "mdi:eye-outline");
+        break;
+      }
       case "card-up": this._moveCard(Number(el.dataset.index), Number(el.dataset.index) - 1); break;
       case "card-down": this._moveCard(Number(el.dataset.index), Number(el.dataset.index) + 1); break;
       case "card-duplicate": {
@@ -1525,6 +1676,30 @@ input[type=range] { width: 100%; accent-color: var(--primary-color); }
 .checks label, label.inline { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
 .icon-input, .color-input { display: flex; align-items: center; gap: 6px; }
 .icon-input { min-width: 0; }
+fieldset.qr-box { border: 1px solid var(--divider-color); border-radius: var(--radius); margin: 16px 0 0; padding: 12px; min-width: 0; }
+fieldset.qr-box legend { font-size: 13px; color: var(--secondary-text-color); font-weight: 500; }
+.segmented { display: inline-flex; border: 1px solid var(--divider-color); border-radius: 18px; overflow: hidden; margin-bottom: 12px; }
+.segmented .seg { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; cursor: pointer; font-size: 14px; --mdc-icon-size: 18px; }
+.segmented .seg + .seg { border-left: 1px solid var(--divider-color); }
+.segmented input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.segmented .seg:has(input:checked) { background: rgba(var(--rgb-primary-color, 3, 169, 244), .18); color: var(--primary-color); font-weight: 500; }
+.segmented .seg:has(input:focus-visible) { outline: 2px solid var(--primary-color); outline-offset: -2px; }
+.qr-layout { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 16px; align-items: start; }
+.qr-form > .grid + .grid, .qr-form > .note + .grid, .qr-form > .grid + .note { margin-top: 12px; }
+.qr-preview { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.qr-scan { width: 200px; height: 200px; background: #fff; border-radius: 8px; padding: 6px; display: flex; align-items: center; justify-content: center;
+  color: #999; --mdc-icon-size: 64px; border: 1px solid var(--divider-color); }
+.qr-live svg { width: 100%; height: 100%; display: block; }
+.qr-preview figcaption { font-size: 12px; color: var(--secondary-text-color); text-align: center; }
+.qr-preview figcaption.warn { color: var(--warning-color); }
+.note { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; padding: 8px 10px; border-radius: 8px; margin: 8px 0 0;
+  background: rgba(var(--rgb-primary-color, 3, 169, 244), .08); --mdc-icon-size: 20px; }
+.note.warning { background: rgba(255, 152, 0, .12); }
+.note.warning ha-icon { color: var(--warning-color); }
+.note span { flex: 1; }
+.pw-input { display: flex; align-items: center; gap: 4px; }
+.pw-input input { flex: 1; min-width: 0; }
+@container (max-width: 640px) { .qr-layout { grid-template-columns: minmax(0, 1fr); } .qr-preview { order: -1; } }
 button.icon-pick { flex: none; width: 40px; min-width: 40px; height: 40px; padding: 0; justify-content: center; border-radius: 8px;
   border: 1px solid var(--input-outlined-idle-border-color, var(--divider-color)); background: var(--input-fill-color, var(--secondary-background-color));
   color: var(--state-icon-color, var(--primary-text-color)); }
@@ -1599,7 +1774,9 @@ fieldset.items { border: 1px solid var(--divider-color); border-radius: var(--ra
 .p-name { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; } .p-state { color: #bbb; }
 .grid-screen .p-state { display: none; }
 .p-big { text-align: center; font-size: 22px; display: flex; flex-direction: column; } .p-big small { color: #bbb; font-size: 14px; }
-.p-qr { display: flex; justify-content: center; --mdc-icon-size: 96px; }
+.p-qr-card { display: flex; gap: 16px; align-items: center; flex: 1; }
+.p-qr { flex: none; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; --mdc-icon-size: 96px; background: #fff; border-radius: 4px; padding: 4px; color: #333; }
+.p-qr-rows { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 .empty { color: var(--secondary-text-color); padding: 24px; text-align: center; }
 .yaml textarea { min-height: 50vh; }
 .toasts { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 10; width: min(560px, calc(100% - 32px)); }
