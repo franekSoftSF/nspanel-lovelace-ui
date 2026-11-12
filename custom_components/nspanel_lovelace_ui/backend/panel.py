@@ -36,6 +36,8 @@ class LovelaceUIPanel:
         # Integration: called with the new card after every page switch (current card sensor).
         self.on_page_change = None
         self._last_dim_command = None
+        # Integration: screensaver brightness set by the sleep_screen action, until a touch or wake_screen.
+        self.forced_sleep = None
         self._active_detail = None
         self._last_detail_payload = None
         self.name = name_panel
@@ -242,6 +244,32 @@ class LovelaceUIPanel:
             self.msg_out_queue, self.sendTopic,
             f"{NOTIFY_ID}~{title}~65535~~~~~{message}~65535~{int(timeout)}")
 
+    def sleep_screen(self, brightness=0):
+        """Integration action: show the screensaver at this brightness (0 = dark) until woken.
+
+        The HMI applies the sleep brightness on the screensaver page (dimmode there sets
+        dim=dimValue), so the value goes out first and then the page switches.
+        """
+        if self.updater.active or self.screensaver is None:
+            return
+        self.forced_sleep = max(0, min(100, int(brightness)))
+        self.dimmode()
+        if self.current_card is not self.screensaver:
+            if self.current_card is not None:
+                self.privious_cards.append(self.current_card)
+            self.current_card = self.screensaver
+            self.render_current_page(switchPages=True)
+
+    def wake_screen(self):
+        """Integration action: like a touch on the screensaver (also with doubleTapToUnlock)."""
+        if self.updater.active:
+            return
+        if self.current_card is self.screensaver:
+            self.customrecv_event_callback("event,buttonPress2,screensaver,bExit,2")
+        if self.forced_sleep is not None:  # on a card already (or the screensaver is disabled)
+            self.forced_sleep = None
+            self.dimmode()
+
     def dimmode(self, only_if_changed=False):
         if self.updater.active:
             return
@@ -254,6 +282,8 @@ class LovelaceUIPanel:
             self.settings.get("sleepOverride"),
             timezone=self.settings.get("timeZone", "Europe/Berlin"),
         )
+        if self.forced_sleep is not None:
+            dimValue = self.forced_sleep
 
         backgroundColor = self.settings.get("defaultBackgroundColor", "ha-dark")
         if backgroundColor == "ha-dark":
@@ -358,6 +388,10 @@ class LovelaceUIPanel:
 
                     self.current_card = self.privious_cards.pop()
                     self.render_current_page(switchPages=True)
+                    if self.forced_sleep is not None and entity_id.startswith("screensaver"):
+                        # A touch ends a sleep_screen; the card page keeps full brightness.
+                        self.forced_sleep = None
+                        self.dimmode()
                     return
 
                 # replace iid with real entity id

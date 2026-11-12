@@ -131,6 +131,10 @@ class PanelWorker:
                     self.panel.on_time_tick(value)
                 elif kind == "NOTIFY:":
                     self.panel.show_notification(*value)
+                elif kind == "SLEEP:":
+                    self.panel.sleep_screen(value)
+                elif kind == "WAKE:":
+                    self.panel.wake_screen()
             except Exception:  # noqa: BLE001
                 _LOGGER.exception("Panel '%s' failed while handling %s", self.name, msg)
 
@@ -349,7 +353,7 @@ class NSPanelRuntime:
         """Show a card like a navigate.<iid> button would (the back button returns to the current one)."""
         self.worker_by_name(name).inbox.put(("MQTT:", f"event,buttonPress2,navigate.{iid},button"))
 
-    def _on_screensaver(self, name: str) -> bool:
+    def on_screensaver(self, name: str) -> bool:
         return self.panel_page.get(name, {}).get("type", "screensaver").startswith("screensaver")
 
     @callback
@@ -358,7 +362,7 @@ class NSPanelRuntime:
         """mode: screensaver (text on the screensaver), popup (notification page) or auto."""
         worker = self.worker_by_name(name)
         title, message = panel_text(title), panel_text(message)
-        if mode == "screensaver" or (mode == "auto" and self._on_screensaver(name)):
+        if mode == "screensaver" or (mode == "auto" and self.on_screensaver(name)):
             self._outbox.put_nowait((worker.settings["panelSendTopic"], f"notify~{title}~{message}"))
         else:
             worker.inbox.put(("NOTIFY:", (title, message, timeout)))
@@ -374,10 +378,14 @@ class NSPanelRuntime:
 
         Goes through the panel logic (the event a touch sends), not the HMI command 'wake': that one
         only clicks the screensaver's touch area and did not brighten the screen on a real panel.
-        On a card the screen is awake already.
+        Also ends a sleep_screen (on a card the screen is awake already).
         """
-        if self._on_screensaver(name):
-            self.worker_by_name(name).inbox.put(("MQTT:", "event,buttonPress2,screensaver,bExit,1"))
+        self.worker_by_name(name).inbox.put(("WAKE:", None))
+
+    @callback
+    def async_sleep(self, name: str, brightness: int = 0) -> None:
+        """Show the screensaver at this brightness (0 = dark) until a touch or async_wake."""
+        self.worker_by_name(name).inbox.put(("SLEEP:", brightness))
 
     @callback
     def async_buzzer(self, name: str, pattern: str = "2,2,2") -> None:

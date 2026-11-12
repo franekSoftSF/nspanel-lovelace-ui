@@ -42,3 +42,22 @@ notify:
       default: false
       selector:
         boolean:
+sleep_screen:
+  fields:
+    panel:
+      example: living_room
+      selector:
+        text:
+    brightness:
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 100
+          unit_of_measurement: "%"
+wake_screen:
+  fields:
+    panel:
+      example: living_room
+      selector:
+        text:

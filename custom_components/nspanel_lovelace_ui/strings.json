@@ -134,6 +134,30 @@
           "description": "Beep (Tasmota Buzzer 2,2,2)."
         }
       }
+    },
+    "sleep_screen": {
+      "name": "Sleep screen",
+      "description": "Shows the screensaver at the given brightness (0 = screen off) until someone touches the panel or the action Wake screen runs. Example: switch the screen off when the alarm is armed.",
+      "fields": {
+        "panel": {
+          "name": "Panel",
+          "description": "Panel name from panels.yaml. Empty: all panels."
+        },
+        "brightness": {
+          "name": "Brightness",
+          "description": "Screensaver brightness while asleep; 0 switches the screen off."
+        }
+      }
+    },
+    "wake_screen": {
+      "name": "Wake screen",
+      "description": "Like a touch on the screensaver: the panel shows its card at normal brightness and ends Sleep screen.",
+      "fields": {
+        "panel": {
+          "name": "Panel",
+          "description": "Panel name from panels.yaml. Empty: all panels."
+        }
+      }
     }
   },
   "issues": {
@@ -174,6 +198,11 @@
     "sensor": {
       "page": {
         "name": "Page"
+      }
+    },
+    "switch": {
+      "screen": {
+        "name": "Screen awake"
       }
     }
   },

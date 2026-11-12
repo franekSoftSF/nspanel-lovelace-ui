@@ -37,10 +37,10 @@ own **display firmware 55** with Material Design Icons 7 and colour weather pict
 - **Card editor** in the Home Assistant sidebar: forms for every card type, validation at the field while
   you type, Save (with backups) and Reload panels – no YAML needed. See [INTEGRATION.md](INTEGRATION.md#card-editor).
 - **Entities and notifications**: `notify.send_message` to the panel (screensaver text or a notification
-  page, buzzer), a wake-up button, the current page and a card selector – see [INTEGRATION.md](INTEGRATION.md).
+  page, buzzer), sleep and wake actions for automations (e.g. screen off when the alarm is armed), the current page and a card selector – see [INTEGRATION.md](INTEGRATION.md).
 - **Fixes for issues of the original project** (table below) and for problems found while migrating a
   real panel.
-- Tests with `pytest-homeassistant-custom-component` (173 tests), documentation in English and Polish.
+- Tests with `pytest-homeassistant-custom-component` (175 tests), documentation in English and Polish.
 
 ## Display firmware: EU model only
 

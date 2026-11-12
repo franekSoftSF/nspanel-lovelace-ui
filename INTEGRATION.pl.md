@@ -141,6 +141,7 @@ Każdy panel to urządzenie z encjami:
 |---|---|
 | **Powiadomienie** (`notify`) | `notify.send_message`: na wygaszaczu tekst zastępuje pogodę do dotknięcia; na karcie otwiera stronę powiadomienia |
 | **Obudź ekran** (`button`) | jak dotknięcie wygaszacza |
+| **Ekran wybudzony** (`switch`) | włączony: widać kartę; wyłączony: wygaszacz. Wyłączenie gasi ekran (jasność 0) do dotknięcia |
 | **Strona** (`sensor`) | `screensaver` albo tytuł karty na ekranie (atrybuty `card_type`, `card_key`) |
 | **Karta** (`select`) | pokazuje kartę, np. kamerę po dzwonku; przycisk wstecz wraca do poprzedniej karty |
 | **Firmware ekranu** (`update`) | aktualizacja firmware ekranu z postępem |
@@ -157,6 +158,26 @@ data:
   timeout: 60             # tylko strona powiadomienia, sekundy; 0 = do zamknięcia
   buzzer: true            # Tasmota: Buzzer 2,2,2
 ```
+
+Usypianie i budzenie ekranu w automatyzacjach, np. ekran gaśnie po uzbrojeniu alarmu:
+
+```yaml
+triggers:
+  - trigger: state
+    entity_id: alarm_control_panel.satel_wszystkie
+    to: armed_away
+actions:
+  - action: nspanel_lovelace_ui.sleep_screen
+    data:
+      panel: nspanel-1    # opcjonalnie, puste = wszystkie panele
+      brightness: 0       # jasność wygaszacza podczas uśpienia; 0 = ekran wyłączony
+```
+
+- `nspanel_lovelace_ui.sleep_screen` pokazuje wygaszacz z tą jasnością. Zostaje tak, dopóki ktoś nie
+  dotknie panelu (dotknięcie budzi go jak zwykle) albo nie zostanie wywołana
+  `nspanel_lovelace_ui.wake_screen`; potem znowu obowiązują zwykłe ustawienia jasności.
+- `nspanel_lovelace_ui.wake_screen` działa jak dotknięcie wygaszacza, także przy `doubleTapToUnlock`.
+- Przełącznik **Ekran wybudzony** robi to samo, a jego stan może wyzwalać automatyzacje.
 
 Diagnostyka do zgłoszenia błędu: Ustawienia → Urządzenia i usługi → NSPanel Lovelace UI → ⋮ → *Pobierz diagnostykę*.
 
@@ -195,6 +216,11 @@ wgrywać go encją aktualizacji **Firmware ekranu** każdego panelu. Budowa firm
 wydanie i instalacja pakietu: [HMI/FIRMWARE.pl.md](HMI/FIRMWARE.pl.md).
 
 ## Historia zmian
+
+### 5.2.8
+- Akcje **`sleep_screen`** (wygaszacz z daną jasnością, 0 = ekran wyłączony, do dotknięcia albo
+  wybudzenia) i **`wake_screen`** oraz przełącznik **Ekran wybudzony** dla każdego panelu – do
+  automatyzacji, np. uzbrojony alarm gasi ekrany.
 
 ### 5.2.7
 - **Brak kodu QR na panelu** (Wi-Fi z domyślnym `show: ssid` albo `cardQR` z jedną encją): firmware
