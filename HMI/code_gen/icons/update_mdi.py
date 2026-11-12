@@ -5,6 +5,8 @@
 Writes
   - HMI/code_gen/icons/icons.json (icon name -> code point table, reference)
   - custom_components/nspanel_lovelace_ui/backend/libs/icon_mapping.py (the integration)
+  - custom_components/nspanel_lovelace_ui/frontend/mdi-icons.json (the card editor's icon picker:
+    names, aliases and categories of the icons in the panel font)
 The mapping contains every MDI name and alias (aliases keep renamed icons working). Names MDI
 removed without an alias are dropped (they fall back to alert-circle-outline): MDI 7 reused some
 of their code points, so keeping them would show unrelated icons (google-home -> receipt).
@@ -24,6 +26,7 @@ import mdi  # noqa: E402
 
 ICONS_JSON = HERE / "icons.json"
 MAPPING = ROOT / "custom_components" / "nspanel_lovelace_ui" / "backend" / "libs" / "icon_mapping.py"
+EDITOR_ICONS = ROOT / "custom_components" / "nspanel_lovelace_ui" / "frontend" / "mdi-icons.json"
 DICT_START = "icons = {\n"
 DICT_END = "}\n"
 
@@ -43,6 +46,20 @@ def render_dict(mapping: dict[str, int]) -> str:
     return "".join(lines)
 
 
+def editor_icons(icons: list[dict], meta: list[dict]) -> dict:
+    """Compact picker data: [name, "alias alias", [tag indexes], deprecated?] per icon."""
+    tags = sorted({tag for item in meta for tag in item.get("tags") or []})
+    index = {tag: number for number, tag in enumerate(tags)}
+    tags_of = {item["name"]: sorted(index[tag] for tag in item.get("tags") or []) for item in meta}
+    rows = []
+    for icon in icons:
+        row = [icon["name"], " ".join(icon["aliases"]), tags_of.get(icon["name"], [])]
+        if icon["deprecated"]:
+            row.append(1)
+        rows.append(row)
+    return {"mdi": mdi.MDI_VERSION, "tags": tags, "icons": rows}
+
+
 def main() -> int:
     icons = mdi.load_meta()
     mapping = build_mapping(icons)
@@ -53,6 +70,10 @@ def main() -> int:
     ICONS_JSON.write_text(json.dumps(
         [{"name": name, "hex": f"{cp:04X}"} for name, cp in sorted(entries.items())],
         indent=3, separators=(",", ":")), encoding="utf-8", newline="\n")
+
+    meta = json.loads(mdi.fetch("meta.json").read_text(encoding="utf-8"))
+    EDITOR_ICONS.write_text(json.dumps(editor_icons(icons, meta), ensure_ascii=False, separators=(",", ":")) + "\n",
+                            encoding="utf-8", newline="\n")
 
     source = MAPPING.read_text(encoding="utf-8")
     start = source.index(DICT_START)

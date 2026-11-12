@@ -14,6 +14,7 @@ import re
 from typing import Any
 from urllib.parse import urlsplit
 
+from . import wifi as wifi_qr
 from .libs.brightness import validate_brightness
 
 # --- schema ---------------------------------------------------------------------------------
@@ -40,6 +41,22 @@ SCREENSAVER_TYPES = ["screensaver", "screensaver2", "screensaver3"]
 FONTS = ["small", "medium", "medium-icon", "large", "large-icon"]
 PSEUDO_PREFIXES = ("navigate.", "iText.", "service.")
 PSEUDO_ENTITIES = ("delete",)
+WIFI_FIELDS = [
+    F("ssid", "string", L("Network name (SSID)", "Nazwa sieci (SSID)"), required=True),
+    F("security", "select", L("Security", "Zabezpieczenia"), default="WPA",
+      options=[O("WPA", "WPA/WPA2/WPA3", "WPA/WPA2/WPA3"), O("WEP", "WEP (old)", "WEP (stare)"),
+               O("nopass", "None (open network)", "Brak (sieć otwarta)")]),
+    F("password", "string", L("Password", "Hasło")),
+    F("passwordEntity", "entity", L("Password from entity", "Hasło z encji"),
+      domains=["input_text", "text", "sensor"]),
+    F("passwordSecret", "string", L("Password from secrets.yaml", "Hasło z secrets.yaml")),
+    F("hidden", "bool", L("Hidden network", "Sieć ukryta"), default=False),
+    F("show", "select", L("Show next to the code", "Pokaż obok kodu"), default="ssid",
+      help=L("Rows on the panel when the card has no entities", "Wiersze na panelu, gdy karta nie ma encji"),
+      options=[O("ssid", "Network name", "Nazwa sieci"),
+               O("ssid_password", "Network name and password", "Nazwa sieci i hasło"),
+               O("none", "Nothing", "Nic")]),
+]
 HVAC_MODES = ["off", "heat", "cool", "heat_cool", "auto", "dry", "fan_only"]
 ALARM_MODES = ["arm_home", "arm_away", "arm_night", "arm_vacation"]
 THEME_KEYS = ["background", "time", "timeAMPM", "date", "tMainText", "tForecast1", "tForecast2", "tForecast3",
@@ -91,9 +108,13 @@ CARDS: dict[str, dict[str, Any]] = {
                  "fields": COMMON_CARD_FIELDS + NAV_FIELDS, "items": True},
     "cardQR": {"label": L("QR code", "Kod QR"), "icon": "mdi:qrcode",
                "fields": COMMON_CARD_FIELDS + [
-                   F("qrCode", "template", L("QR content", "Treść kodu QR"), required=True,
-                     help=L("e.g. WIFI:S:MyNet;T:WPA;P:secret;; or ha: template",
-                            "np. WIFI:S:MojaSiec;T:WPA;P:haslo;; albo szablon ha:"))] + NAV_FIELDS,
+                   F("qrCode", "template", L("QR content", "Treść kodu QR"),
+                     help=L("Text or URL, or a template (ha: …); not needed with wifi",
+                            "Tekst albo adres URL, albo szablon (ha: …); niepotrzebne przy wifi")),
+                   F("wifi", "wifi", L("Wi-Fi network", "Sieć Wi-Fi"),
+                     help=L("Builds WIFI:T:…;S:…;P:…;; – phones join the network by scanning the code",
+                            "Tworzy WIFI:T:…;S:…;P:…;; – telefon łączy się z siecią po zeskanowaniu kodu"))]
+               + NAV_FIELDS,
                "items": True},
     "cardPower": {"label": L("Power flow", "Przepływ energii"), "icon": "mdi:transmission-tower",
                   "fields": COMMON_CARD_FIELDS + NAV_FIELDS, "items": True},
@@ -213,7 +234,32 @@ MESSAGES = {
     "items_empty": L("This card shows nothing without entities.", "Bez encji ta karta nic nie pokaże."),
     "color": L("Use [r, g, b], #rrggbb or a number.", "Użyj [r, g, b], #rrggbb albo liczby."),
     "firmware_url": L("Must be an http:// URL without spaces or ;.", "Musi być adresem http:// bez spacji i ;."),
+    "wifi_ssid_long": L("At most 32 bytes (UTF-8).", "Najwyżej 32 bajty (UTF-8)."),
+    "wifi_wpa_length": L("A WPA password has 8–63 characters (or 64 hex digits).",
+                         "Hasło WPA ma 8–63 znaki (albo 64 cyfry szesnastkowe)."),
+    "wifi_wep_length": L("A WEP key has 5 or 13 characters (or 10 or 26 hex digits).",
+                         "Klucz WEP ma 5 albo 13 znaków (albo 10 lub 26 cyfr szesnastkowych)."),
+    "wifi_password_sources": L("Use only one of: password, passwordEntity, passwordSecret.",
+                               "Użyj tylko jednego z: password, passwordEntity, passwordSecret."),
+    "wifi_password_missing": L("A secured network needs a password.", "Zabezpieczona sieć wymaga hasła."),
+    "wifi_password_ignored": L("An open network has no password; it is ignored.",
+                               "Sieć otwarta nie ma hasła; zostanie pominięte."),
+    "wifi_tilde": L("The character ~ cannot be sent to the panel.", "Znaku ~ nie da się wysłać do panelu."),
+    "wifi_qr_ignored": L("Ignored: the code is built from wifi.", "Pomijane: kod powstaje z wifi."),
+    "secret_missing": L("{name} is not in secrets.yaml.", "Brak {name} w secrets.yaml."),
+    "icon_unknown": L("{icon} is not in the panel icon font (MDI 7.4.47); the panel shows alert-circle-outline.",
+                      "Ikony {icon} nie ma w foncie panelu (MDI 7.4.47); panel pokaże alert-circle-outline."),
 }
+
+ICON_PREFIXES = ("ha:", "text:")  # templates and plain text are not font icons
+
+
+def icon_known(value: str) -> bool:
+    """True if the panel font has this icon (mdi:name or name), or the value is not an icon name."""
+    from .libs.icon_mapping import icons
+
+    text = value.strip()
+    return not text or text.startswith(ICON_PREFIXES) or text.removeprefix("mdi:") in icons
 
 
 def schema_json() -> dict[str, Any]:
@@ -221,7 +267,8 @@ def schema_json() -> dict[str, Any]:
     return {"version": 1, "global": GLOBAL_FIELDS, "panel": PANEL_FIELDS, "screensaver": SCREENSAVER_FIELDS,
             "screensaver_types": SCREENSAVER_TYPES, "cards": CARDS, "card_types": CARD_TYPES,
             "item": ITEM_FIELDS, "fonts": FONTS, "theme_keys": THEME_KEYS, "messages": MESSAGES,
-            "pseudo_prefixes": list(PSEUDO_PREFIXES), "pseudo_entities": list(PSEUDO_ENTITIES)}
+            "pseudo_prefixes": list(PSEUDO_PREFIXES), "pseudo_entities": list(PSEUDO_ENTITIES),
+            "wifi": WIFI_FIELDS}
 
 
 # --- validation -----------------------------------------------------------------------------
@@ -247,9 +294,10 @@ _HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
 
 
 class _Checker:
-    def __init__(self, entity_ids: set[str] | None) -> None:
+    def __init__(self, entity_ids: set[str] | None, secret_names: set[str] | None = None) -> None:
         self.issues: list[Issue] = []
         self.entity_ids = entity_ids
+        self.secret_names = secret_names
 
     def add(self, path, code, severity="error", **params):
         self.issues.append(Issue(list(path), code, severity, params))
@@ -261,8 +309,11 @@ class _Checker:
                 self.add(path, "required")
             return
         if kind in ("string", "template", "navigate", "icon"):
-            if kind == "icon" and isinstance(value, dict):
-                return  # state -> icon map
+            if kind == "icon" and isinstance(value, dict):  # state -> icon map
+                for state, icon in value.items():
+                    if isinstance(icon, str) and not icon_known(icon):
+                        self.add([*path, state], "icon_unknown", "warning", icon=icon)
+                return
             if isinstance(value, (dict, list)) or (kind in ("navigate", "icon") and not isinstance(value, str)):
                 self.add(path, "type_string")
                 return
@@ -271,6 +322,8 @@ class _Checker:
                 self.add(path, "required")
             if spec.get("pattern") and not re.match(spec["pattern"], text):
                 self.add(path, "pattern")
+            if kind == "icon" and not icon_known(text):
+                self.add(path, "icon_unknown", "warning", icon=text)
         elif kind == "int":
             if type(value) is not int:
                 self.add(path, "type_int")
@@ -370,9 +423,10 @@ class _Checker:
             self.field([*path, spec["key"]], spec, value)
 
 
-def collect_issues(config: Any, entity_ids: set[str] | None = None) -> list[Issue]:
+def collect_issues(config: Any, entity_ids: set[str] | None = None,
+                   secret_names: set[str] | None = None) -> list[Issue]:
     """All problems of a configuration; entity_ids enables 'does not exist' warnings."""
-    check = _Checker(entity_ids)
+    check = _Checker(entity_ids, secret_names)
     if not isinstance(config, dict):
         check.add([], "type_mapping")
         return check.issues
@@ -476,13 +530,16 @@ def _cards(check: _Checker, base: list, panel: dict, config: dict) -> set[str]:
                 continue
             spec = CARDS[card_type]
             check.fields(card_path, spec["fields"], card)
+            if card_type == "cardQR":
+                _qr(check, card_path, card)
             entities = card.get("entities", [])
             if not isinstance(entities, list):
                 check.add([*card_path, "entities"], "type_list")
             else:
                 for item_index, item in enumerate(entities):
                     check.item([*card_path, "entities", item_index], item, card_type)
-                if spec["items"] and not entities and not card.get("entity"):
+                wifi_rows = isinstance(card.get("wifi"), dict) and card["wifi"].get("show", "ssid") != "none"
+                if spec["items"] and not entities and not card.get("entity") and not wifi_rows:
                     check.add([*card_path, "entities"], "items_empty", "warning")
             key = card.get("key")
             if isinstance(key, str) and key:
@@ -490,6 +547,52 @@ def _cards(check: _Checker, base: list, panel: dict, config: dict) -> set[str]:
                     check.add([*card_path, "key"], "duplicate_key", "warning", value=key)
                 keys.setdefault(key, card_path)
     return set(keys)
+
+
+def _qr(check: _Checker, path: list, card: dict) -> None:
+    """cardQR: a qrCode or a wifi network (WIFI_FIELDS)."""
+    wifi = card.get("wifi")
+    if wifi is None:
+        if card.get("qrCode") in (None, ""):
+            check.add([*path, "qrCode"], "required")
+        return
+    path = [*path, "wifi"]
+    if not isinstance(wifi, dict):
+        check.add(path, "type_mapping")
+        return
+    if card.get("qrCode") not in (None, ""):
+        check.add([*path[:-1], "qrCode"], "wifi_qr_ignored", "warning")
+    check.fields(path, WIFI_FIELDS, wifi)
+    ssid = wifi.get("ssid")
+    if isinstance(ssid, (str, int, float)) and not isinstance(ssid, bool):
+        ssid = str(ssid)
+        if len(ssid.encode("utf-8")) > wifi_qr.SSID_MAX_BYTES:
+            check.add([*path, "ssid"], "wifi_ssid_long")
+        if "~" in ssid:
+            check.add([*path, "ssid"], "wifi_tilde")
+    security = wifi.get("security", "WPA")
+    sources = [key for key in wifi_qr.PASSWORD_SOURCES if wifi.get(key) not in (None, "")]
+    if security == "nopass":
+        for key in sources:
+            check.add([*path, key], "wifi_password_ignored", "warning")
+        return
+    if len(sources) > 1:
+        for key in sources:
+            check.add([*path, key], "wifi_password_sources")
+    if not sources:
+        check.add([*path, "password"], "wifi_password_missing", "warning")
+    password = wifi.get("password")
+    if isinstance(password, (int, float)) and not isinstance(password, bool):
+        password = str(password)
+    if isinstance(password, str) and password and security in wifi_qr.SECURITY:
+        problem = wifi_qr.password_problem(security, password)
+        if problem:
+            check.add([*path, "password"], problem)
+        if "~" in password:
+            check.add([*path, "password"], "wifi_tilde")
+    secret = wifi.get("passwordSecret")
+    if isinstance(secret, str) and secret and check.secret_names is not None and secret not in check.secret_names:
+        check.add([*path, "passwordSecret"], "secret_missing", "warning", name=secret)
 
 
 def _navigate_targets(panel: dict, base: list):

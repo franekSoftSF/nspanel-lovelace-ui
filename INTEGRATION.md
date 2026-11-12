@@ -82,7 +82,19 @@ is broken, so you can fix it there.
   flow, media player, thermostat, alarm and unlock (PIN).
 - **Cards:** add (choose the type), duplicate, delete (with a confirmation), reorder by dragging or with
   the arrow buttons (keyboard: Alt+↑ / Alt+↓). Entities of a card the same way; entity fields suggest
-  your Home Assistant entities, icon fields the icons the panel font contains (MDI 7), with a preview.
+  your Home Assistant entities.
+- **Icons:** every icon field shows the icon the panel will show. Click it to choose from a gallery of
+  the icons the panel font contains (MDI 7.4.47): search by name or alias (Polish words like *lampa* work
+  too), suggestions for the entity, recently used, MDI categories; arrow keys and Enter, full screen on a
+  phone. You can still type the name – suggestions with a preview appear under the field. An empty field
+  shows the **default icon** (dashed, “Default: …”), the one the integration picks from the domain,
+  state and device class; *Use the default* clears the field. A name the font does not have is a warning
+  (the panel would show `alert-circle-outline`).
+- **QR card – Wi-Fi:** switch *Code content* between *Text / URL* and *Wi-Fi*. For Wi-Fi enter the network
+  name, the security (WPA/WPA2/WPA3, WEP or none), the password and *Hidden network*; the editor builds the
+  standard `WIFI:T:WPA;S:…;P:…;;` code (with `\ ; , : "` escaped) and shows it next to the form, so you
+  can scan it with your phone before saving. A card with a ready `WIFI:` code offers *Edit as Wi-Fi
+  fields* (the AppDaemon import converts it by itself). See *Wi-Fi QR code* below.
 - **Validation while you type**, from the same rules the integration uses when it loads the file:
   errors appear at the field (and in the *Problems* list with a link to the field) and block saving;
   an entity that does not exist in Home Assistant, or of an unexpected type, is only a warning.
@@ -95,6 +107,31 @@ is broken, so you can fix it there.
   unsaved changes asks too.
 - **Undo / redo** (Ctrl+Z / Ctrl+Y), **load from file**, a simple preview of the card.
 - English and Polish (the Home Assistant language), light and dark theme, phone layout.
+
+## Wi-Fi QR code
+
+```yaml
+- type: cardQR
+  title: Guest Wi-Fi
+  wifi:
+    ssid: Guests                 # required, at most 32 bytes
+    security: WPA                # WPA (WPA/WPA2/WPA3), WEP or nopass
+    passwordSecret: wifi_guests  # recommended: from <config>/secrets.yaml
+    # password: plain text (8-63 characters for WPA), or a template "ha: {{ … }}"
+    # passwordEntity: input_text.wifi_guests
+    hidden: false
+    show: ssid                   # ssid | ssid_password | none: rows next to the code
+```
+
+- Use one password source. With `passwordSecret` or `passwordEntity` the password is not stored in
+  `panels.yaml`; it is read from `secrets.yaml` (next to `panels.yaml` or in the Home Assistant
+  configuration folder) when the integration loads, or from the entity state.
+- Anyone in front of the panel can scan the code, so the panel always shows the password in the code.
+  `show: ssid_password` also shows it as text.
+- When the card has no `entities`, the panel shows the network name (and with `ssid_password` the
+  password) next to the code.
+- The integration does not log the password: debug messages and diagnostics hide it. Home Assistant's
+  own MQTT debug log (`homeassistant.components.mqtt`) prints every payload, the code included.
 
 ## Entities and notifications
 
@@ -125,7 +162,7 @@ Diagnostics for a bug report: Settings → Devices & services → NSPanel Lovela
 
 ## Known differences from the add-on
 
-- No web editor (edit `panels.yaml` directly; the add-on's editor can still be used to produce the file).
+- The card editor is in the Home Assistant sidebar (*Card editor* above), not in an add-on.
 - One integration entry controls all panels (`single_config_entry`).
 - `timeZone` defaults to Home Assistant's time zone instead of `Europe/Berlin`.
 
@@ -158,6 +195,18 @@ and flash it with the **Display firmware** update entity of each panel. Building
 MDI 7 icon fonts, publishing it and installing the package: [HMI/FIRMWARE.md](HMI/FIRMWARE.md).
 
 ## Changelog
+
+### 5.2.6
+- **Card editor – icon picker:** a gallery of the panel's icons (search by name and alias, Polish
+  words, suggestions for the entity, recently used, categories, keyboard, phone layout), a preview at
+  every icon field, the **default icon** of the entity when the field is empty, suggestions with a
+  preview while typing. Replaces the hard-to-read icon placeholder next to the name.
+- Unknown icon names (not in the panel font) are a warning at the field instead of a silent
+  `alert-circle-outline` on the panel.
+- **Wi-Fi QR codes:** `cardQR` with `wifi:` (SSID, security, password from text, a template, an entity or
+  `secrets.yaml`, hidden network, network rows on the panel); validation of the SSID length and the
+  password; a scannable preview in the editor; a ready `WIFI:` code is recognised (editor and import).
+  Wi-Fi passwords are hidden in the debug log and in the diagnostics. New requirement `segno` (preview).
 
 ### 5.2.5
 - **Card editor** in the sidebar (administrators): forms for every card type, live validation at the

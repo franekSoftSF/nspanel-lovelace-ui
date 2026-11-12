@@ -9,6 +9,7 @@ import threading
 
 import yaml
 from .config_schema import CARD_TYPES, collect_issues  # noqa: F401 - CARD_TYPES re-exported
+from . import wifi as wifi_qr
 
 MAX_BYTES = 1024 * 1024
 
@@ -146,6 +147,16 @@ def import_yaml(text, time_zone="Europe/Berlin", integration=False):
                 raise ConfigError(f"{name}: mixed card temperature units cannot map to one panel temp_unit.")
             if units:
                 panel.setdefault("temp_unit", units.pop())
+            if integration:
+                # A ready WIFI: code becomes wifi fields (editable in the card editor).
+                for card in panel.get("cards", []) + panel.get("hiddenCards", []):
+                    if isinstance(card, dict) and card.get("type") == "cardQR" and "wifi" not in card:
+                        parsed = wifi_qr.parse(card.get("qrCode"))
+                        if parsed:
+                            parsed["show"] = "none" if card.get("entities") else "ssid"
+                            card["wifi"] = parsed
+                            del card["qrCode"]
+                            warnings.append(f"{name}: cardQR {card.get('title') or ''}: WIFI: code converted to wifi fields.")
             if not integration:
                 warnings.append(f"{name}: connection settings come from the add-on or panels.yaml, not AppDaemon plugins.")
 

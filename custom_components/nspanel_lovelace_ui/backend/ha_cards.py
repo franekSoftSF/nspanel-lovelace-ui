@@ -8,6 +8,7 @@ from . import ha_colors
 from .libs.localization import get_translation
 from . import panel_cards
 from . import weather
+from . import wifi as wifi_qr
 import logging
 import babel.dates
 from .libs.icon_mapping import get_icon_char
@@ -463,16 +464,58 @@ class EntitiesCard(HACard):
         result = f"{self.title}~{self.gen_nav()}" + "".join(rendered)
         libs.panel_cmd.entityUpd(self.panel.msg_out_queue, self.panel.sendTopic, result)
 
+WIFI_ROW_NAMES = {"en": ("Network", "Password"), "pl": ("Sieć", "Hasło"), "de": ("Netzwerk", "Passwort")}
+
+
 class QRCard(HACard):
     def __init__(self, locale, config, panel):
         super().__init__(locale, config, panel)
         self.qrcode = config.get("qrCode", "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+        self.wifi = config.get("wifi") if isinstance(config.get("wifi"), dict) else None
+
+    def get_entities(self):
+        entities = super().get_entities()
+        password_entity = self.wifi.get("passwordEntity") if self.wifi else None
+        return entities + [password_entity] if password_entity else entities
+
+    def _wifi_password(self):
+        """Plain text, a template (ha: …), an entity state or a secret (resolved when the file was loaded)."""
+        password = self.wifi.get("password")
+        if password is None and self.wifi.get("passwordEntity"):
+            data = libs.home_assistant.get_entity_data(self.wifi["passwordEntity"])
+            password = data.get("state") if data and data.get("state") not in ("unknown", "unavailable") else ""
+        password = "" if password is None else str(password)
+        if password.startswith("ha:"):
+            resolved = libs.home_assistant.get_template(password, self.iid)
+            password = "" if resolved is None else str(resolved)
+        return password
+
+    def _wifi_rows(self, ssid, password):
+        show = self.wifi.get("show", "ssid")
+        if show == "none" or self.entities:
+            return ""
+        names = WIFI_ROW_NAMES.get(str(self.locale)[:2], WIFI_ROW_NAMES["en"])
+        color = rgb_dec565([68, 115, 158])
+        clean = lambda text: str(text).replace("~", "-")  # noqa: E731 - ~ separates the fields
+        rows = f"~text~iText.wifi_ssid~{get_icon_char('mdi:wifi')}~{color}~{names[0]}~{clean(ssid)}"
+        if show == "ssid_password" and password:
+            rows += f"~text~iText.wifi_password~{get_icon_char('mdi:key-variant')}~{color}~{names[1]}~{clean(password)}"
+        return rows
+
     def render(self):
-        qrcode = self.qrcode
-        if qrcode.startswith("ha:"):
-            resolved = libs.home_assistant.get_template(qrcode, self.iid)
-            qrcode = "" if resolved is None else str(resolved)
-        result = f"{self.title}~{self.gen_nav()}~{qrcode}"
+        rows = ""
+        if self.wifi:
+            ssid = str(self.wifi.get("ssid", ""))
+            security = self.wifi.get("security", "WPA")
+            password = self._wifi_password() if security != "nopass" else ""
+            qrcode = wifi_qr.build(ssid, security, password, self.wifi.get("hidden") is True)
+            rows = self._wifi_rows(ssid, password)
+        else:
+            qrcode = str(self.qrcode)
+            if qrcode.startswith("ha:"):
+                resolved = libs.home_assistant.get_template(qrcode, self.iid)
+                qrcode = "" if resolved is None else str(resolved)
+        result = f"{self.title}~{self.gen_nav()}~{qrcode}{rows}"
         for e in self.entities:
             result += e.render()
         libs.panel_cmd.entityUpd(self.panel.msg_out_queue, self.panel.sendTopic, result)

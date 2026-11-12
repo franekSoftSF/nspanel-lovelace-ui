@@ -1,3 +1,4 @@
 # Integration tests (Python 3.14). Pinned plugin = matching Home Assistant release.
 pytest-homeassistant-custom-component==0.13.375
 babel>=2.14.0
+segno>=1.6.0

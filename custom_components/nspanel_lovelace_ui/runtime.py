@@ -16,6 +16,7 @@ from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.event import async_track_time_change, async_track_time_interval
 
+from .backend.wifi import redact
 from .backend.libs import home_assistant as bridge
 from .const import ESPHOME_EVENT, SIGNAL_PANEL_STATE
 
@@ -391,7 +392,7 @@ class NSPanelRuntime:
             try:
                 await self._async_send(msg)
             except Exception:  # noqa: BLE001
-                _LOGGER.exception("Failed to send %s", msg)
+                _LOGGER.exception("Failed to send %s", tuple(redact(str(part)) for part in msg))
 
     async def _async_send(self, msg: tuple) -> None:
         if self.use_ha_api:

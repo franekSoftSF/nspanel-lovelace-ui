@@ -171,7 +171,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: NSPanelConfigEntry) -> b
         await editor.async_register_panel(hass)
     try:
         path = resolve_path(hass.config.config_dir, entry.data[CONF_CONFIG_FILE])
-        settings, warnings = await hass.async_add_executor_job(load_config, path)
+        settings, warnings = await hass.async_add_executor_job(load_config, path, hass.config.config_dir)
         base_url = _base_url(hass, settings)
     except (ConfigError, FirmwareError) as err:
         raise ConfigEntryError(

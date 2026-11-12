@@ -216,7 +216,11 @@ def get_icon_ha(etype, state, device_class=None, media_content_type=None, overwr
             for overwrite_state, overwrite_icon in overwrite.items():
                 if overwrite_state == state:
                     return get_icon_char(overwrite_icon)
+    return get_icon_char(default_icon_name(etype, state, device_class, media_content_type))
 
+
+def default_icon_name(etype, state, device_class=None, media_content_type=None):
+    """MDI name the panel shows when the configuration sets no icon (the card editor shows it too)."""
     result_icon = "alert-circle-outline"
 
     # icons only based on state
@@ -261,4 +265,4 @@ def get_icon_ha(etype, state, device_class=None, media_content_type=None, overwr
         if media_content_type in media_content_type_mapping:
             result_icon = media_content_type_mapping[media_content_type]
 
-    return get_icon_char(result_icon)
+    return result_icon
