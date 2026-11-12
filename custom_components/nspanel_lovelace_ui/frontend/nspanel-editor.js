@@ -33,6 +33,13 @@ const UI = {
     notConfigured: "The integration is not set up yet.", loading: "Loading…", type: "Card type",
     changeType: "Change the card type? Options of the old type stay in the file.", issues: "Problems",
     list: "List (comma separated)", noPanels: "No panels. Add one.", jsonHelp: "JSON or key: value lines",
+    pickIcon: "Choose icon", pickIconNow: "Choose icon (now: {icon})", pickIconDefault: "Choose icon (default: {icon})",
+    defaultIcon: "Default: {icon}", iconSearch: "Search by name or alias, e.g. lamp",
+    iconCategory: "Category", iconSuggested: "Suggested for this entity", iconRecent: "Recently used",
+    iconAll: "All icons", iconCategories: "Categories", iconUseDefault: "Use the default", iconClear: "No icon set",
+    iconMore: "Show {n} more", iconNone: "No icons found.", iconCount: "{n} icons", iconRecentEmpty: "No recently used icons yet.",
+    iconAliases: "also: {aliases}", iconFont: "Only icons the panel can show (MDI {version}).", iconDeprecated: "deprecated in MDI",
+    iconTemplate: "template or text – no icon preview",
   },
   pl: {
     title: "Karty NSPanel", save: "Zapisz", reload: "Przeładuj panele", undo: "Cofnij", redo: "Ponów",
@@ -60,8 +67,70 @@ const UI = {
     notConfigured: "Integracja nie jest jeszcze skonfigurowana.", loading: "Wczytywanie…", type: "Typ karty",
     changeType: "Zmienić typ karty? Opcje starego typu zostaną w pliku.", issues: "Problemy",
     list: "Lista (po przecinku)", noPanels: "Brak paneli. Dodaj panel.", jsonHelp: "JSON albo wiersze klucz: wartość",
+    pickIcon: "Wybierz ikonę", pickIconNow: "Wybierz ikonę (teraz: {icon})", pickIconDefault: "Wybierz ikonę (domyślna: {icon})",
+    defaultIcon: "Domyślna: {icon}", iconSearch: "Szukaj po nazwie lub aliasie, np. lampa",
+    iconCategory: "Kategoria", iconSuggested: "Sugerowane dla tej encji", iconRecent: "Ostatnio używane",
+    iconAll: "Wszystkie ikony", iconCategories: "Kategorie", iconUseDefault: "Użyj domyślnej", iconClear: "Bez ustawionej ikony",
+    iconMore: "Pokaż jeszcze {n}", iconNone: "Nie znaleziono ikon.", iconCount: "Ikony: {n}", iconRecentEmpty: "Brak ostatnio używanych ikon.",
+    iconAliases: "też: {aliases}", iconFont: "Tylko ikony, które panel umie pokazać (MDI {version}).", iconDeprecated: "wycofana w MDI",
+    iconTemplate: "szablon albo tekst – bez podglądu ikony",
   },
 };
+
+// MDI categories ("tags" in the MDI metadata) in Polish.
+const ICON_TAGS_PL = {
+  "Account / User": "Konto / użytkownik", "Agriculture": "Rolnictwo", "Alert / Error": "Alarm / błąd",
+  "Alpha / Numeric": "Litery / cyfry", "Animal": "Zwierzęta", "Arrange": "Układanie", "Arrow": "Strzałki", "Audio": "Dźwięk",
+  "Automotive": "Motoryzacja", "Banking": "Bankowość", "Battery": "Bateria", "Brand / Logo": "Marki / logo",
+  "Cellphone / Phone": "Telefon", "Clothing": "Ubrania", "Cloud": "Chmura", "Color": "Kolor", "Currency": "Waluty",
+  "Database": "Bazy danych", "Date / Time": "Data / czas", "Developer / Languages": "Programowanie",
+  "Device / Tech": "Urządzenia / technika", "Drawing / Art": "Rysowanie / sztuka", "Edit / Modify": "Edycja",
+  "Emoji": "Emoji", "Files / Folders": "Pliki / foldery", "Food / Drink": "Jedzenie / napoje", "Form": "Formularze",
+  "Gaming / RPG": "Gry", "Geographic Information System": "Mapy (GIS)", "Hardware / Tools": "Narzędzia",
+  "Health / Beauty": "Zdrowie / uroda", "Holiday": "Święta", "Home Automation": "Inteligentny dom", "Lock": "Zamki",
+  "Math": "Matematyka", "Medical / Hospital": "Medycyna", "Music": "Muzyka", "Nature": "Przyroda", "Navigation": "Nawigacja",
+  "Notification": "Powiadomienia", "People / Family": "Ludzie / rodzina", "Photography": "Fotografia", "Places": "Miejsca",
+  "Printer": "Drukarki", "Religion": "Religia", "Science": "Nauka", "Settings": "Ustawienia", "Shape": "Kształty",
+  "Shopping": "Zakupy", "Social Media": "Media społecznościowe", "Sport": "Sport", "Text / Content / Format": "Tekst / formatowanie",
+  "Tooltip": "Dymki", "Transportation + Flying": "Transport lotniczy", "Transportation + Other": "Transport inny",
+  "Transportation + Road": "Transport drogowy", "Transportation + Water": "Transport wodny", "Vector": "Wektory",
+  "Video / Movie": "Wideo / film", "View": "Widok", "Weather": "Pogoda",
+};
+
+// Polish search words -> MDI words (icon names are English).
+const ICON_WORDS_PL = {
+  lampa: "lamp", lampka: "lamp", światło: "light", swiatlo: "light", żarówka: "bulb", zarowka: "bulb", oświetlenie: "light",
+  gniazdko: "socket", gniazdo: "socket", wtyczka: "plug", włącznik: "switch", wlacznik: "switch", przełącznik: "switch",
+  roleta: "blinds", rolety: "blinds", żaluzja: "blinds", zaslona: "curtains", zasłona: "curtains", brama: "gate",
+  drzwi: "door", okno: "window", garaż: "garage", garaz: "garage", temperatura: "thermometer", termometr: "thermometer",
+  wilgotność: "water-percent", wilgotnosc: "water-percent", wentylator: "fan", telewizor: "television", tv: "television",
+  głośnik: "speaker", glosnik: "speaker", muzyka: "music", zamek: "lock", kłódka: "lock", kamera: "cctv", pogoda: "weather",
+  słońce: "sun", slonce: "sun", deszcz: "rain", śnieg: "snow", snieg: "snow", chmura: "cloud", woda: "water", ogień: "fire",
+  ogien: "fire", grzanie: "fire", grzejnik: "radiator", klimatyzacja: "air-conditioner", dom: "home", łóżko: "bed",
+  lozko: "bed", kanapa: "sofa", prąd: "flash", prad: "flash", energia: "lightning-bolt", bateria: "battery",
+  odkurzacz: "vacuum", pralka: "washing-machine", zmywarka: "dishwasher", lodówka: "fridge", lodowka: "fridge",
+  piekarnik: "stove", kuchnia: "stove", lustro: "mirror", alarm: "alarm", ruch: "motion", czujnik: "sensor",
+  samochód: "car", samochod: "car", rower: "bike", ogród: "flower", ogrod: "flower", kwiat: "flower", podlewanie: "sprinkler",
+  basen: "pool", kot: "cat", pies: "dog", osoba: "account", człowiek: "account", wyjście: "exit", strzałka: "arrow",
+};
+
+// Search words for the "suggested" icons of a domain.
+const DOMAIN_ICON_WORDS = {
+  light: ["lightbulb", "lamp", "ceiling-light", "floor-lamp", "led-strip", "wall-sconce", "spotlight"],
+  switch: ["light-switch", "power-socket", "power-plug", "toggle-switch", "lightbulb", "fan", "mirror"],
+  input_boolean: ["toggle-switch", "check-circle", "power"], cover: ["blinds", "window-shutter", "curtains", "garage", "gate"],
+  climate: ["thermostat", "radiator", "air-conditioner", "fire", "snowflake", "heat-pump"], fan: ["fan", "air-purifier"],
+  sensor: ["thermometer", "water-percent", "gauge", "flash", "lightning-bolt", "battery", "molecule-co2"],
+  binary_sensor: ["door", "window", "motion-sensor", "smoke-detector", "water-alert", "leak"],
+  media_player: ["speaker", "television", "music", "cast", "radio"], lock: ["lock", "door"], vacuum: ["robot-vacuum"],
+  scene: ["palette", "movie", "sofa", "bed", "weather-night"], script: ["script", "play", "gesture-tap"],
+  button: ["gesture-tap-button", "button", "restart"], input_button: ["gesture-tap-button", "button"],
+  weather: ["weather"], person: ["account", "human"], alarm_control_panel: ["shield", "bell"], camera: ["cctv", "camera"],
+  sun: ["weather-sunset", "sun"], timer: ["timer"], number: ["ray-vertex", "numeric"], input_number: ["ray-vertex", "numeric"],
+  select: ["format-list-bulleted"], input_select: ["format-list-bulleted"], navigate: ["arrow-right", "home", "chevron", "menu"],
+  iText: ["information", "text"], service: ["script", "play", "gesture-tap"],
+};
+const RECENT_ICONS_KEY = "nspanel-editor-recent-icons";
 
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -474,13 +543,11 @@ class NSPanelCardEditor extends HTMLElement {
       const entity = typeof item?.entity === "string" ? item.entity : "";
       const domain = entity.includes(".") ? entity.split(".")[0] : "";
       const state = this._hass.states[entity];
-      const icon = typeof item?.icon === "string" ? iconName(item.icon) : state?.attributes?.icon || "";
       const extra = this._schema.item.filter((f) => !["entity", "name", "icon"].includes(f.key) && this._applies(f, context, domain, entity));
       const open = extra.some((f) => item?.[f.key] !== undefined) ? "open" : "";
       return `<li class="entity-row" draggable="true" data-index="${index}" data-items='${esc(JSON.stringify(path))}'>
           <div class="entity-main">
             <span class="handle" title="${esc(this.t("drag"))}" aria-hidden="true"><ha-icon icon="mdi:drag"></ha-icon></span>
-            <span class="entity-icon" aria-hidden="true">${icon ? `<ha-icon icon="${esc(icon)}"></ha-icon>` : ""}</span>
             ${this._inputHtml(this._schema.item[0], [...itemPath, "entity"], entity, context)}
             ${this._inputHtml(this._schema.item[1], [...itemPath, "name"], item?.name, context, state?.attributes?.friendly_name || "")}
             ${this._inputHtml(this._schema.item[2], [...itemPath, "icon"], item?.icon, context)}
@@ -574,7 +641,16 @@ class NSPanelCardEditor extends HTMLElement {
       }
       case "icon": {
         if (value && typeof value === "object") return `<textarea rows="3" data-json="1" ${data}>${esc(JSON.stringify(value, null, 1))}</textarea>`;
-        return `<span class="icon-input"><ha-icon icon="${esc(iconName(value) || "mdi:image-outline")}" aria-hidden="true"></ha-icon><input type="text" list="nsp-icons" autocomplete="off" spellcheck="false" value="${esc(value ?? "")}" placeholder="mdi:…" ${data} data-icons="1"></span>`;
+        // Preview button (opens the picker) + text field with suggestions. Every icon field belongs
+        // to an item, so the default icon comes from the item's entity.
+        const owner = this._get([...path.slice(0, -1), "entity"]);
+        const entity = typeof owner === "string" ? owner : "";
+        const text = value === undefined || value === null ? "" : String(value);
+        const def = this._defaultIcons?.get(entity);
+        return `<span class="icon-input ${text ? "" : "is-default"}">
+          <button type="button" class="icon-pick" data-action="pick-icon" data-target="${id}" aria-haspopup="dialog" title="${esc(this._pickTitle(text, def))}" aria-label="${esc(this._pickTitle(text, def))}"><ha-icon icon="${esc(this._iconPreview(text, def))}"></ha-icon></button>
+          <span class="combo"><input type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="${id}-list" autocomplete="off" spellcheck="false" value="${esc(text)}" placeholder="${esc(def ? this.t("defaultIcon", { icon: def }) : "mdi:…")}" ${data} data-icons="1" data-entity="${esc(entity)}">
+          <ul class="suggest" id="${id}-list" role="listbox" hidden></ul></span></span>`;
       }
       case "color": {
         const hex = this._toHex(value);
@@ -638,8 +714,9 @@ class NSPanelCardEditor extends HTMLElement {
       if (entity.startsWith("navigate.")) name = item?.name || entity.slice(9);
       if (entity.startsWith("iText.")) name = entity.slice(6);
       if (entity === "delete") return `<div class="p-row empty"></div>`;
-      const icon = typeof item?.icon === "string" ? iconName(item.icon) : state?.attributes?.icon || "mdi:checkbox-blank-circle-outline";
-      return `<div class="p-row"><span class="p-icon"><ha-icon icon="${esc(icon)}"></ha-icon></span><span class="p-name">${esc(typeof name === "string" ? name : "")}</span><span class="p-state">${esc(state ? state.state : "")}</span></div>`;
+      const own = typeof item?.icon === "string" && item.icon ? item.icon : "";
+      const icon = this._iconPreview(own, this._defaultIcons?.get(entity)).replace("mdi:shape-plus-outline", "mdi:checkbox-blank-circle-outline");
+      return `<div class="p-row"><span class="p-icon"><ha-icon icon="${esc(icon)}" ${own ? `data-own-icon="${esc(own)}"` : `data-default-icon-for="${esc(entity)}"`}></ha-icon></span><span class="p-name">${esc(typeof name === "string" ? name : "")}</span><span class="p-state">${esc(state ? state.state : "")}</span></div>`;
     }).join("");
     const main = card.entity ? this._hass.states[card.entity] : null;
     const body = card.type === "cardQR" ? `<div class="p-qr"><ha-icon icon="mdi:qrcode"></ha-icon></div>${rows}`
@@ -669,16 +746,295 @@ class NSPanelCardEditor extends HTMLElement {
     }
   }
 
-  async _fillIcons() {
-    if (this.shadowRoot.getElementById("nsp-icons")) return;
-    if (!this._iconNames) {
-      try { this._iconNames = (await this.ws("icons")).icons; } catch (err) { this._iconNames = []; }
+  // Icons ---------------------------------------------------------------------------------------
+  /** Icon to show for a field value: the icon, the entity's default, or a marker for templates/unknown. */
+  _iconPreview(value, def) {
+    const text = String(value ?? "").trim();
+    if (!text) return def ? `mdi:${def}` : "mdi:shape-plus-outline";
+    if (/^(ha|text):/.test(text)) return "mdi:code-braces";
+    const name = text.replace(/^mdi:/, "");
+    // The panel shows alert-circle-outline for names its font does not have.
+    if (this._icons && !this._icons.known.has(name)) return "mdi:alert-circle-outline";
+    return iconName(text);
+  }
+
+  _pickTitle(value, def) {
+    if (value) return this.t("pickIconNow", { icon: value });
+    return def ? this.t("pickIconDefault", { icon: def }) : this.t("pickIcon");
+  }
+
+  /** Picker data (every icon of the panel font), loaded once. */
+  _iconData() {
+    if (!this._iconsPromise) {
+      this._iconsPromise = this.ws("icons").then((data) => {
+        const tagText = (index) => {
+          const tag = data.tags[index];
+          return `${tag} ${ICON_TAGS_PL[tag] || ""}`.toLowerCase();
+        };
+        const rows = data.icons.map(([name, aliases, tags, deprecated]) => ({
+          name, aliases, tags, deprecated: !!deprecated, tagText: tags.map(tagText).join(" ") }));
+        const known = new Set();
+        rows.forEach((row) => { known.add(row.name); row.aliases.split(" ").filter(Boolean).forEach((a) => known.add(a)); });
+        this._icons = { mdi: data.mdi, tags: data.tags, rows, known, byName: new Map(rows.map((row) => [row.name, row])) };
+        return this._icons;
+      }).catch((err) => { this._iconsPromise = null; throw err; });
     }
-    if (this.shadowRoot.getElementById("nsp-icons")) return;
-    const list = document.createElement("datalist");
-    list.id = "nsp-icons";
-    list.innerHTML = this._iconNames.map((name) => `<option value="mdi:${esc(name)}"></option>`).join("");
-    this.shadowRoot.appendChild(list);
+    return this._iconsPromise;
+  }
+
+  /** Icons matching every word of the query (name, then aliases, then category), best first. */
+  _searchIcons(data, query, limit = Infinity, tag = null) {
+    const words = query.toLowerCase().replace(/^mdi:/, "").split(/\s+/).filter(Boolean)
+      .map((word) => [word, ICON_WORDS_PL[word]].filter(Boolean));
+    if (!words.length) return [];
+    const hits = [];
+    for (const row of data.rows) {
+      if (tag !== null && !row.tags.includes(tag)) continue;
+      let score = row.deprecated ? 10 : 0;
+      for (const options of words) {
+        let best = -1;
+        for (const word of options) {
+          const s = row.name === word ? 0 : row.name.startsWith(word) ? 1 : row.name.includes(word) ? 2
+            : row.aliases.includes(word) ? 3 : row.tagText.includes(word) ? 5 : -1;
+          if (s >= 0 && (best < 0 || s < best)) best = s;
+        }
+        if (best < 0) { score = -1; break; }
+        score += best;
+      }
+      if (score >= 0) hits.push([score, row]);
+    }
+    hits.sort((a, b) => a[0] - b[0] || a[1].name.length - b[1].name.length || a[1].name.localeCompare(b[1].name));
+    return hits.slice(0, limit).map((hit) => hit[1]);
+  }
+
+  _suggestedIcons(data, entity, def) {
+    const domain = entity.startsWith("navigate.") ? "navigate" : entity.startsWith("iText.") ? "iText" : entity.split(".")[0];
+    const names = new Set(def ? [def] : []);
+    for (const word of DOMAIN_ICON_WORDS[domain] || ["home"]) {
+      this._searchIcons(data, word, 16).forEach((row) => names.add(row.name));
+    }
+    return [...names].map((name) => data.byName.get(name)).filter(Boolean);
+  }
+
+  _recentIcons() {
+    try { return JSON.parse(localStorage.getItem(RECENT_ICONS_KEY) || "[]").filter((n) => typeof n === "string"); } catch (err) { return []; }
+  }
+
+  _rememberIcon(name) {
+    try { localStorage.setItem(RECENT_ICONS_KEY, JSON.stringify([name, ...this._recentIcons().filter((n) => n !== name)].slice(0, 32))); } catch (err) { /* private mode */ }
+  }
+
+  /** Default icons (what the panel shows without an icon) for the entities on screen. */
+  async _loadDefaultIcons() {
+    const root = this.shadowRoot;
+    const ids = new Set();
+    root.querySelectorAll("input[data-icons]").forEach((el) => { if (el.dataset.entity) ids.add(el.dataset.entity); });
+    root.querySelectorAll("[data-default-icon-for]").forEach((el) => { if (el.dataset.defaultIconFor) ids.add(el.dataset.defaultIconFor); });
+    if (!ids.size) return;
+    let icons;
+    try { icons = (await this.ws("default_icons", { entities: [...ids] })).icons; } catch (err) { return; }
+    if (!this._defaultIcons) this._defaultIcons = new Map();
+    for (const [id, name] of Object.entries(icons)) this._defaultIcons.set(id, name);
+    root.querySelectorAll("input[data-icons]").forEach((el) => this._updateIconField(el));
+    root.querySelectorAll("[data-default-icon-for]").forEach((el) => {
+      const name = this._defaultIcons.get(el.dataset.defaultIconFor);
+      if (name) el.setAttribute("icon", `mdi:${name}`);
+    });
+  }
+
+  /** Refresh the preview button, placeholder and state of an icon field after a change. */
+  _updateIconField(el) {
+    const wrap = el.closest(".icon-input");
+    if (!wrap) return;
+    const def = this._defaultIcons?.get(el.dataset.entity);
+    const text = el.value.trim();
+    const name = text.replace(/^mdi:/, "");
+    wrap.classList.toggle("is-default", !text);
+    wrap.classList.toggle("unknown", !!(text && this._icons && !/^(ha|text):/.test(text) && !this._icons.known.has(name)));
+    const button = wrap.querySelector(".icon-pick");
+    button.querySelector("ha-icon").setAttribute("icon", this._iconPreview(text, def));
+    button.title = this._pickTitle(text, def);
+    button.setAttribute("aria-label", button.title);
+    el.placeholder = def ? this.t("defaultIcon", { icon: def }) : "mdi:…";
+  }
+
+  /** Set an icon field as if typed (records undo, validates); "" = use the default. */
+  _setIconValue(el, name) {
+    el.value = name ? `mdi:${name}` : "";
+    if (name) this._rememberIcon(name);
+    // Undo goes back to before this edit (also before the typed part of a picked suggestion).
+    if (this._pendingSnapshot === undefined) this._pendingSnapshot = JSON.stringify(this._config);
+    el.dispatchEvent(new Event("input"));
+    el.dispatchEvent(new Event("change"));
+    this._closeSuggest(el);
+  }
+
+  // Suggestions under the text field (combobox) -------------------------------------------------
+  async _suggest(el) {
+    const query = el.value.trim();
+    if (!query || /^(ha|text):/.test(query)) { this._closeSuggest(el); return; }
+    let data;
+    try { data = await this._iconData(); } catch (err) { return; }
+    if (this.shadowRoot.activeElement !== el || el.value.trim() !== query) return;
+    this._updateIconField(el);
+    const hits = this._searchIcons(data, query, 8);
+    const list = this.shadowRoot.getElementById(`${el.id}-list`);
+    if (!list) return;
+    if (!hits.length || (hits.length === 1 && `mdi:${hits[0].name}` === query)) { this._closeSuggest(el); return; }
+    list.innerHTML = hits.map((row, i) => `<li role="option" id="${el.id}-opt-${i}" data-name="${esc(row.name)}" aria-selected="false"><ha-icon icon="mdi:${esc(row.name)}"></ha-icon><span>${esc(row.name)}</span></li>`).join("");
+    list.hidden = false;
+    el.setAttribute("aria-expanded", "true");
+    el.removeAttribute("aria-activedescendant");
+  }
+
+  _closeSuggest(el) {
+    const list = this.shadowRoot.getElementById(`${el.id}-list`);
+    if (list) { list.hidden = true; list.innerHTML = ""; }
+    el.setAttribute("aria-expanded", "false");
+    el.removeAttribute("aria-activedescendant");
+  }
+
+  _suggestKeys(el, ev) {
+    const list = this.shadowRoot.getElementById(`${el.id}-list`);
+    const open = list && !list.hidden;
+    if (!open) {
+      if (ev.key === "ArrowDown" && el.value.trim()) { ev.preventDefault(); this._suggest(el); }
+      return;
+    }
+    const options = [...list.querySelectorAll("li")];
+    let index = options.findIndex((li) => li.getAttribute("aria-selected") === "true");
+    if (ev.key === "ArrowDown" || ev.key === "ArrowUp") {
+      ev.preventDefault();
+      index = ev.key === "ArrowDown" ? (index + 1) % options.length : (index <= 0 ? options.length - 1 : index - 1);
+      options.forEach((li, i) => li.setAttribute("aria-selected", String(i === index)));
+      el.setAttribute("aria-activedescendant", options[index].id);
+      options[index].scrollIntoView({ block: "nearest" });
+    } else if (ev.key === "Enter" && index >= 0) {
+      ev.preventDefault();
+      this._setIconValue(el, options[index].dataset.name);
+    } else if (ev.key === "Escape") {
+      ev.preventDefault(); ev.stopPropagation();
+      this._closeSuggest(el);
+    }
+  }
+
+  // Picker dialog --------------------------------------------------------------------------------
+  async _openIconPicker(input) {
+    if (!input) return;
+    const opener = input.closest(".icon-input")?.querySelector(".icon-pick");
+    const entity = input.dataset.entity || "";
+    const def = this._defaultIcons?.get(entity);
+    const current = input.value.trim().replace(/^mdi:/, "");
+    const dialog = document.createElement("dialog");
+    dialog.className = "icon-dialog";
+    dialog.setAttribute("aria-labelledby", "ip-title");
+    dialog.innerHTML = `<div class="ip-head"><h2 id="ip-title">${esc(this.t("pickIcon"))}</h2>
+        <button class="icon" data-ip="close" aria-label="${esc(this.t("close"))}" title="${esc(this.t("close"))}"><ha-icon icon="mdi:close"></ha-icon></button></div>
+      <div class="ip-tools">
+        <span class="ip-search"><ha-icon icon="mdi:magnify" aria-hidden="true"></ha-icon>
+          <input type="search" id="ip-search" autocomplete="off" spellcheck="false" aria-label="${esc(this.t("iconSearch"))}" placeholder="${esc(this.t("iconSearch"))}" aria-controls="ip-grid"></span>
+        <select id="ip-cat" aria-label="${esc(this.t("iconCategory"))}"></select>
+      </div>
+      <p class="ip-info" id="ip-info" aria-live="polite">${esc(this.t("loading"))}</p>
+      <div class="ip-grid" id="ip-grid" role="listbox" aria-labelledby="ip-title"></div>
+      <div class="ip-foot"><span class="ip-sel" id="ip-sel"></span>
+        <button class="secondary" id="ip-more" hidden></button>
+        ${def || current ? `<button class="secondary" data-ip="default">${def ? `<ha-icon icon="mdi:${esc(def)}"></ha-icon>` : ""}<span>${esc(def ? this.t("iconUseDefault") : this.t("iconClear"))}</span></button>` : ""}
+        <button class="secondary" data-ip="close">${esc(this.t("cancel"))}</button></div>`;
+    this.shadowRoot.appendChild(dialog);
+    const $ = (sel) => dialog.querySelector(sel);
+    const search = $("#ip-search"); const cat = $("#ip-cat"); const grid = $("#ip-grid");
+    const info = $("#ip-info"); const more = $("#ip-more"); const sel = $("#ip-sel");
+    let chosen = null;
+    dialog.addEventListener("close", () => {
+      dialog.remove();
+      if (chosen !== null) this._setIconValue(input, chosen);
+      (opener || input).focus();
+    });
+    dialog.addEventListener("click", (ev) => {
+      const button = ev.target.closest("[data-ip]");
+      if (button?.dataset.ip === "close") dialog.close();
+      else if (button?.dataset.ip === "default") { chosen = ""; dialog.close(); }
+      else if (ev.target === dialog) dialog.close(); // click on the backdrop
+    });
+    dialog.showModal();
+    search.focus();
+
+    let data;
+    try { data = await this._iconData(); } catch (err) { info.textContent = String(err.message || err); return; }
+    const recent = this._recentIcons();
+    const tags = data.tags.map((tag, index) => ({ index, label: this._lang === "pl" ? ICON_TAGS_PL[tag] || tag : tag }))
+      .sort((a, b) => a.label.localeCompare(b.label, this._lang));
+    cat.innerHTML = `${entity ? `<option value="suggested">${esc(this.t("iconSuggested"))}</option>` : ""}
+      <option value="recent">${esc(this.t("iconRecent"))}</option><option value="all">${esc(this.t("iconAll"))}</option>
+      <optgroup label="${esc(this.t("iconCategories"))}">${tags.map((t) => `<option value="${t.index}">${esc(t.label)}</option>`).join("")}</optgroup>`;
+    cat.value = entity ? "suggested" : recent.length ? "recent" : "all";
+
+    const PAGE = 240;
+    let rows = []; let shown = 0;
+    const describe = (row) => {
+      if (!row) { sel.innerHTML = ""; return; }
+      const notes = [row.aliases ? this.t("iconAliases", { aliases: row.aliases.split(" ").slice(0, 4).join(", ") }) : "", row.deprecated ? this.t("iconDeprecated") : ""].filter(Boolean);
+      sel.innerHTML = `<ha-icon icon="mdi:${esc(row.name)}"></ha-icon><span><b>${esc(row.name)}</b>${notes.length ? `<small>${esc(notes.join(" · "))}</small>` : ""}</span>`;
+    };
+    const tile = (row, index) => `<button type="button" role="option" class="ip-icon${row.name === current ? " selected" : ""}" aria-selected="${row.name === current}" tabindex="${index === 0 ? 0 : -1}" data-name="${esc(row.name)}" title="${esc(row.name)}"><ha-icon icon="mdi:${esc(row.name)}"></ha-icon><span>${esc(row.name)}</span></button>`;
+    const page = () => {
+      const next = rows.slice(shown, shown + PAGE);
+      grid.insertAdjacentHTML("beforeend", next.map((row, i) => tile(row, shown + i)).join(""));
+      shown += next.length;
+      more.hidden = rows.length <= shown;
+      more.textContent = this.t("iconMore", { n: Math.min(PAGE, rows.length - shown) });
+    };
+    const update = () => {
+      const query = search.value.trim();
+      const tag = /^\d+$/.test(cat.value) ? Number(cat.value) : null;
+      if (query) rows = this._searchIcons(data, query, Infinity, tag);
+      else if (cat.value === "suggested") rows = this._suggestedIcons(data, entity, def);
+      else if (cat.value === "recent") rows = recent.map((name) => data.byName.get(name)).filter(Boolean);
+      else if (tag !== null) rows = data.rows.filter((row) => row.tags.includes(tag));
+      else rows = [...data.rows.filter((row) => !row.deprecated), ...data.rows.filter((row) => row.deprecated)];
+      grid.innerHTML = ""; shown = 0;
+      page();
+      const empty = !query && cat.value === "recent" ? this.t("iconRecentEmpty") : this.t("iconNone");
+      info.textContent = rows.length ? `${this.t("iconCount", { n: rows.length })} · ${this.t("iconFont", { version: data.mdi })}` : empty;
+      describe(data.byName.get(current) || null);
+    };
+    let timer = null;
+    search.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(update, 120); });
+    cat.addEventListener("change", update);
+    more.addEventListener("click", () => {
+      const first = shown;
+      page();
+      grid.children[first]?.focus();
+    });
+    grid.addEventListener("click", (ev) => {
+      const button = ev.target.closest(".ip-icon");
+      if (button) { chosen = button.dataset.name; dialog.close(); }
+    });
+    const hover = (ev) => { const button = ev.target.closest?.(".ip-icon"); if (button) describe(data.byName.get(button.dataset.name)); };
+    grid.addEventListener("mouseover", hover);
+    grid.addEventListener("focusin", hover);
+    // Arrow keys move through the grid (one tab stop), Enter/Space choose.
+    grid.addEventListener("keydown", (ev) => {
+      const tiles = [...grid.querySelectorAll(".ip-icon")];
+      const index = tiles.indexOf(ev.target.closest(".ip-icon"));
+      if (index < 0) return;
+      const columns = Math.max(1, getComputedStyle(grid).gridTemplateColumns.split(" ").length);
+      const moves = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: columns, ArrowUp: -columns, Home: -index, End: tiles.length - 1 - index,
+        PageDown: columns * 4, PageUp: -columns * 4 };
+      if (!(ev.key in moves)) return;
+      ev.preventDefault();
+      if (ev.key === "ArrowUp" && index < columns) { search.focus(); return; }
+      const target = tiles[Math.max(0, Math.min(tiles.length - 1, index + moves[ev.key]))];
+      tiles[index].tabIndex = -1; target.tabIndex = 0; target.focus();
+    });
+    search.addEventListener("keydown", (ev) => {
+      const first = grid.querySelector(".ip-icon");
+      if (ev.key === "ArrowDown" && first) { ev.preventDefault(); first.focus(); }
+      else if (ev.key === "Enter" && first) { ev.preventDefault(); chosen = first.dataset.name; dialog.close(); }
+    });
+    update();
+    grid.querySelector(".ip-icon.selected")?.scrollIntoView({ block: "center" });
   }
 
   _toHex(value) {
@@ -700,8 +1056,25 @@ class NSPanelCardEditor extends HTMLElement {
       el.addEventListener("input", () => this._input(el));
       el.addEventListener("change", () => this._commit(el));
     });
-    root.querySelectorAll("[data-icons]").forEach((el) => el.addEventListener("focus", () => this._fillIcons(), { once: true }));
-    if (this._config) this._fillDatalists();
+    root.querySelectorAll("input[data-icons]").forEach((el) => {
+      el.addEventListener("input", (ev) => { if (ev.isTrusted) this._suggest(el); }); // typing, not a picked icon
+      el.addEventListener("keydown", (ev) => this._suggestKeys(el, ev));
+      el.addEventListener("blur", () => setTimeout(() => this._closeSuggest(el), 150));
+      const list = root.getElementById(`${el.id}-list`);
+      list?.addEventListener("mousedown", (ev) => ev.preventDefault()); // keep the focus in the field
+      list?.addEventListener("click", (ev) => {
+        const option = ev.target.closest("li[data-name]");
+        if (option) this._setIconValue(el, option.dataset.name);
+      });
+    });
+    if (this._config) { this._fillDatalists(); this._loadDefaultIcons(); }
+    // Icon names of the panel font: unknown icons show what the panel shows (alert-circle-outline).
+    if (root.querySelector("input[data-icons]")) {
+      this._iconData().then(() => {
+        root.querySelectorAll("input[data-icons]").forEach((el) => this._updateIconField(el));
+        root.querySelectorAll("[data-own-icon]").forEach((el) => el.setAttribute("icon", this._iconPreview(el.dataset.ownIcon)));
+      }).catch(() => {});
+    }
     this._bindDrag();
     const yaml = root.getElementById("yaml");
     if (yaml) yaml.addEventListener("input", () => { this._yamlText = yaml.value; });
@@ -776,7 +1149,7 @@ class NSPanelCardEditor extends HTMLElement {
     }
     this._set(path, this._value(el));
     if (el.dataset.output) el.nextElementSibling.textContent = `${el.value}%`;
-    if (el.dataset.icons) el.parentElement.querySelector("ha-icon")?.setAttribute("icon", iconName(el.value) || "mdi:image-outline");
+    if (el.dataset.icons) this._updateIconField(el);
     this._changed();
   }
 
@@ -858,6 +1231,7 @@ class NSPanelCardEditor extends HTMLElement {
         this._changed({ render: true });
         break;
       }
+      case "pick-icon": await this._openIconPicker(this.shadowRoot.getElementById(el.dataset.target)); break;
       case "card-up": this._moveCard(Number(el.dataset.index), Number(el.dataset.index) - 1); break;
       case "card-down": this._moveCard(Number(el.dataset.index), Number(el.dataset.index) + 1); break;
       case "card-duplicate": {
@@ -1066,6 +1440,7 @@ const STYLE = `
 :host { display: block; container-type: inline-size; min-height: 100%; background: var(--primary-background-color); color: var(--primary-text-color);
   font-family: var(--ha-font-family-body, Roboto, sans-serif); --gap: 16px; --radius: var(--ha-card-border-radius, 12px); }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 .toolbar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 8px; min-height: var(--header-height, 56px);
   padding: 0 12px; background: var(--app-header-background-color, var(--primary-color)); color: var(--app-header-text-color, #fff);
@@ -1149,21 +1524,66 @@ input[type=range] { width: 100%; accent-color: var(--primary-color); }
 .checks { display: flex; flex-wrap: wrap; gap: 6px 16px; }
 .checks label, label.inline { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
 .icon-input, .color-input { display: flex; align-items: center; gap: 6px; }
+.icon-input { min-width: 0; }
+button.icon-pick { flex: none; width: 40px; min-width: 40px; height: 40px; padding: 0; justify-content: center; border-radius: 8px;
+  border: 1px solid var(--input-outlined-idle-border-color, var(--divider-color)); background: var(--input-fill-color, var(--secondary-background-color));
+  color: var(--state-icon-color, var(--primary-text-color)); }
+button.icon-pick:hover { border-color: var(--primary-color); }
+.is-default button.icon-pick { border-style: dashed; color: var(--secondary-text-color); }
+.unknown button.icon-pick { border-color: var(--warning-color); color: var(--warning-color); }
+.combo { position: relative; flex: 1; min-width: 0; }
+.is-default .combo input::placeholder { color: var(--secondary-text-color); opacity: 1; font-style: italic; }
+.suggest { position: absolute; z-index: 20; top: calc(100% + 2px); left: 0; min-width: 100%; width: max-content; max-width: min(340px, 90vw);
+  max-height: 300px; overflow: auto; margin: 0; padding: 4px; background: var(--card-background-color); border: 1px solid var(--divider-color);
+  border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.3); }
+.suggest li { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+.suggest li:hover { background: rgba(var(--rgb-primary-color, 3, 169, 244), .12); }
+.suggest li[aria-selected=true] { background: rgba(var(--rgb-primary-color, 3, 169, 244), .25); box-shadow: inset 3px 0 var(--primary-color); }
+dialog.icon-dialog { width: min(860px, calc(100vw - 32px)); height: min(720px, calc(100dvh - 32px)); max-width: none; padding: 0; }
+dialog.icon-dialog[open] { display: flex; flex-direction: column; }
+.ip-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 12px 0 20px; }
+.ip-head h2 { margin: 0; }
+.ip-tools { display: flex; gap: 8px; padding: 12px 20px 4px; flex-wrap: wrap; }
+.ip-search { flex: 2 1 260px; display: flex; align-items: center; gap: 6px; padding-left: 10px; border-radius: 6px;
+  border: 1px solid var(--input-outlined-idle-border-color, var(--divider-color)); background: var(--input-fill-color, var(--secondary-background-color)); }
+.ip-search ha-icon { color: var(--secondary-text-color); }
+.ip-search input { border: 0; background: none; padding-left: 0; }
+.ip-search:focus-within { outline: 2px solid var(--primary-color); outline-offset: 1px; }
+.ip-search input:focus-visible { outline: none; }
+.ip-tools select { flex: 1 1 200px; width: auto; }
+.ip-info { margin: 4px 20px; font-size: 12px; color: var(--secondary-text-color); }
+.ip-grid { flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 4px;
+  align-content: start; padding: 4px 16px 12px; border-top: 1px solid var(--divider-color); }
+button.ip-icon { flex-direction: column; justify-content: flex-start; gap: 4px; padding: 10px 4px 6px; min-height: 84px; border-radius: 10px;
+  color: var(--primary-text-color); --mdc-icon-size: 32px; }
+button.ip-icon span { font-size: 10.5px; line-height: 1.25; color: var(--secondary-text-color); word-break: break-word; text-align: center;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+button.ip-icon:hover { background: rgba(var(--rgb-primary-color, 3, 169, 244), .08); }
+button.ip-icon:focus-visible { background: rgba(var(--rgb-primary-color, 3, 169, 244), .12); outline-offset: -2px; }
+button.ip-icon.selected { background: rgba(var(--rgb-primary-color, 3, 169, 244), .18); border-color: var(--primary-color); }
+.ip-foot { display: flex; align-items: center; gap: 8px; padding: 10px 16px 12px 20px; border-top: 1px solid var(--divider-color); flex-wrap: wrap; }
+.ip-sel { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; --mdc-icon-size: 32px; }
+.ip-sel span { display: flex; flex-direction: column; min-width: 0; }
+.ip-sel b { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ip-sel small { color: var(--secondary-text-color); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 600px) {
+  dialog.icon-dialog { width: 100vw; height: 100dvh; max-height: none; margin: 0; border-radius: 0; }
+  .ip-grid { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); padding: 4px 8px 8px; }
+  .ip-sel { flex-basis: 100%; }
+}
 .color-input input[type=color] { width: 44px; height: 40px; padding: 2px; border-radius: 6px; border: 1px solid var(--divider-color); background: none; flex: none; }
 details { margin-top: 12px; }
 details > summary { cursor: pointer; color: var(--primary-color); font-weight: 500; padding: 6px 0; }
 details.advanced { border-top: 1px solid var(--divider-color); padding-top: 8px; }
 fieldset.items { border: 1px solid var(--divider-color); border-radius: var(--radius); margin: 16px 0 0; padding: 12px; min-width: 0; }
 .entity-row { border: 1px solid var(--divider-color); border-radius: 8px; padding: 8px; margin-bottom: 8px; }
-.entity-main { display: grid; grid-template-columns: auto 24px minmax(0, 2fr) minmax(0, 1.5fr) minmax(0, 1.2fr) auto; gap: 8px; align-items: center; }
+.entity-main { display: grid; grid-template-columns: auto minmax(0, 2fr) minmax(0, 1.5fr) minmax(0, 1.5fr) auto; gap: 8px; align-items: center; }
 .card-editor { container-type: inline-size; }
 @container (max-width: 640px) {
   .entity-main { grid-template-columns: auto minmax(0, 1fr) auto; }
-  .entity-main .entity-icon { display: none; }
   .entity-main > input, .entity-main > textarea, .entity-main > .icon-input { grid-column: 1 / -1; }
   .entity-main > .item-actions { grid-column: 3; grid-row: 1; }
 }
-.entity-icon { width: 24px; display: inline-flex; color: var(--state-icon-color, var(--secondary-text-color)); }
 .nested { border-left: 3px solid var(--divider-color); padding-left: 12px; }
 .schedule ol li { display: grid; grid-template-columns: 1fr 100px auto; gap: 8px; margin-bottom: 6px; }
 .preview { margin-top: 20px; }
@@ -1211,7 +1631,6 @@ dialog .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top
   .toolbar button.icon { min-width: 36px; padding: 4px; }
   .toolbar button.primary, .toolbar button.secondary { min-width: 40px; justify-content: center; }
   .entity-main { grid-template-columns: auto minmax(0, 1fr) auto; }
-  .entity-main .entity-icon { display: none; }
   .entity-main > input, .entity-main > textarea, .entity-main > .icon-input { grid-column: 1 / -1; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }

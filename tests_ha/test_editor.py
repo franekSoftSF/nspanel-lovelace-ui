@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import inspect
+import json
 from pathlib import Path
 import re
 from unittest.mock import AsyncMock, patch
@@ -13,7 +14,9 @@ from homeassistant.core import HomeAssistant
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.nspanel_lovelace_ui.backend import config_manager, ha_cards
+from custom_components.nspanel_lovelace_ui import editor_schema
+from custom_components.nspanel_lovelace_ui.backend import config_manager, ha_cards, ha_icons
+from custom_components.nspanel_lovelace_ui.backend.libs import icon_mapping
 from custom_components.nspanel_lovelace_ui.backend.config_schema import (
     CARD_TYPES, CARDS, GLOBAL_FIELDS, ITEM_FIELDS, MESSAGES, PANEL_FIELDS, SCREENSAVER_FIELDS, collect_issues,
     schema_json,
@@ -142,8 +145,60 @@ async def test_load_schema_icons(editor, panels_file: Path) -> None:
     assert loaded["path"] == DEFAULT_CONFIG_FILE and len(loaded["revision"]) == 64
     schema = (await editor("schema"))["result"]
     assert schema["card_types"] == CARD_TYPES
-    icons = (await editor("icons"))["result"]["icons"]
-    assert "lightbulb" in icons and len(icons) > 5000
+    picker = (await editor("icons"))["result"]
+    names = {row[0] for row in picker["icons"]}
+    assert "lightbulb" in names and len(names) > 5000 and picker["mdi"] == "7.4.47"
+    lamp = next(row for row in picker["icons"] if row[0] == "lamp")
+    assert "Home Automation" in [picker["tags"][index] for index in lamp[2]]
+
+
+def test_icon_picker_offers_exactly_the_panel_font() -> None:
+    """Picker rows = icons in the panel font (same MDI metadata as the font and the mapping)."""
+    picker = editor_schema.icon_picker()
+    names = [row[0] for row in picker["icons"]]
+    font = [entry["name"] for entry in json.loads((ROOT / "HMI" / "code_gen" / "icons" / "icons.json").read_text())]
+    assert sorted(names) == sorted(font) and len(set(names)) == len(names)
+    for name, aliases, tags, *flags in picker["icons"]:
+        assert name in icon_mapping.icons, name
+        assert all(alias in icon_mapping.icons for alias in aliases.split()), name
+        assert all(0 <= tag < len(picker["tags"]) for tag in tags) and flags in ([], [1]), name
+
+
+def test_editor_translates_every_icon_category() -> None:
+    source = (ROOT / "custom_components" / DOMAIN / "frontend" / "nspanel-editor.js").read_text(encoding="utf-8")
+    block = source[source.index("const ICON_TAGS_PL = {"):]
+    block = block[:block.index("};")]
+    translated = set(re.findall(r'"([^"]+)":', block))
+    assert translated == set(editor_schema.icon_picker()["tags"])
+
+
+def test_unknown_icons_are_warnings() -> None:
+    rows = ("nspanels", "p", "cards", 0, "entities")
+    config = _panel(cards=[{"type": "cardEntities", "entities": [
+        {"entity": "light.a", "icon": "mdi:lightbulb"}, {"entity": "light.b", "icon": "lamp"},
+        {"entity": "light.c", "icon": "mdi:lecturn"},  # alias of lectern
+        {"entity": "light.d", "icon": "mdi:google-home"},  # removed from MDI 7
+        {"entity": "light.e", "icon": "ha:{{ 'x' }}"}, {"entity": "light.f", "icon": "text:A"},
+        {"entity": "light.g", "icon": {"on": "mdi:lightbulb-on", "off": "mdi:nope"}}]}])
+    issues = [(tuple(i.path), i.severity) for i in collect_issues(config) if i.code == "icon_unknown"]
+    assert issues == [((*rows, 3, "icon"), "warning"), ((*rows, 6, "icon", "off"), "warning")]
+    config_manager.validate(config)  # only warnings: the panel still loads
+
+
+async def test_default_icons_follow_the_cards(hass: HomeAssistant, editor) -> None:
+    hass.states.async_set("switch.mirror", "off")
+    hass.states.async_set("cover.shutter", "closed", {"device_class": "shutter"})
+    hass.states.async_set("binary_sensor.door", "on", {"device_class": "door"})
+    hass.states.async_set("sensor.temp", "21", {"device_class": "temperature"})
+    entities = ["switch.mirror", "cover.shutter", "binary_sensor.door", "sensor.temp", "light.missing",
+                "navigate.lights", "iText.x", "service.light.toggle", "delete"]
+    icons = (await editor("default_icons", entities=entities))["result"]["icons"]
+    assert icons == {"switch.mirror": "light-switch", "cover.shutter": "window-shutter", "binary_sensor.door": "door-open",
+                     "sensor.temp": "thermometer", "light.missing": None, "navigate.lights": "gesture-tap-button",
+                     "iText.x": "gesture-tap-button", "service.light.toggle": "script-text", "delete": None}
+    # The cards use the same rules.
+    assert ha_icons.get_icon_ha("cover", "closed", "shutter") == icon_mapping.icons["window-shutter"]
+    assert ha_icons.get_icon_ha("cover", "closed", "shutter", overwrite="mdi:lamp") == icon_mapping.icons["lamp"]
 
 
 async def test_validate_save_backup_and_conflict(editor, panels_file: Path) -> None:

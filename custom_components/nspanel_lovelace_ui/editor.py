@@ -108,7 +108,7 @@ async def async_setup_editor(hass: HomeAssistant) -> None:
     hass.data[DATA_EDITOR] = True
     await hass.http.async_register_static_paths(
         [StaticPathConfig(STATIC_URL, str(FRONTEND_DIR), cache_headers=False)])
-    for command in (ws_load, ws_schema, ws_icons, ws_validate, ws_save, ws_reload, ws_yaml):
+    for command in (ws_load, ws_schema, ws_icons, ws_default_icons, ws_validate, ws_save, ws_reload, ws_yaml):
         websocket_api.async_register_command(hass, command)
 
 
@@ -182,8 +182,19 @@ def ws_schema(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/editor/icons"})
 @websocket_api.async_response
 async def ws_icons(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
-    names = await hass.async_add_executor_job(editor_schema.icon_names)
-    connection.send_result(msg["id"], {"icons": names})
+    """Icon picker data: every icon of the panel font with aliases and categories."""
+    connection.send_result(msg["id"], await hass.async_add_executor_job(editor_schema.icon_picker))
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/editor/default_icons",
+                                  vol.Required("entities"): [str]})
+@callback
+def ws_default_icons(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Icon the panel shows for each entity when the row sets none (current state and device class)."""
+    icons = {entity_id: editor_schema.default_icon(entity_id, hass.states.get(entity_id))
+             for entity_id in msg["entities"][:500]}
+    connection.send_result(msg["id"], {"icons": icons})
 
 
 @websocket_api.require_admin

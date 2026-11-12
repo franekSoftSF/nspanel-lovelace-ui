@@ -82,7 +82,14 @@ gdy plik jest błędny, żeby można go było w nim poprawić.
   przepływ energii, odtwarzacz, termostat, alarm i odblokowanie (PIN).
 - **Karty:** dodawanie (wybór typu), duplikowanie, usuwanie (z potwierdzeniem), zmiana kolejności
   przeciąganiem albo strzałkami (klawiatura: Alt+↑ / Alt+↓). Encje karty tak samo; pola encji podpowiadają
-  encje z Home Assistant, pola ikon – ikony z czcionki panelu (MDI 7), z podglądem.
+  encje z Home Assistant.
+- **Ikony:** każde pole ikony pokazuje ikonę, którą pokaże panel. Kliknięcie otwiera galerię ikon z
+  czcionki panelu (MDI 7.4.47): wyszukiwanie po nazwie i aliasie (działają też polskie słowa, np.
+  *lampa*), sugestie dla encji, ostatnio używane, kategorie MDI; strzałki i Enter, na telefonie na cały
+  ekran. Nazwę nadal można wpisać – pod polem pojawiają się podpowiedzi z podglądem. Puste pole pokazuje
+  **ikonę domyślną** (przerywana ramka, „Domyślna: …”), którą integracja dobiera według domeny, stanu i
+  klasy urządzenia; *Użyj domyślnej* czyści pole. Nazwa, której nie ma w czcionce, daje ostrzeżenie
+  (panel pokazałby `alert-circle-outline`).
 - **Walidacja w trakcie pisania**, według tych samych reguł, których integracja używa przy wczytywaniu
   pliku: błędy pojawiają się przy polu (i na liście *Problemy* z odnośnikiem do pola) i blokują zapis;
   encja, której nie ma w Home Assistant albo jest innego typu, to tylko ostrzeżenie.
@@ -125,7 +132,7 @@ Diagnostyka do zgłoszenia błędu: Ustawienia → Urządzenia i usługi → NSP
 
 ## Różnice względem dodatku
 
-- Brak edytora www: edytuj `panels.yaml` bezpośrednio (edytor dodatku nadal może przygotować plik).
+- Edytor kart jest w menu bocznym Home Assistant (*Edytor kart* wyżej), a nie w dodatku.
 - Jeden wpis integracji steruje wszystkimi panelami (`single_config_entry`).
 - Domyślna `timeZone` to strefa czasowa Home Assistant zamiast `Europe/Berlin`.
 
@@ -158,6 +165,14 @@ wgrywać go encją aktualizacji **Firmware ekranu** każdego panelu. Budowa firm
 wydanie i instalacja pakietu: [HMI/FIRMWARE.pl.md](HMI/FIRMWARE.pl.md).
 
 ## Historia zmian
+
+### 5.2.6
+- **Edytor kart – wybór ikon:** galeria ikon panelu (wyszukiwanie po nazwie i aliasie, polskie słowa,
+  sugestie dla encji, ostatnio używane, kategorie, klawiatura, układ na telefon), podgląd przy każdym
+  polu ikony, **ikona domyślna** encji przy pustym polu, podpowiedzi z podglądem przy wpisywaniu.
+  Zastępuje nieczytelny obrazek obok nazwy.
+- Nieznane nazwy ikon (których nie ma w czcionce panelu) dają ostrzeżenie przy polu zamiast cichego
+  `alert-circle-outline` na panelu.
 
 ### 5.2.5
 - **Edytor kart** w menu bocznym (administratorzy): formularze dla każdego typu karty, walidacja na

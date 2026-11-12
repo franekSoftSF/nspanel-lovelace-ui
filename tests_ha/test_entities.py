@@ -102,7 +102,8 @@ async def test_notify_action_popup_returns_to_the_card(hass: HomeAssistant, mqtt
     await hass.services.async_call(DOMAIN, "notify", {
         "message": "Pralka skończyła", "title": "Pranie", "mode": "popup", "timeout": 30, "buzzer": True},
         blocking=True)
-    await wait_for(hass, lambda: "pageType~popupNotify" in published(mqtt_mock)[count:])
+    await wait_for(hass, lambda: "pageType~popupNotify" in published(mqtt_mock)[count:] and any(
+        p.startswith("entityUpdateDetail~nspanelNotify") for p in published(mqtt_mock)[count:]))
     detail = next(p for p in published(mqtt_mock)[count:] if p.startswith("entityUpdateDetail~nspanelNotify"))
     assert detail.split("~")[2] == "Pranie" and detail.split("~")[8] == "Pralka skończyła"
     assert detail.endswith("~30")

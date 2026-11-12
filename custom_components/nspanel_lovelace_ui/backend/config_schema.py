@@ -213,7 +213,19 @@ MESSAGES = {
     "items_empty": L("This card shows nothing without entities.", "Bez encji ta karta nic nie pokaże."),
     "color": L("Use [r, g, b], #rrggbb or a number.", "Użyj [r, g, b], #rrggbb albo liczby."),
     "firmware_url": L("Must be an http:// URL without spaces or ;.", "Musi być adresem http:// bez spacji i ;."),
+    "icon_unknown": L("{icon} is not in the panel icon font (MDI 7.4.47); the panel shows alert-circle-outline.",
+                      "Ikony {icon} nie ma w foncie panelu (MDI 7.4.47); panel pokaże alert-circle-outline."),
 }
+
+ICON_PREFIXES = ("ha:", "text:")  # templates and plain text are not font icons
+
+
+def icon_known(value: str) -> bool:
+    """True if the panel font has this icon (mdi:name or name), or the value is not an icon name."""
+    from .libs.icon_mapping import icons
+
+    text = value.strip()
+    return not text or text.startswith(ICON_PREFIXES) or text.removeprefix("mdi:") in icons
 
 
 def schema_json() -> dict[str, Any]:
@@ -261,8 +273,11 @@ class _Checker:
                 self.add(path, "required")
             return
         if kind in ("string", "template", "navigate", "icon"):
-            if kind == "icon" and isinstance(value, dict):
-                return  # state -> icon map
+            if kind == "icon" and isinstance(value, dict):  # state -> icon map
+                for state, icon in value.items():
+                    if isinstance(icon, str) and not icon_known(icon):
+                        self.add([*path, state], "icon_unknown", "warning", icon=icon)
+                return
             if isinstance(value, (dict, list)) or (kind in ("navigate", "icon") and not isinstance(value, str)):
                 self.add(path, "type_string")
                 return
@@ -271,6 +286,8 @@ class _Checker:
                 self.add(path, "required")
             if spec.get("pattern") and not re.match(spec["pattern"], text):
                 self.add(path, "pattern")
+            if kind == "icon" and not icon_known(text):
+                self.add(path, "icon_unknown", "warning", icon=text)
         elif kind == "int":
             if type(value) is not int:
                 self.add(path, "type_int")

@@ -82,7 +82,14 @@ is broken, so you can fix it there.
   flow, media player, thermostat, alarm and unlock (PIN).
 - **Cards:** add (choose the type), duplicate, delete (with a confirmation), reorder by dragging or with
   the arrow buttons (keyboard: Alt+↑ / Alt+↓). Entities of a card the same way; entity fields suggest
-  your Home Assistant entities, icon fields the icons the panel font contains (MDI 7), with a preview.
+  your Home Assistant entities.
+- **Icons:** every icon field shows the icon the panel will show. Click it to choose from a gallery of
+  the icons the panel font contains (MDI 7.4.47): search by name or alias (Polish words like *lampa* work
+  too), suggestions for the entity, recently used, MDI categories; arrow keys and Enter, full screen on a
+  phone. You can still type the name – suggestions with a preview appear under the field. An empty field
+  shows the **default icon** (dashed, “Default: …”), the one the integration picks from the domain,
+  state and device class; *Use the default* clears the field. A name the font does not have is a warning
+  (the panel would show `alert-circle-outline`).
 - **Validation while you type**, from the same rules the integration uses when it loads the file:
   errors appear at the field (and in the *Problems* list with a link to the field) and block saving;
   an entity that does not exist in Home Assistant, or of an unexpected type, is only a warning.
@@ -125,7 +132,7 @@ Diagnostics for a bug report: Settings → Devices & services → NSPanel Lovela
 
 ## Known differences from the add-on
 
-- No web editor (edit `panels.yaml` directly; the add-on's editor can still be used to produce the file).
+- The card editor is in the Home Assistant sidebar (*Card editor* above), not in an add-on.
 - One integration entry controls all panels (`single_config_entry`).
 - `timeZone` defaults to Home Assistant's time zone instead of `Europe/Berlin`.
 
@@ -158,6 +165,14 @@ and flash it with the **Display firmware** update entity of each panel. Building
 MDI 7 icon fonts, publishing it and installing the package: [HMI/FIRMWARE.md](HMI/FIRMWARE.md).
 
 ## Changelog
+
+### 5.2.6
+- **Card editor – icon picker:** a gallery of the panel's icons (search by name and alias, Polish
+  words, suggestions for the entity, recently used, categories, keyboard, phone layout), a preview at
+  every icon field, the **default icon** of the entity when the field is empty, suggestions with a
+  preview while typing. Replaces the hard-to-read icon placeholder next to the name.
+- Unknown icon names (not in the panel font) are a warning at the field instead of a silent
+  `alert-circle-outline` on the panel.
 
 ### 5.2.5
 - **Card editor** in the sidebar (administrators): forms for every card type, live validation at the
